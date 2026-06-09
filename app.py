@@ -15,172 +15,202 @@ st.set_page_config(
 )
 
 # ============================================================
-# DESIGN SYSTEM - DEKA INSIGHT STYLE
+# COLOR PALETTE
 # ============================================================
 
-DEKA_NAVY = "#0B1026"
-DEKA_BLUE = "#1E2A4A"
-DEKA_GOLD = "#F2A93B"
-DEKA_CREAM = "#FAF8F2"
-DEKA_GREY = "#EEF0F4"
-DEKA_TEXT = "#222638"
-DEKA_MUTED = "#6B7280"
+NAVY = "#0B1026"
+BLUE = "#1E2A4A"
+GOLD = "#F2A93B"
+CREAM = "#FAF8F2"
+CARD = "#FFFFFF"
+SOFT = "#F4EFE7"
+GREY = "#737A8C"
+LINE = "#E7E0D6"
+RED = "#EF5A50"
+
+# ============================================================
+# GLOBAL CSS
+# ============================================================
 
 st.markdown(
     f"""
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
         html, body, [class*="css"] {{
             font-family: 'Inter', sans-serif;
         }}
 
         .stApp {{
-            background: {DEKA_CREAM};
+            background:
+                radial-gradient(circle at 12% 8%, rgba(242,169,59,0.10), transparent 22%),
+                linear-gradient(180deg, #FFFCF7 0%, {CREAM} 100%);
+            color: {NAVY};
+        }}
+
+        .main .block-container {{
+            max-width: 1450px;
+            padding-top: 2.2rem;
+            padding-bottom: 5rem;
         }}
 
         section[data-testid="stSidebar"] {{
             background: #FFFFFF;
-            border-right: 1px solid #E5E7EB;
+            border-right: 1px solid #ECE7DD;
         }}
 
-        .main .block-container {{
-            padding-top: 2.2rem;
-            padding-bottom: 4rem;
-            max-width: 1400px;
+        section[data-testid="stSidebar"] h2,
+        section[data-testid="stSidebar"] h3 {{
+            color: {NAVY};
+            font-weight: 900;
         }}
 
-        .hero-card {{
+        .hero {{
             background:
-                radial-gradient(circle at 10% 10%, rgba(242,169,59,0.13), transparent 24%),
-                linear-gradient(135deg, #FFFFFF 0%, #FBF7EF 100%);
-            border: 1px solid #EFE6D6;
-            border-radius: 28px;
-            padding: 34px 38px;
-            margin-bottom: 26px;
-            box-shadow: 0 16px 40px rgba(11,16,38,0.08);
+                radial-gradient(circle at top left, rgba(242,169,59,0.18), transparent 28%),
+                linear-gradient(135deg, #FFFFFF 0%, #FFF9EE 100%);
+            border: 1px solid #EFE1CB;
+            border-radius: 30px;
+            padding: 36px 42px;
+            box-shadow: 0 24px 58px rgba(11,16,38,0.08);
+            margin-bottom: 34px;
         }}
 
-        .hero-eyebrow {{
-            color: {DEKA_GOLD};
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            font-size: 0.82rem;
+        .eyebrow {{
+            font-size: 0.78rem;
+            letter-spacing: 0.13em;
+            color: {GOLD};
+            font-weight: 900;
             text-transform: uppercase;
-            margin-bottom: 10px;
-        }}
-
-        .hero-title {{
-            color: {DEKA_NAVY};
-            font-size: 2.5rem;
-            line-height: 1.05;
-            font-weight: 800;
             margin-bottom: 12px;
         }}
 
-        .hero-subtitle {{
-            color: {DEKA_BLUE};
-            font-size: 1.05rem;
-            line-height: 1.65;
+        .hero-title {{
+            font-size: 2.65rem;
+            line-height: 1.02;
+            color: {NAVY};
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            margin-bottom: 14px;
+        }}
+
+        .hero-copy {{
+            font-size: 1.02rem;
+            line-height: 1.7;
+            color: {BLUE};
             max-width: 880px;
         }}
 
         .section-title {{
-            color: {DEKA_NAVY};
-            font-size: 1.45rem;
-            font-weight: 800;
-            margin-top: 8px;
-            margin-bottom: 12px;
+            color: {NAVY};
+            font-size: 1.55rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            margin: 8px 0 6px 0;
         }}
 
-        .section-caption {{
-            color: {DEKA_MUTED};
-            font-size: 0.94rem;
-            margin-bottom: 14px;
+        .section-subtitle {{
+            color: {GREY};
+            font-size: 0.96rem;
+            margin-bottom: 18px;
         }}
 
         .metric-card {{
-            background: #FFFFFF;
-            border: 1px solid #E8E2D8;
+            background: {CARD};
+            border: 1px solid {LINE};
             border-radius: 22px;
             padding: 22px 22px;
-            min-height: 130px;
-            box-shadow: 0 12px 28px rgba(11,16,38,0.06);
+            box-shadow: 0 14px 32px rgba(11,16,38,0.06);
+            height: 145px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }}
 
         .metric-label {{
-            color: {DEKA_MUTED};
-            font-size: 0.82rem;
-            font-weight: 700;
+            font-size: 0.76rem;
+            color: {GREY};
+            font-weight: 900;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
-            margin-bottom: 8px;
         }}
 
         .metric-value {{
-            color: {DEKA_NAVY};
-            font-size: 2rem;
-            font-weight: 800;
-            line-height: 1.1;
+            color: {NAVY};
+            font-size: 2.05rem;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 1;
         }}
 
-        .metric-help {{
-            color: {DEKA_MUTED};
-            font-size: 0.82rem;
-            margin-top: 8px;
+        .metric-note {{
+            color: {GREY};
+            font-size: 0.80rem;
+            line-height: 1.35;
         }}
 
         .insight-card {{
-            background: #FFFFFF;
-            border-left: 6px solid {DEKA_GOLD};
-            border-radius: 18px;
-            padding: 18px 20px;
-            box-shadow: 0 10px 22px rgba(11,16,38,0.05);
-            margin-bottom: 12px;
+            background: {CARD};
+            border: 1px solid {LINE};
+            border-left: 7px solid {GOLD};
+            border-radius: 22px;
+            padding: 22px 24px;
+            box-shadow: 0 16px 34px rgba(11,16,38,0.06);
+            min-height: 150px;
         }}
 
         .insight-title {{
-            color: {DEKA_NAVY};
-            font-weight: 800;
-            font-size: 1rem;
-            margin-bottom: 6px;
+            color: {NAVY};
+            font-size: 1.05rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
         }}
 
-        .insight-text {{
-            color: {DEKA_BLUE};
-            font-size: 0.94rem;
+        .insight-copy {{
+            color: {BLUE};
+            font-size: 0.98rem;
             line-height: 1.55;
         }}
 
-        div[data-testid="stDataFrame"] {{
-            border-radius: 18px;
-            overflow: hidden;
-            border: 1px solid #E5E7EB;
+        .pill {{
+            display: inline-block;
+            background: rgba(242,169,59,0.16);
+            color: {NAVY};
+            border: 1px solid rgba(242,169,59,0.35);
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            margin-right: 6px;
         }}
 
-        .stButton > button {{
-            background: {DEKA_NAVY};
-            color: white;
-            border-radius: 999px;
-            border: none;
-            padding: 0.65rem 1.2rem;
-            font-weight: 700;
+        div[data-testid="stDataFrame"] {{
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid {LINE};
+            box-shadow: 0 14px 34px rgba(11,16,38,0.05);
         }}
 
         .stDownloadButton > button {{
-            background: {DEKA_GOLD};
-            color: {DEKA_NAVY};
-            border-radius: 999px;
+            background: {GOLD};
+            color: {NAVY};
             border: none;
-            padding: 0.65rem 1.2rem;
-            font-weight: 800;
+            border-radius: 999px;
+            padding: 0.72rem 1.25rem;
+            font-weight: 900;
         }}
 
         hr {{
             border: none;
             height: 1px;
-            background: #E5E7EB;
-            margin: 28px 0;
+            background: {LINE};
+            margin: 34px 0;
+        }}
+
+        .small-note {{
+            color: {GREY};
+            font-size: 0.86rem;
         }}
     </style>
     """,
@@ -188,7 +218,7 @@ st.markdown(
 )
 
 # ============================================================
-# DATABASE CONNECTION
+# DATABASE
 # ============================================================
 
 @st.cache_resource
@@ -206,18 +236,15 @@ def get_engine():
 @st.cache_data(ttl=600)
 def load_data():
     engine = get_engine()
-    query = "SELECT * FROM norm_value_all"
-    df = pd.read_sql(query, engine)
-    return df
+    return pd.read_sql("SELECT * FROM norm_value_all", engine)
 
 
 df = load_data()
 
 # ============================================================
-# DATA PREPARATION
+# CLEAN DATA FOR DASHBOARD
 # ============================================================
 
-# Convert numeric columns safely
 numeric_cols = [
     "scale", "mean_score", "tb_pct", "t2b_pct", "t3b_pct",
     "base", "min_score", "max_score", "std_score"
@@ -227,86 +254,65 @@ for col in numeric_cols:
     if col in df.columns:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
-# Replace string None / nan style values
 for col in df.columns:
     if df[col].dtype == "object":
-        df[col] = df[col].replace(["None", "nan", "NaN", ""], pd.NA)
+        df[col] = df[col].replace(["None", "nan", "NaN", "", "NULL"], pd.NA)
 
-# Grade order
 grade_order = ["Top 25%", "Average 50%", "Bottom 25%"]
-df["norm_grade"] = pd.Categorical(
-    df["norm_grade"],
-    categories=grade_order,
-    ordered=True
-)
+df["norm_grade"] = pd.Categorical(df["norm_grade"], categories=grade_order, ordered=True)
 
 # ============================================================
-# SIDEBAR FILTERS
+# SIDEBAR
 # ============================================================
 
 st.sidebar.markdown("## Filters")
-st.sidebar.caption("Gunakan filter untuk melihat norm berdasarkan segmentasi data.")
+st.sidebar.caption("Choose a segment, then narrow the norm set.")
 
 slice_options = sorted(df["slice_type"].dropna().unique().tolist())
 default_slice = "Global" if "Global" in slice_options else slice_options[0]
 
 selected_slice = st.sidebar.selectbox(
-    "Slice Type",
+    "View by",
     slice_options,
     index=slice_options.index(default_slice)
 )
 
 filtered = df[df["slice_type"] == selected_slice].copy()
 
-# Dynamic slice value filters
 slice_columns = selected_slice.split(" | ") if selected_slice != "Global" else []
 slice_columns = [c for c in slice_columns if c in filtered.columns]
 
 for col in slice_columns:
-    options = sorted(filtered[col].dropna().astype(str).unique().tolist())
-
-    if len(options) > 0:
-        selected_values = st.sidebar.multiselect(
+    values = sorted(filtered[col].dropna().astype(str).unique().tolist())
+    if values:
+        chosen = st.sidebar.multiselect(
             col.replace("_", " ").title(),
-            options,
+            values,
             default=[]
         )
+        if chosen:
+            filtered = filtered[filtered[col].astype(str).isin(chosen)]
 
-        if selected_values:
-            filtered = filtered[filtered[col].astype(str).isin(selected_values)]
+parameters = sorted(filtered["parameter_name"].dropna().unique().tolist())
+chosen_params = st.sidebar.multiselect("Parameter", parameters, default=[])
 
-parameter_options = sorted(filtered["parameter_name"].dropna().unique().tolist())
-selected_parameters = st.sidebar.multiselect(
-    "Parameter",
-    parameter_options,
-    default=[]
-)
+if chosen_params:
+    filtered = filtered[filtered["parameter_name"].isin(chosen_params)]
 
-if selected_parameters:
-    filtered = filtered[filtered["parameter_name"].isin(selected_parameters)]
+scales = sorted(filtered["scale"].dropna().unique().tolist())
+chosen_scales = st.sidebar.multiselect("Scale", scales, default=scales)
 
-scale_options = sorted(filtered["scale"].dropna().unique().tolist())
-selected_scales = st.sidebar.multiselect(
-    "Scale",
-    scale_options,
-    default=scale_options
-)
+if chosen_scales:
+    filtered = filtered[filtered["scale"].isin(chosen_scales)]
 
-if selected_scales:
-    filtered = filtered[filtered["scale"].isin(selected_scales)]
+grades = [g for g in grade_order if g in filtered["norm_grade"].dropna().astype(str).unique()]
+chosen_grades = st.sidebar.multiselect("Norm group", grades, default=grades)
 
-grade_options = [g for g in grade_order if g in filtered["norm_grade"].dropna().astype(str).unique()]
-selected_grades = st.sidebar.multiselect(
-    "Norm Grade",
-    grade_options,
-    default=grade_options
-)
-
-if selected_grades:
-    filtered = filtered[filtered["norm_grade"].astype(str).isin(selected_grades)]
+if chosen_grades:
+    filtered = filtered[filtered["norm_grade"].astype(str).isin(chosen_grades)]
 
 min_base = st.sidebar.number_input(
-    "Minimum Base",
+    "Minimum base",
     min_value=0,
     value=10,
     step=10
@@ -314,19 +320,21 @@ min_base = st.sidebar.number_input(
 
 filtered = filtered[filtered["base"] >= min_base].copy()
 
-metric_view = st.sidebar.selectbox(
-    "Main Metric",
-    ["mean_score", "tb_pct", "t2b_pct", "t3b_pct"],
-    index=0
-)
+metric_options = {
+    "Mean Score": "mean_score",
+    "Top Box": "tb_pct",
+    "Top 2 Boxes": "t2b_pct",
+    "Top 3 Boxes": "t3b_pct"
+}
 
-top_n = st.sidebar.slider(
-    "Top N Parameter",
-    min_value=5,
-    max_value=30,
-    value=12,
-    step=1
-)
+metric_label = st.sidebar.selectbox("Focus metric", list(metric_options.keys()))
+metric_col = metric_options[metric_label]
+
+top_n = st.sidebar.slider("Show top parameters", 5, 25, 12)
+
+if filtered.empty:
+    st.warning("No data found for this filter set. Try lowering the minimum base or changing the segment.")
+    st.stop()
 
 # ============================================================
 # HERO
@@ -334,13 +342,12 @@ top_n = st.sidebar.slider(
 
 st.markdown(
     """
-    <div class="hero-card">
-        <div class="hero-eyebrow">Deka Insight • Norm Database</div>
-        <div class="hero-title">Survey Norm Intelligence Dashboard</div>
-        <div class="hero-subtitle">
-            Dashboard ini membantu membandingkan performa atribut survey terhadap historical norm.
-            Output mencakup <b>Top 25%</b>, <b>Average 50%</b>, <b>Bottom 25%</b>, 
-            serta metrik <b>Mean Score</b>, <b>Top Box</b>, <b>Top 2 Boxes</b>, dan <b>Top 3 Boxes</b>.
+    <div class="hero">
+        <div class="eyebrow">Deka Insight • Norm Database</div>
+        <div class="hero-title">Survey Norm Intelligence</div>
+        <div class="hero-copy">
+            A fast way to read survey performance against historical norms. 
+            Compare attributes by segment, scale, and norm group — from Top 25% to Bottom 25%.
         </div>
     </div>
     """,
@@ -348,111 +355,100 @@ st.markdown(
 )
 
 # ============================================================
-# EMPTY STATE
+# KPI
 # ============================================================
 
-if filtered.empty:
-    st.warning("Tidak ada data untuk kombinasi filter yang dipilih. Coba turunkan Minimum Base atau ubah filter.")
-    st.stop()
-
-# ============================================================
-# KPI CALCULATION
-# ============================================================
-
-total_rows = len(filtered)
 total_base = int(filtered["base"].sum())
 avg_mean = filtered["mean_score"].mean()
 avg_tb = filtered["tb_pct"].mean()
 avg_t2b = filtered["t2b_pct"].mean()
 avg_t3b = filtered["t3b_pct"].mean(skipna=True)
 
-top_grade_df = filtered[filtered["norm_grade"].astype(str) == "Top 25%"].copy()
-bottom_grade_df = filtered[filtered["norm_grade"].astype(str) == "Bottom 25%"].copy()
-
-best_row = filtered.sort_values(metric_view, ascending=False).head(1)
-weak_row = filtered.sort_values(metric_view, ascending=True).head(1)
-
-# ============================================================
-# KPI CARDS
-# ============================================================
-
-st.markdown('<div class="section-title">Executive Summary</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Norm Snapshot</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-caption">Ringkasan performa norm berdasarkan filter yang sedang dipilih.</div>',
+    '<div class="section-subtitle">A quick read of the selected norm universe.</div>',
     unsafe_allow_html=True
 )
 
-c1, c2, c3, c4, c5 = st.columns(5)
+k1, k2, k3, k4, k5 = st.columns(5)
 
-def metric_card(container, label, value, help_text):
-    container.markdown(
+def render_metric(col, label, value, note):
+    col.markdown(
         f"""
         <div class="metric-card">
             <div class="metric-label">{label}</div>
             <div class="metric-value">{value}</div>
-            <div class="metric-help">{help_text}</div>
+            <div class="metric-note">{note}</div>
         </div>
         """,
         unsafe_allow_html=True
     )
 
-metric_card(c1, "Total Base", f"{total_base:,}", "Total respondent base dari hasil filter.")
-metric_card(c2, "Mean Score", f"{avg_mean:.2f}", "Rata-rata skor across selected norm.")
-metric_card(c3, "Avg TB%", f"{avg_tb:.1f}%", "Rata-rata Top Box.")
-metric_card(c4, "Avg T2B%", f"{avg_t2b:.1f}%", "Rata-rata Top 2 Boxes.")
-metric_card(c5, "Avg T3B%", "-" if pd.isna(avg_t3b) else f"{avg_t3b:.1f}%", "Top 3 Boxes untuk scale ≥ 7.")
+render_metric(k1, "Base", f"{total_base:,}", "Total responses")
+render_metric(k2, "Mean", f"{avg_mean:.2f}", "Average score")
+render_metric(k3, "TB", f"{avg_tb:.1f}%", "Top Box")
+render_metric(k4, "T2B", f"{avg_t2b:.1f}%", "Top 2 Boxes")
+render_metric(k5, "T3B", "-" if pd.isna(avg_t3b) else f"{avg_t3b:.1f}%", "Scale 7+")
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # ============================================================
-# INSIGHT CARDS
+# INSIGHTS
 # ============================================================
 
-st.markdown('<div class="section-title">Key Insights</div>', unsafe_allow_html=True)
+rank_df = filtered.dropna(subset=[metric_col]).copy()
+best = rank_df.sort_values(metric_col, ascending=False).head(1)
+weak = rank_df.sort_values(metric_col, ascending=True).head(1)
+
+st.markdown('<div class="section-title">What stands out</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-caption">Insight otomatis berdasarkan metrik utama yang dipilih.</div>',
+    '<div class="section-subtitle">Short reads to guide the next discussion.</div>',
     unsafe_allow_html=True
 )
 
 i1, i2, i3 = st.columns(3)
 
-if not best_row.empty:
-    r = best_row.iloc[0]
+if not best.empty:
+    r = best.iloc[0]
     i1.markdown(
         f"""
         <div class="insight-card">
-            <div class="insight-title">Strongest Attribute</div>
-            <div class="insight-text">
-                <b>{r['parameter_name']}</b> memiliki nilai <b>{metric_view}</b> tertinggi 
-                sebesar <b>{r[metric_view]:.2f}</b> pada norm <b>{r['norm_grade']}</b>.
+            <div class="insight-title">Best performer</div>
+            <div class="insight-copy">
+                <span class="pill">{r['norm_grade']}</span><br><br>
+                <b>{r['parameter_name']}</b><br>
+                leads on <b>{metric_label}</b> at <b>{r[metric_col]:.2f}</b>.
             </div>
         </div>
         """,
         unsafe_allow_html=True
     )
 
-if not weak_row.empty:
-    r = weak_row.iloc[0]
+if not weak.empty:
+    r = weak.iloc[0]
     i2.markdown(
         f"""
         <div class="insight-card">
-            <div class="insight-title">Improvement Area</div>
-            <div class="insight-text">
-                <b>{r['parameter_name']}</b> menjadi area yang perlu diperhatikan karena 
-                memiliki <b>{metric_view}</b> terendah sebesar <b>{r[metric_view]:.2f}</b>.
+            <div class="insight-title">Watch-out area</div>
+            <div class="insight-copy">
+                <span class="pill">{r['norm_grade']}</span><br><br>
+                <b>{r['parameter_name']}</b><br>
+                trails on <b>{metric_label}</b> at <b>{r[metric_col]:.2f}</b>.
             </div>
         </div>
         """,
         unsafe_allow_html=True
     )
 
+segment_text = selected_slice.replace("_", " ").title()
 i3.markdown(
     f"""
     <div class="insight-card">
-        <div class="insight-title">Selected Segment</div>
-        <div class="insight-text">
-            Dashboard sedang menampilkan slice <b>{selected_slice}</b> dengan 
-            <b>{total_rows:,}</b> baris norm value dan minimum base <b>{min_base}</b>.
+        <div class="insight-title">Current cut</div>
+        <div class="insight-copy">
+            <span class="pill">{segment_text}</span><br><br>
+            <b>{len(filtered):,}</b> norm rows<br>
+            minimum base <b>{min_base}</b>.
         </div>
     </div>
     """,
@@ -462,14 +458,12 @@ i3.markdown(
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # ============================================================
-# CHART DATA
+# CHARTS
 # ============================================================
 
-chart_df = filtered.copy()
-
-# For chart readability, aggregate by parameter + norm grade
-chart_summary = (
-    chart_df
+chart_df = (
+    filtered
+    .dropna(subset=[metric_col])
     .groupby(["parameter_name", "scale", "norm_grade"], observed=False, dropna=False)
     .agg(
         mean_score=("mean_score", "mean"),
@@ -481,94 +475,84 @@ chart_summary = (
     .reset_index()
 )
 
-chart_summary = chart_summary.dropna(subset=[metric_view])
-chart_summary = chart_summary.sort_values(metric_view, ascending=False).head(top_n * 3)
+chart_df = chart_df.sort_values(metric_col, ascending=False).head(top_n * 3)
 
-# ============================================================
-# CHARTS
-# ============================================================
-
-left, right = st.columns([1.25, 1])
+left, right = st.columns([1.35, 1])
 
 with left:
-    st.markdown('<div class="section-title">Parameter Performance Ranking</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Attribute ranking</div>', unsafe_allow_html=True)
     st.markdown(
-        f'<div class="section-caption">Ranking parameter berdasarkan <b>{metric_view}</b>.</div>',
+        f'<div class="section-subtitle">Top attributes by {metric_label}.</div>',
         unsafe_allow_html=True
     )
 
     fig = px.bar(
-        chart_summary,
-        x=metric_view,
+        chart_df,
+        x=metric_col,
         y="parameter_name",
         color="norm_grade",
         orientation="h",
         hover_data=["scale", "base", "mean_score", "tb_pct", "t2b_pct", "t3b_pct"],
         color_discrete_map={
-            "Top 25%": DEKA_GOLD,
-            "Average 50%": DEKA_BLUE,
-            "Bottom 25%": "#A7B0C0"
+            "Top 25%": GOLD,
+            "Average 50%": BLUE,
+            "Bottom 25%": "#C8BFB2"
         }
     )
 
     fig.update_layout(
-        height=560,
-        plot_bgcolor=DEKA_CREAM,
-        paper_bgcolor=DEKA_CREAM,
-        font=dict(color=DEKA_TEXT),
-        legend_title_text="Norm Grade",
-        xaxis_title=metric_view.replace("_", " ").upper(),
+        height=540,
+        plot_bgcolor=CREAM,
+        paper_bgcolor=CREAM,
+        font=dict(color=NAVY, size=13),
+        legend_title_text="",
+        xaxis_title=metric_label,
         yaxis_title="",
-        margin=dict(l=10, r=10, t=20, b=20)
+        margin=dict(l=0, r=10, t=10, b=10)
     )
 
     fig.update_yaxes(autorange="reversed")
     st.plotly_chart(fig, use_container_width=True)
 
 with right:
-    st.markdown('<div class="section-title">Norm Grade Comparison</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Norm group read</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="section-caption">Perbandingan rata-rata metric antar norm grade.</div>',
+        f'<div class="section-subtitle">Average {metric_label} by norm group.</div>',
         unsafe_allow_html=True
     )
 
-    grade_summary = (
+    grade_df = (
         filtered
+        .dropna(subset=[metric_col])
         .groupby("norm_grade", observed=False)
-        .agg(
-            mean_score=("mean_score", "mean"),
-            tb_pct=("tb_pct", "mean"),
-            t2b_pct=("t2b_pct", "mean"),
-            t3b_pct=("t3b_pct", "mean"),
-            base=("base", "sum")
-        )
+        .agg(value=(metric_col, "mean"), base=("base", "sum"))
         .reset_index()
     )
 
     fig2 = px.bar(
-        grade_summary,
+        grade_df,
         x="norm_grade",
-        y=metric_view,
+        y="value",
         color="norm_grade",
-        text=metric_view,
+        text="value",
         color_discrete_map={
-            "Top 25%": DEKA_GOLD,
-            "Average 50%": DEKA_BLUE,
-            "Bottom 25%": "#A7B0C0"
+            "Top 25%": GOLD,
+            "Average 50%": BLUE,
+            "Bottom 25%": "#C8BFB2"
         }
     )
 
     fig2.update_traces(texttemplate="%{text:.2f}", textposition="outside")
 
     fig2.update_layout(
-        height=560,
-        plot_bgcolor=DEKA_CREAM,
-        paper_bgcolor=DEKA_CREAM,
-        font=dict(color=DEKA_TEXT),
+        height=540,
+        plot_bgcolor=CREAM,
+        paper_bgcolor=CREAM,
+        font=dict(color=NAVY, size=13),
         showlegend=False,
         xaxis_title="",
-        yaxis_title=metric_view.replace("_", " ").upper(),
-        margin=dict(l=10, r=10, t=20, b=20)
+        yaxis_title=metric_label,
+        margin=dict(l=0, r=10, t=10, b=10)
     )
 
     st.plotly_chart(fig2, use_container_width=True)
@@ -579,9 +563,9 @@ st.markdown("<hr>", unsafe_allow_html=True)
 # GAP ANALYSIS
 # ============================================================
 
-st.markdown('<div class="section-title">Top vs Bottom Norm Gap Analysis</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Biggest norm gaps</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-caption">Mengukur jarak performa antara Top 25% dan Bottom 25% untuk menemukan atribut yang paling membedakan.</div>',
+    '<div class="section-subtitle">Attributes with the widest gap between Top 25% and Bottom 25%.</div>',
     unsafe_allow_html=True
 )
 
@@ -590,7 +574,7 @@ gap_source = filtered[filtered["norm_grade"].astype(str).isin(["Top 25%", "Botto
 gap_pivot = gap_source.pivot_table(
     index=["parameter_name", "scale"],
     columns="norm_grade",
-    values=metric_view,
+    values=metric_col,
     aggfunc="mean"
 ).reset_index()
 
@@ -603,41 +587,40 @@ if "Top 25%" in gap_pivot.columns and "Bottom 25%" in gap_pivot.columns:
         x="gap",
         y="parameter_name",
         orientation="h",
-        hover_data=["scale", "Top 25%", "Bottom 25%"],
         color="gap",
-        color_continuous_scale=[[0, "#E8E2D8"], [1, DEKA_GOLD]]
+        color_continuous_scale=[[0, "#EDE6DA"], [1, GOLD]],
+        hover_data=["scale", "Top 25%", "Bottom 25%"]
     )
 
     fig3.update_layout(
-        height=480,
-        plot_bgcolor=DEKA_CREAM,
-        paper_bgcolor=DEKA_CREAM,
-        font=dict(color=DEKA_TEXT),
-        xaxis_title=f"Gap {metric_view}",
+        height=460,
+        plot_bgcolor=CREAM,
+        paper_bgcolor=CREAM,
+        font=dict(color=NAVY, size=13),
+        xaxis_title=f"Gap in {metric_label}",
         yaxis_title="",
         coloraxis_showscale=False,
-        margin=dict(l=10, r=10, t=20, b=20)
+        margin=dict(l=0, r=10, t=10, b=10)
     )
 
     fig3.update_yaxes(autorange="reversed")
     st.plotly_chart(fig3, use_container_width=True)
 else:
-    st.info("Gap analysis membutuhkan Top 25% dan Bottom 25% dalam filter yang dipilih.")
+    st.info("Select both Top 25% and Bottom 25% to see gap analysis.")
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # ============================================================
-# DETAIL TABLE
+# TABLE
 # ============================================================
 
-st.markdown('<div class="section-title">Detailed Norm Value Table</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Norm table</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-caption">Tabel final yang dapat digunakan untuk review, reporting, atau export.</div>',
+    '<div class="section-subtitle">Clean export-ready view for reporting.</div>',
     unsafe_allow_html=True
 )
 
-display_cols = [
-    "slice_type",
+base_cols = [
     "parameter_name",
     "scale",
     "norm_grade",
@@ -649,6 +632,9 @@ display_cols = [
     "min_score",
     "max_score",
     "std_score",
+]
+
+segment_cols = [
     "category",
     "sub_category",
     "detail_product",
@@ -662,12 +648,50 @@ display_cols = [
     "methodology",
     "sub_method",
     "num_of_product",
-    "sequence"
+    "sequence",
 ]
 
-display_cols = [c for c in display_cols if c in filtered.columns]
-table_df = filtered[display_cols].sort_values(
-    ["parameter_name", "scale", "norm_grade"],
+# only show segment columns that actually have values after filtering
+visible_segment_cols = []
+for col in segment_cols:
+    if col in filtered.columns and filtered[col].notna().any():
+        visible_segment_cols.append(col)
+
+display_cols = visible_segment_cols + [c for c in base_cols if c in filtered.columns]
+
+table_df = filtered[display_cols].copy()
+
+rename_cols = {
+    "parameter_name": "Parameter",
+    "scale": "Scale",
+    "norm_grade": "Norm Group",
+    "mean_score": "Mean",
+    "tb_pct": "TB%",
+    "t2b_pct": "T2B%",
+    "t3b_pct": "T3B%",
+    "base": "Base",
+    "min_score": "Min",
+    "max_score": "Max",
+    "std_score": "Std",
+    "category": "Category",
+    "sub_category": "Sub Category",
+    "detail_product": "Detail Product",
+    "gender": "Gender",
+    "age_group": "Age Group",
+    "actual_age": "Age",
+    "ses": "SES",
+    "occupation": "Occupation",
+    "type_of_study": "Type of Study",
+    "test_type": "Test Type",
+    "methodology": "Methodology",
+    "sub_method": "Sub Method",
+    "num_of_product": "# Product",
+    "sequence": "Sequence",
+}
+
+table_df = table_df.rename(columns=rename_cols)
+table_df = table_df.sort_values(
+    ["Parameter", "Scale", "Norm Group"],
     ascending=[True, True, True]
 )
 
@@ -680,16 +704,17 @@ st.dataframe(
 csv = table_df.to_csv(index=False).encode("utf-8")
 
 st.download_button(
-    label="Download Filtered Norm Value CSV",
-    data=csv,
-    file_name="filtered_deka_norm_value.csv",
-    mime="text/csv"
+    "Download CSV",
+    csv,
+    "deka_norm_filtered.csv",
+    "text/csv"
 )
 
-# ============================================================
-# FOOTER
-# ============================================================
-
-st.caption(
-    "Built with Python, PostgreSQL/Supabase, and Streamlit • Norm calculation: Top 25%, Average 50%, Bottom 25% by ranked respondent score."
+st.markdown(
+    f"""
+    <p class="small-note">
+        Built from ranked respondent-level survey data. Norm groups are calculated as Top 25%, Average 50%, and Bottom 25% within each parameter and scale.
+    </p>
+    """,
+    unsafe_allow_html=True
 )
