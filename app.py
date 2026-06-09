@@ -10,12 +10,13 @@ from urllib.parse import quote_plus
 
 st.set_page_config(
     page_title="Deka Norm Dashboard",
-    page_icon="📊",
+    page_icon="🟡",
     layout="wide"
 )
 
 # ============================================================
 # COLOR PALETTE
+# Inspired by Deka Insight website
 # ============================================================
 
 NAVY = "#0B1026"
@@ -24,12 +25,12 @@ GOLD = "#F2A93B"
 CREAM = "#FAF8F2"
 CARD = "#FFFFFF"
 SOFT = "#F4EFE7"
-GREY = "#737A8C"
+GREY = "#747B8D"
 LINE = "#E7E0D6"
-RED = "#EF5A50"
+MUTED_GOLD = "#F7D9A2"
 
 # ============================================================
-# GLOBAL CSS
+# GLOBAL STYLE
 # ============================================================
 
 st.markdown(
@@ -50,7 +51,7 @@ st.markdown(
 
         .main .block-container {{
             max-width: 1450px;
-            padding-top: 2.2rem;
+            padding-top: 2rem;
             padding-bottom: 5rem;
         }}
 
@@ -66,46 +67,67 @@ st.markdown(
         }}
 
         .hero {{
+            position: relative;
             background:
                 radial-gradient(circle at top left, rgba(242,169,59,0.18), transparent 28%),
                 linear-gradient(135deg, #FFFFFF 0%, #FFF9EE 100%);
             border: 1px solid #EFE1CB;
-            border-radius: 30px;
-            padding: 36px 42px;
-            box-shadow: 0 24px 58px rgba(11,16,38,0.08);
-            margin-bottom: 34px;
+            border-radius: 34px;
+            padding: 46px 52px;
+            box-shadow: 0 28px 70px rgba(11,16,38,0.08);
+            margin-bottom: 36px;
+            overflow: hidden;
+        }}
+
+        .hero:after {{
+            content: "";
+            position: absolute;
+            right: -80px;
+            top: -80px;
+            width: 260px;
+            height: 260px;
+            background: rgba(242,169,59,0.10);
+            border-radius: 50%;
         }}
 
         .eyebrow {{
             font-size: 0.78rem;
-            letter-spacing: 0.13em;
+            letter-spacing: 0.14em;
             color: {GOLD};
             font-weight: 900;
             text-transform: uppercase;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }}
 
         .hero-title {{
-            font-size: 2.65rem;
+            font-size: 3.2rem;
             line-height: 1.02;
             color: {NAVY};
             font-weight: 900;
+            letter-spacing: -0.055em;
+            margin-bottom: 18px;
+            max-width: 980px;
+        }}
+
+        .hero-accent {{
+            color: {GOLD};
+            font-style: italic;
+            font-weight: 800;
             letter-spacing: -0.04em;
-            margin-bottom: 14px;
         }}
 
         .hero-copy {{
-            font-size: 1.02rem;
-            line-height: 1.7;
+            font-size: 1.06rem;
+            line-height: 1.75;
             color: {BLUE};
-            max-width: 880px;
+            max-width: 930px;
         }}
 
         .section-title {{
             color: {NAVY};
             font-size: 1.55rem;
             font-weight: 900;
-            letter-spacing: -0.03em;
+            letter-spacing: -0.035em;
             margin: 8px 0 6px 0;
         }}
 
@@ -118,20 +140,20 @@ st.markdown(
         .metric-card {{
             background: {CARD};
             border: 1px solid {LINE};
-            border-radius: 22px;
+            border-radius: 24px;
             padding: 22px 22px;
             box-shadow: 0 14px 32px rgba(11,16,38,0.06);
-            height: 145px;
+            height: 148px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }}
 
         .metric-label {{
-            font-size: 0.76rem;
+            font-size: 0.74rem;
             color: {GREY};
             font-weight: 900;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.09em;
             text-transform: uppercase;
         }}
 
@@ -139,7 +161,7 @@ st.markdown(
             color: {NAVY};
             font-size: 2.05rem;
             font-weight: 900;
-            letter-spacing: -0.04em;
+            letter-spacing: -0.045em;
             line-height: 1;
         }}
 
@@ -153,10 +175,10 @@ st.markdown(
             background: {CARD};
             border: 1px solid {LINE};
             border-left: 7px solid {GOLD};
-            border-radius: 22px;
+            border-radius: 24px;
             padding: 22px 24px;
             box-shadow: 0 16px 34px rgba(11,16,38,0.06);
-            min-height: 150px;
+            min-height: 142px;
         }}
 
         .insight-title {{
@@ -177,12 +199,12 @@ st.markdown(
             display: inline-block;
             background: rgba(242,169,59,0.16);
             color: {NAVY};
-            border: 1px solid rgba(242,169,59,0.35);
+            border: 1px solid rgba(242,169,59,0.36);
             padding: 4px 10px;
             border-radius: 999px;
             font-size: 0.78rem;
             font-weight: 800;
-            margin-right: 6px;
+            margin-bottom: 10px;
         }}
 
         div[data-testid="stDataFrame"] {{
@@ -201,6 +223,12 @@ st.markdown(
             font-weight: 900;
         }}
 
+        .stDownloadButton > button:hover {{
+            background: #E99D2F;
+            color: {NAVY};
+            border: none;
+        }}
+
         hr {{
             border: none;
             height: 1px;
@@ -211,6 +239,7 @@ st.markdown(
         .small-note {{
             color: {GREY};
             font-size: 0.86rem;
+            line-height: 1.5;
         }}
     </style>
     """,
@@ -218,7 +247,7 @@ st.markdown(
 )
 
 # ============================================================
-# DATABASE
+# DATABASE CONNECTION
 # ============================================================
 
 @st.cache_resource
@@ -242,7 +271,7 @@ def load_data():
 df = load_data()
 
 # ============================================================
-# CLEAN DATA FOR DASHBOARD
+# DATA CLEANING FOR DASHBOARD
 # ============================================================
 
 numeric_cols = [
@@ -259,20 +288,25 @@ for col in df.columns:
         df[col] = df[col].replace(["None", "nan", "NaN", "", "NULL"], pd.NA)
 
 grade_order = ["Top 25%", "Average 50%", "Bottom 25%"]
-df["norm_grade"] = pd.Categorical(df["norm_grade"], categories=grade_order, ordered=True)
+
+df["norm_grade"] = pd.Categorical(
+    df["norm_grade"],
+    categories=grade_order,
+    ordered=True
+)
 
 # ============================================================
-# SIDEBAR
+# SIDEBAR FILTERS
 # ============================================================
 
 st.sidebar.markdown("## Filters")
-st.sidebar.caption("Choose a segment, then narrow the norm set.")
+st.sidebar.caption("Choose a segment, then narrow the benchmark.")
 
 slice_options = sorted(df["slice_type"].dropna().unique().tolist())
 default_slice = "Global" if "Global" in slice_options else slice_options[0]
 
 selected_slice = st.sidebar.selectbox(
-    "View by",
+    "Benchmark view",
     slice_options,
     index=slice_options.index(default_slice)
 )
@@ -284,29 +318,47 @@ slice_columns = [c for c in slice_columns if c in filtered.columns]
 
 for col in slice_columns:
     values = sorted(filtered[col].dropna().astype(str).unique().tolist())
+
     if values:
         chosen = st.sidebar.multiselect(
             col.replace("_", " ").title(),
             values,
             default=[]
         )
+
         if chosen:
             filtered = filtered[filtered[col].astype(str).isin(chosen)]
 
 parameters = sorted(filtered["parameter_name"].dropna().unique().tolist())
-chosen_params = st.sidebar.multiselect("Parameter", parameters, default=[])
+chosen_params = st.sidebar.multiselect(
+    "Parameter",
+    parameters,
+    default=[]
+)
 
 if chosen_params:
     filtered = filtered[filtered["parameter_name"].isin(chosen_params)]
 
 scales = sorted(filtered["scale"].dropna().unique().tolist())
-chosen_scales = st.sidebar.multiselect("Scale", scales, default=scales)
+chosen_scales = st.sidebar.multiselect(
+    "Scale",
+    scales,
+    default=scales
+)
 
 if chosen_scales:
     filtered = filtered[filtered["scale"].isin(chosen_scales)]
 
-grades = [g for g in grade_order if g in filtered["norm_grade"].dropna().astype(str).unique()]
-chosen_grades = st.sidebar.multiselect("Norm group", grades, default=grades)
+grades = [
+    g for g in grade_order
+    if g in filtered["norm_grade"].dropna().astype(str).unique()
+]
+
+chosen_grades = st.sidebar.multiselect(
+    "Norm group",
+    grades,
+    default=grades
+)
 
 if chosen_grades:
     filtered = filtered[filtered["norm_grade"].astype(str).isin(chosen_grades)]
@@ -327,13 +379,22 @@ metric_options = {
     "Top 3 Boxes": "t3b_pct"
 }
 
-metric_label = st.sidebar.selectbox("Focus metric", list(metric_options.keys()))
+metric_label = st.sidebar.selectbox(
+    "Focus metric",
+    list(metric_options.keys())
+)
+
 metric_col = metric_options[metric_label]
 
-top_n = st.sidebar.slider("Show top parameters", 5, 25, 12)
+top_n = st.sidebar.slider(
+    "Show top parameters",
+    min_value=5,
+    max_value=25,
+    value=12
+)
 
 if filtered.empty:
-    st.warning("No data found for this filter set. Try lowering the minimum base or changing the segment.")
+    st.warning("No benchmark found for this selection. Try lowering the base or changing the segment.")
     st.stop()
 
 # ============================================================
@@ -343,11 +404,14 @@ if filtered.empty:
 st.markdown(
     """
     <div class="hero">
-        <div class="eyebrow">Deka Insight • Norm Database</div>
-        <div class="hero-title">Survey Norm Intelligence</div>
+        <div class="eyebrow">DEKA INSIGHT • SURVEY NORM DATABASE</div>
+        <div class="hero-title">
+            Know where each score<br>
+            <span class="hero-accent">stands in the market.</span>
+        </div>
         <div class="hero-copy">
-            A fast way to read survey performance against historical norms. 
-            Compare attributes by segment, scale, and norm group — from Top 25% to Bottom 25%.
+            Turn historical survey data into a clear benchmark. Compare every attribute by segment, 
+            scale, and respondent tier — from strong performers to watch-out areas.
         </div>
     </div>
     """,
@@ -355,7 +419,7 @@ st.markdown(
 )
 
 # ============================================================
-# KPI
+# KPI SNAPSHOT
 # ============================================================
 
 total_base = int(filtered["base"].sum())
@@ -364,9 +428,9 @@ avg_tb = filtered["tb_pct"].mean()
 avg_t2b = filtered["t2b_pct"].mean()
 avg_t3b = filtered["t3b_pct"].mean(skipna=True)
 
-st.markdown('<div class="section-title">Norm Snapshot</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Benchmark snapshot</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-subtitle">A quick read of the selected norm universe.</div>',
+    '<div class="section-subtitle">A clean read of the selected norm universe.</div>',
     unsafe_allow_html=True
 )
 
@@ -393,16 +457,17 @@ render_metric(k5, "T3B", "-" if pd.isna(avg_t3b) else f"{avg_t3b:.1f}%", "Scale 
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # ============================================================
-# INSIGHTS
+# SHORT INSIGHTS
 # ============================================================
 
 rank_df = filtered.dropna(subset=[metric_col]).copy()
+
 best = rank_df.sort_values(metric_col, ascending=False).head(1)
 weak = rank_df.sort_values(metric_col, ascending=True).head(1)
 
-st.markdown('<div class="section-title">What stands out</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">What to notice</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-subtitle">Short reads to guide the next discussion.</div>',
+    '<div class="section-subtitle">Three quick signals from the current benchmark.</div>',
     unsafe_allow_html=True
 )
 
@@ -413,11 +478,10 @@ if not best.empty:
     i1.markdown(
         f"""
         <div class="insight-card">
-            <div class="insight-title">Best performer</div>
+            <div class="insight-title">Leading cue</div>
             <div class="insight-copy">
-                <span class="pill">{r['norm_grade']}</span><br><br>
-                <b>{r['parameter_name']}</b><br>
-                leads on <b>{metric_label}</b> at <b>{r[metric_col]:.2f}</b>.
+                <span class="pill">{r['norm_grade']}</span><br>
+                <b>{r['parameter_name']}</b> leads on <b>{metric_label}</b> at <b>{r[metric_col]:.2f}</b>.
             </div>
         </div>
         """,
@@ -429,11 +493,10 @@ if not weak.empty:
     i2.markdown(
         f"""
         <div class="insight-card">
-            <div class="insight-title">Watch-out area</div>
+            <div class="insight-title">Watch-out</div>
             <div class="insight-copy">
-                <span class="pill">{r['norm_grade']}</span><br><br>
-                <b>{r['parameter_name']}</b><br>
-                trails on <b>{metric_label}</b> at <b>{r[metric_col]:.2f}</b>.
+                <span class="pill">{r['norm_grade']}</span><br>
+                <b>{r['parameter_name']}</b> trails on <b>{metric_label}</b> at <b>{r[metric_col]:.2f}</b>.
             </div>
         </div>
         """,
@@ -441,14 +504,14 @@ if not weak.empty:
     )
 
 segment_text = selected_slice.replace("_", " ").title()
+
 i3.markdown(
     f"""
     <div class="insight-card">
         <div class="insight-title">Current cut</div>
         <div class="insight-copy">
-            <span class="pill">{segment_text}</span><br><br>
-            <b>{len(filtered):,}</b> norm rows<br>
-            minimum base <b>{min_base}</b>.
+            <span class="pill">{segment_text}</span><br>
+            <b>{len(filtered):,}</b> norm rows · minimum base <b>{min_base}</b>.
         </div>
     </div>
     """,
@@ -458,7 +521,7 @@ i3.markdown(
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # ============================================================
-# CHARTS
+# CHART DATA
 # ============================================================
 
 chart_df = (
@@ -476,6 +539,10 @@ chart_df = (
 )
 
 chart_df = chart_df.sort_values(metric_col, ascending=False).head(top_n * 3)
+
+# ============================================================
+# CHARTS
+# ============================================================
 
 left, right = st.columns([1.35, 1])
 
@@ -517,7 +584,7 @@ with left:
 with right:
     st.markdown('<div class="section-title">Norm group read</div>', unsafe_allow_html=True)
     st.markdown(
-        f'<div class="section-subtitle">Average {metric_label} by norm group.</div>',
+        f'<div class="section-subtitle">Average {metric_label} by group.</div>',
         unsafe_allow_html=True
     )
 
@@ -565,11 +632,13 @@ st.markdown("<hr>", unsafe_allow_html=True)
 
 st.markdown('<div class="section-title">Biggest norm gaps</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-subtitle">Attributes with the widest gap between Top 25% and Bottom 25%.</div>',
+    '<div class="section-subtitle">Where Top 25% and Bottom 25% differ the most.</div>',
     unsafe_allow_html=True
 )
 
-gap_source = filtered[filtered["norm_grade"].astype(str).isin(["Top 25%", "Bottom 25%"])].copy()
+gap_source = filtered[
+    filtered["norm_grade"].astype(str).isin(["Top 25%", "Bottom 25%"])
+].copy()
 
 gap_pivot = gap_source.pivot_table(
     index=["parameter_name", "scale"],
@@ -605,18 +674,19 @@ if "Top 25%" in gap_pivot.columns and "Bottom 25%" in gap_pivot.columns:
 
     fig3.update_yaxes(autorange="reversed")
     st.plotly_chart(fig3, use_container_width=True)
+
 else:
-    st.info("Select both Top 25% and Bottom 25% to see gap analysis.")
+    st.info("Select both Top 25% and Bottom 25% to see the gap view.")
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
 # ============================================================
-# TABLE
+# CLEAN TABLE
 # ============================================================
 
 st.markdown('<div class="section-title">Norm table</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-subtitle">Clean export-ready view for reporting.</div>',
+    '<div class="section-subtitle">Clean, export-ready benchmark table.</div>',
     unsafe_allow_html=True
 )
 
@@ -651,8 +721,8 @@ segment_cols = [
     "sequence",
 ]
 
-# only show segment columns that actually have values after filtering
 visible_segment_cols = []
+
 for col in segment_cols:
     if col in filtered.columns and filtered[col].notna().any():
         visible_segment_cols.append(col)
@@ -690,10 +760,11 @@ rename_cols = {
 }
 
 table_df = table_df.rename(columns=rename_cols)
-table_df = table_df.sort_values(
-    ["Parameter", "Scale", "Norm Group"],
-    ascending=[True, True, True]
-)
+
+sort_cols = [c for c in ["Parameter", "Scale", "Norm Group"] if c in table_df.columns]
+
+if sort_cols:
+    table_df = table_df.sort_values(sort_cols)
 
 st.dataframe(
     table_df,
@@ -711,9 +782,9 @@ st.download_button(
 )
 
 st.markdown(
-    f"""
+    """
     <p class="small-note">
-        Built from ranked respondent-level survey data. Norm groups are calculated as Top 25%, Average 50%, and Bottom 25% within each parameter and scale.
+        Norm groups are calculated from ranked respondent-level scores within each parameter and scale.
     </p>
     """,
     unsafe_allow_html=True
