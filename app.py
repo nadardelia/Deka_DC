@@ -406,12 +406,11 @@ st.markdown(
     <div class="hero">
         <div class="eyebrow">DEKA INSIGHT • SURVEY NORM DATABASE</div>
         <div class="hero-title">
-            Know where each score<br>
-            <span class="hero-accent">stands in the market.</span>
+            Delivering Insights<br>
+            <span class="hero-accent">Since 1995</span>
         </div>
         <div class="hero-copy">
-            Turn historical survey data into a clear benchmark. Compare every attribute by segment, 
-            scale, and respondent tier — from strong performers to watch-out areas.
+            Indonesia's leading independent market research agency with deep cultural understanding and international expertise.
         </div>
     </div>
     """,
