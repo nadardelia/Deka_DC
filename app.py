@@ -42,7 +42,104 @@ st.set_page_config(
 
 
 # ============================================================
-# 2. HELPER FUNCTIONS
+# 2. THEME
+# ============================================================
+
+theme_base = st.get_option("theme.base") or "light"
+IS_DARK = theme_base == "dark"
+
+if IS_DARK:
+    THEME = {
+        "app_bg": "#0F1424",
+        "app_bg_2": "#151B2E",
+        "card": "#171E32",
+        "card_soft": "rgba(23, 30, 50, 0.94)",
+        "line": "#2B344F",
+        "text": "#F4F6FB",
+        "muted": "#A8B0C3",
+        "hero_1": "#111A39",
+        "hero_2": "#202B55",
+        "sidebar": "#090F25",
+        "grid": "#2D354D",
+        "plot_bg": "rgba(0,0,0,0)",
+        "cream": "#1A2136",
+        "gold": "#F2B85E",
+        "gold_soft": "#F4D28A",
+        "navy": "#6E85B7",
+        "blue": "#86A0CB",
+        "sage": "#8FBA9D",
+        "sage_dark": "#74A384",
+        "terracotta": "#D48A78",
+        "plum": "#B894B2",
+        "teal": "#77B9B8",
+        "olive": "#B8BE7A",
+        "caramel": "#D09A5A",
+        "taupe": "#B8AFA2",
+        "stone": "#A7A0A0",
+    }
+else:
+    THEME = {
+        "app_bg": "#FAF7F0",
+        "app_bg_2": "#FFFFFF",
+        "card": "#FFFFFF",
+        "card_soft": "rgba(255,255,255,0.94)",
+        "line": "#E8E1D8",
+        "text": "#0B1026",
+        "muted": "#737B8E",
+        "hero_1": "#111A39",
+        "hero_2": "#192653",
+        "sidebar": "#090F25",
+        "grid": "#E9E1D6",
+        "plot_bg": "rgba(0,0,0,0)",
+        "cream": "#F7EBD8",
+        "gold": "#E3A93F",
+        "gold_soft": "#F4D89A",
+        "navy": "#24304F",
+        "blue": "#6F86A8",
+        "sage": "#6F9278",
+        "sage_dark": "#5F826C",
+        "terracotta": "#C27763",
+        "plum": "#8C6A86",
+        "teal": "#5D9A9A",
+        "olive": "#A0A86B",
+        "caramel": "#B98246",
+        "taupe": "#9A9288",
+        "stone": "#8F8983",
+    }
+
+
+COLOR_TEXT = THEME["muted"]
+COLOR_GRID = THEME["grid"]
+COLOR_CREAM = THEME["cream"]
+
+TIER_COLOR_MAP = {
+    "Top 25%": THEME["sage_dark"],
+    "Average 50%": THEME["gold"],
+    "Bottom 25%": THEME["terracotta"],
+}
+
+BRAND_COLORS = {
+    "Taste": THEME["gold"],
+    "Aroma": THEME["blue"],
+    "Appearance": THEME["plum"],
+    "Liking": THEME["navy"],
+    "Purchase Intent": THEME["terracotta"],
+    "Aftertaste": THEME["teal"],
+    "Amount / Topping": THEME["caramel"],
+    "Texture": THEME["sage"],
+    "Overall Taste": THEME["olive"],
+    "Overall Attribute": THEME["olive"],
+    "Other Attribute": THEME["stone"],
+}
+
+PLOT_CONFIG = {
+    "displayModeBar": False,
+    "responsive": True,
+}
+
+
+# ============================================================
+# 3. HELPERS
 # ============================================================
 
 def safe_num(x, decimals=1):
@@ -66,12 +163,9 @@ def safe_int(x):
 def clean_value(x):
     if pd.isna(x):
         return "—"
-
     x = str(x).strip()
-
     if x.lower() in ["", "nan", "none", "null", "<na>"]:
         return "—"
-
     return x
 
 
@@ -79,7 +173,7 @@ def get_options(df, col):
     if col not in df.columns:
         return []
 
-    values = (
+    return (
         df[col]
         .dropna()
         .astype(str)
@@ -91,25 +185,20 @@ def get_options(df, col):
         .tolist()
     )
 
-    return values
-
 
 def filter_df(df, col, selected):
     if col not in df.columns or not selected:
         return df
-
     return df[df[col].astype(str).isin(selected)].copy()
 
 
 def metric_col(label):
-    mapping = {
+    return {
         "Mean Score": "mean_score",
         "Top Box": "tb_pct",
         "Top 2 Boxes": "t2b_pct",
         "Top 3 Boxes": "t3b_pct",
-    }
-
-    return mapping.get(label, "mean_score")
+    }.get(label, "mean_score")
 
 
 def metric_suffix(col):
@@ -119,23 +208,18 @@ def metric_suffix(col):
 def confidence(base):
     if pd.isna(base):
         return "No base"
-
     if base >= 500:
         return "Strong base"
-
     if base >= 100:
         return "Reliable base"
-
     if base >= 30:
         return "Directional"
-
     return "Low base"
 
 
 def dims_from_slice(slice_type):
     if slice_type == "Global":
         return []
-
     return [x.strip() for x in str(slice_type).split("|")]
 
 
@@ -176,7 +260,6 @@ def slice_label(slice_type):
         "methodology | test_type": "Methodology × Test Type",
         "type_of_study | methodology": "Type of Study × Methodology",
     }
-
     return mapping.get(slice_type, str(slice_type).replace("_", " ").title())
 
 
@@ -208,174 +291,144 @@ def col_label(col):
         "t3b_pct": "T3B",
         "base": "Base",
     }
-
     return mapping.get(col, col.replace("_", " ").title())
 
 
-# ============================================================
-# 3. CHART COLORS — DISTINCT MUTED DEKA PALETTE
-# ============================================================
-
-PLOT_CONFIG = {
-    "displayModeBar": False,
-    "responsive": True,
-}
-
-COLOR_NAVY = "#24304F"
-COLOR_GOLD = "#E3A93F"
-COLOR_SAGE = "#6F9278"
-COLOR_TERRACOTTA = "#C27763"
-COLOR_DUSTY_BLUE = "#6F86A8"
-COLOR_PLUM = "#8C6A86"
-COLOR_TEAL = "#5D9A9A"
-COLOR_OLIVE = "#A0A86B"
-COLOR_CARAMEL = "#B98246"
-COLOR_STONE = "#9A9288"
-COLOR_CREAM = "#F7EBD8"
-COLOR_GRID = "#E9E1D6"
-COLOR_TEXT = "#747B8D"
-
-TIER_COLOR_MAP = {
-    "Top 25%": COLOR_SAGE,
-    "Average 50%": COLOR_GOLD,
-    "Bottom 25%": COLOR_TERRACOTTA,
-}
-
-BRAND_COLORS = {
-    "Taste": COLOR_GOLD,
-    "Aroma": COLOR_DUSTY_BLUE,
-    "Appearance": COLOR_PLUM,
-    "Liking": COLOR_NAVY,
-    "Purchase Intent": COLOR_TERRACOTTA,
-    "Aftertaste": COLOR_TEAL,
-    "Amount / Topping": COLOR_CARAMEL,
-    "Texture": COLOR_SAGE,
-    "Overall Taste": COLOR_OLIVE,
-    "Overall Attribute": COLOR_OLIVE,
-    "Other Attribute": COLOR_STONE,
-}
+def apply_plot_theme(fig, show_legend=True):
+    fig.update_layout(
+        plot_bgcolor=THEME["plot_bg"],
+        paper_bgcolor=THEME["plot_bg"],
+        margin=dict(l=5, r=5, t=15, b=5),
+        font=dict(color=COLOR_TEXT),
+        legend_title_text="Category",
+        showlegend=show_legend,
+        xaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
+        yaxis=dict(gridcolor="rgba(0,0,0,0)", zeroline=False),
+    )
+    return fig
 
 
 # ============================================================
-# 4. CSS
+# 4. CSS — DYNAMIC LIGHT / DARK
 # ============================================================
 
 st.markdown(
-    """
+    f"""
     <style>
-    :root {
-        --navy: #090F25;
-        --navy2: #17224A;
-        --ink: #0B1026;
-        --gold: #F2A93B;
-        --cream: #FAF7F0;
-        --card: #FFFFFF;
-        --line: #E8E1D8;
-        --muted: #737B8E;
-        --green: #6F9278;
-        --red: #C27763;
-    }
+    :root {{
+        --sidebar: {THEME["sidebar"]};
+        --ink: {THEME["text"]};
+        --muted: {THEME["muted"]};
+        --gold: {THEME["gold"]};
+        --card: {THEME["card"]};
+        --card-soft: {THEME["card_soft"]};
+        --line: {THEME["line"]};
+        --bg: {THEME["app_bg"]};
+        --bg2: {THEME["app_bg_2"]};
+        --hero1: {THEME["hero_1"]};
+        --hero2: {THEME["hero_2"]};
+    }}
 
-    .stApp {
+    .stApp {{
         background:
             radial-gradient(circle at top left, rgba(242,169,59,.08), transparent 28%),
-            linear-gradient(180deg, #FAF7F0 0%, #FFFFFF 44%, #FAF7F0 100%);
+            linear-gradient(180deg, var(--bg) 0%, var(--bg2) 44%, var(--bg) 100%);
         color: var(--ink);
-    }
+    }}
 
-    .block-container {
+    .block-container {{
         padding-top: 3.7rem;
         padding-bottom: 2.1rem;
         max-width: 1420px;
-    }
+    }}
 
-    section[data-testid="stSidebar"] {
-        background: var(--navy);
+    section[data-testid="stSidebar"] {{
+        background: var(--sidebar);
         border-right: 1px solid rgba(255,255,255,.06);
-    }
+    }}
 
     section[data-testid="stSidebar"] h1,
     section[data-testid="stSidebar"] h2,
     section[data-testid="stSidebar"] h3,
     section[data-testid="stSidebar"] p,
     section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] span {
+    section[data-testid="stSidebar"] span {{
         color: #F7F8FF !important;
-    }
+    }}
 
     section[data-testid="stSidebar"] .stSelectbox div,
     section[data-testid="stSidebar"] .stMultiSelect div,
-    section[data-testid="stSidebar"] .stNumberInput div {
+    section[data-testid="stSidebar"] .stNumberInput div {{
         color: #0B1026 !important;
-    }
+    }}
 
-    section[data-testid="stSidebar"] div[data-baseweb="tag"] {
+    section[data-testid="stSidebar"] div[data-baseweb="tag"] {{
         background-color: var(--gold) !important;
         border-radius: 999px !important;
-    }
+    }}
 
-    section[data-testid="stSidebar"] div[data-baseweb="tag"] span {
+    section[data-testid="stSidebar"] div[data-baseweb="tag"] span {{
         color: #0B1026 !important;
         font-weight: 750 !important;
-    }
+    }}
 
-    section[data-testid="stSidebar"] div[data-baseweb="tag"] svg {
+    section[data-testid="stSidebar"] div[data-baseweb="tag"] svg {{
         fill: #0B1026 !important;
-    }
+    }}
 
-    .sidebar-logo {
+    .sidebar-logo {{
         text-align: center;
         margin: 8px 0 18px 0;
-    }
+    }}
 
-    .sidebar-logo img {
+    .sidebar-logo img {{
         max-width: 136px;
-    }
+    }}
 
-    .filter-hint {
+    .filter-hint {{
         font-size: 12px;
         color: rgba(255,255,255,.60);
         line-height: 1.35;
         margin: -2px 0 14px 0;
-    }
+    }}
 
-    .hero {
+    .hero {{
         background:
             linear-gradient(135deg, rgba(242,169,59,.08) 0%, rgba(242,169,59,0) 38%),
-            linear-gradient(135deg, #111A39 0%, #192653 100%);
+            linear-gradient(135deg, var(--hero1) 0%, var(--hero2) 100%);
         border-radius: 24px;
         padding: 24px 32px;
         color: white;
-        box-shadow: 0 18px 44px rgba(9,15,37,.15);
+        box-shadow: 0 18px 44px rgba(9,15,37,.18);
         margin-top: 8px;
         margin-bottom: 20px;
         border: 1px solid rgba(255,255,255,.08);
-    }
+    }}
 
-    .kicker {
+    .kicker {{
         color: var(--gold);
         font-size: 11px;
         font-weight: 900;
         letter-spacing: .14em;
         text-transform: uppercase;
         margin-bottom: 7px;
-    }
+    }}
 
-    .hero-title {
+    .hero-title {{
         font-size: 34px;
         font-weight: 900;
         line-height: 1.05;
         margin: 0 0 8px 0;
-    }
+    }}
 
-    .hero-sub {
+    .hero-sub {{
         color: rgba(255,255,255,.76);
         font-size: 14px;
         line-height: 1.48;
         max-width: 790px;
-    }
+    }}
 
-    .pill {
+    .pill {{
         display: inline-block;
         margin-top: 13px;
         margin-right: 7px;
@@ -386,88 +439,88 @@ st.markdown(
         color: var(--gold);
         font-size: 11px;
         font-weight: 850;
-    }
+    }}
 
-    .section-title {
+    .section-title {{
         font-size: 20px;
         font-weight: 900;
         color: var(--ink);
         margin: 20px 0 6px 0;
-    }
+    }}
 
-    .section-sub {
+    .section-sub {{
         color: var(--muted);
         font-size: 13px;
         margin-bottom: 12px;
-    }
+    }}
 
-    .card {
-        background: rgba(255,255,255,.94);
+    .card {{
+        background: var(--card-soft);
         border: 1px solid var(--line);
         border-radius: 20px;
         padding: 17px 18px;
-        box-shadow: 0 12px 30px rgba(11,16,38,.052);
+        box-shadow: 0 12px 30px rgba(11,16,38,.08);
         height: 100%;
-    }
+    }}
 
-    .kpi-card {
+    .kpi-card {{
         min-height: 132px;
-    }
+    }}
 
-    .insight-card {
+    .insight-card {{
         min-height: 235px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-    }
+    }}
 
-    .metric-label {
+    .metric-label {{
         color: var(--muted);
         font-size: 10.5px;
         font-weight: 900;
         letter-spacing: .09em;
         text-transform: uppercase;
         margin-bottom: 8px;
-    }
+    }}
 
-    .metric-value {
+    .metric-value {{
         color: var(--ink);
         font-size: 27px;
         font-weight: 900;
         line-height: 1.1;
-    }
+    }}
 
-    .metric-note {
+    .metric-note {{
         color: var(--muted);
         font-size: 12px;
         margin-top: 7px;
-    }
+    }}
 
-    .insight-title {
+    .insight-title {{
         font-size: 12px;
         font-weight: 900;
         color: var(--muted);
         text-transform: uppercase;
         letter-spacing: .06em;
         margin-bottom: 8px;
-    }
+    }}
 
-    .insight-main {
+    .insight-main {{
         font-size: 20px;
         font-weight: 900;
         color: var(--ink);
         line-height: 1.18;
         margin-bottom: 9px;
         min-height: 48px;
-    }
+    }}
 
-    .insight-sub {
+    .insight-sub {{
         color: var(--muted);
         font-size: 12.5px;
         line-height: 1.48;
-    }
+    }}
 
-    .badge {
+    .badge {{
         display: inline-block;
         padding: 5px 9px;
         border-radius: 999px;
@@ -475,47 +528,42 @@ st.markdown(
         font-weight: 850;
         margin-top: 10px;
         width: fit-content;
-    }
+    }}
 
-    .badge-green {
-        background: #E9F3EE;
-        color: #3D725B;
-    }
+    .badge-green {{
+        background: rgba(111,146,120,.18);
+        color: {THEME["sage_dark"]};
+    }}
 
-    .badge-gold {
-        background: #FFF3D8;
-        color: #9D6200;
-    }
+    .badge-gold {{
+        background: rgba(242,184,94,.18);
+        color: {THEME["gold"]};
+    }}
 
-    .badge-red {
-        background: #F7EDEA;
-        color: #9C514D;
-    }
+    .badge-red {{
+        background: rgba(194,119,99,.18);
+        color: {THEME["terracotta"]};
+    }}
 
-    div[data-testid="stDataFrame"] {
+    div[data-testid="stDataFrame"] {{
         border-radius: 16px;
         overflow: hidden;
         border: 1px solid var(--line);
-    }
+    }}
 
-    .stDownloadButton > button {
-        background: var(--navy) !important;
+    .stDownloadButton > button {{
+        background: var(--sidebar) !important;
         color: white !important;
         border: 0 !important;
         border-radius: 999px !important;
         font-weight: 850 !important;
         padding: .55rem 1.2rem !important;
-    }
+    }}
 
-    .stButton > button {
+    .stButton > button {{
         border-radius: 999px !important;
         font-weight: 850 !important;
-    }
-
-    hr {
-        margin-top: 1.4rem;
-        margin-bottom: 1.1rem;
-    }
+    }}
     </style>
     """,
     unsafe_allow_html=True,
@@ -646,12 +694,7 @@ for col in num_cols:
     df[col] = pd.to_numeric(df[col], errors="coerce")
 
 grade_order = ["Top 25%", "Average 50%", "Bottom 25%"]
-
-df["norm_grade"] = pd.Categorical(
-    df["norm_grade"],
-    categories=grade_order,
-    ordered=True,
-)
+df["norm_grade"] = pd.Categorical(df["norm_grade"], categories=grade_order, ordered=True)
 
 
 # ============================================================
@@ -716,7 +759,6 @@ with st.sidebar:
     ordered_slices += sorted([x for x in available_slices if x not in ordered_slices])
 
     slice_display = {slice_label(x): x for x in ordered_slices}
-
     default_label = "Study / Project" if "study" in available_slices else slice_label(ordered_slices[0])
 
     selected_slice_label = st.selectbox(
@@ -756,22 +798,18 @@ with st.sidebar:
 
     selected_metric = metric_col(selected_metric_label)
 
-    group_options = get_options(work, "parameter_group")
-
     selected_groups = st.multiselect(
         "Attribute category",
-        options=group_options,
+        options=get_options(work, "parameter_group"),
         default=[],
         placeholder="All categories",
     )
 
     work = filter_df(work, "parameter_group", selected_groups)
 
-    parameter_options = get_options(work, "parameter_name")
-
     selected_params = st.multiselect(
         "Attribute",
-        options=parameter_options,
+        options=get_options(work, "parameter_name"),
         default=[],
         placeholder="All attributes",
     )
@@ -814,22 +852,10 @@ with st.sidebar:
     if selected_norms:
         work = work[work["norm_grade"].astype(str).isin(selected_norms)].copy()
 
-    min_base = st.number_input(
-        "Minimum base",
-        min_value=0,
-        value=10,
-        step=10,
-    )
-
+    min_base = st.number_input("Minimum base", min_value=0, value=10, step=10)
     work = work[work["base"].fillna(0) >= min_base].copy()
 
-    top_n = st.slider(
-        "Top attributes",
-        min_value=5,
-        max_value=20,
-        value=10,
-        step=1,
-    )
+    top_n = st.slider("Top attributes", min_value=5, max_value=20, value=10, step=1)
 
     st.markdown("---")
 
@@ -938,9 +964,7 @@ st.markdown('<div class="section-title">Key Insights</div>', unsafe_allow_html=T
 if not metric_df.empty:
     insight_base_threshold = max(min_base, 30)
 
-    insight_df = metric_df[
-        metric_df["base"].fillna(0) >= insight_base_threshold
-    ].copy()
+    insight_df = metric_df[metric_df["base"].fillna(0) >= insight_base_threshold].copy()
 
     if insight_df.empty:
         insight_df = metric_df.copy()
@@ -1107,10 +1131,7 @@ with left:
     rank_df = (
         metric_df
         .groupby(["parameter_name", "parameter_group"], dropna=False)
-        .agg(
-            value=(selected_metric, "mean"),
-            base=("base", "sum"),
-        )
+        .agg(value=(selected_metric, "mean"), base=("base", "sum"))
         .reset_index()
         .sort_values("value", ascending=False)
         .head(top_n)
@@ -1133,27 +1154,10 @@ with left:
             height=max(350, top_n * 32),
         )
 
-        fig_rank.update_traces(
-            marker_line_color=COLOR_CREAM,
-            marker_line_width=0.8,
-            opacity=0.94,
-        )
+        fig_rank.update_traces(marker_line_color=COLOR_CREAM, marker_line_width=0.8, opacity=0.94)
+        apply_plot_theme(fig_rank, show_legend=True)
 
-        fig_rank.update_layout(
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
-            margin=dict(l=5, r=5, t=15, b=5),
-            font=dict(color=COLOR_TEXT),
-            legend_title_text="Category",
-            xaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
-            yaxis=dict(gridcolor="rgba(0,0,0,0)"),
-        )
-
-        st.plotly_chart(
-            fig_rank,
-            use_container_width=True,
-            config=PLOT_CONFIG,
-        )
+        st.plotly_chart(fig_rank, use_container_width=True, config=PLOT_CONFIG)
 
 
 with right:
@@ -1167,11 +1171,7 @@ with right:
         metric_df
         .dropna(subset=["norm_grade"])
         .groupby("norm_grade", observed=False)
-        .agg(
-            value=(selected_metric, "mean"),
-            base=("base", "sum"),
-            rows=("parameter_name", "count"),
-        )
+        .agg(value=(selected_metric, "mean"), base=("base", "sum"), rows=("parameter_name", "count"))
         .reset_index()
     )
 
@@ -1185,34 +1185,23 @@ with right:
             color="norm_grade",
             color_discrete_map=TIER_COLOR_MAP,
             hover_data=["base", "rows"],
-            labels={
-                "norm_grade": "",
-                "value": selected_metric_label,
-            },
+            labels={"norm_grade": "", "value": selected_metric_label},
             height=350,
         )
 
-        fig_tier.update_traces(
-            marker_line_color=COLOR_CREAM,
-            marker_line_width=0.8,
-            opacity=0.94,
-        )
+        fig_tier.update_traces(marker_line_color=COLOR_CREAM, marker_line_width=0.8, opacity=0.94)
 
         fig_tier.update_layout(
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor=THEME["plot_bg"],
+            paper_bgcolor=THEME["plot_bg"],
             margin=dict(l=5, r=5, t=15, b=5),
             showlegend=False,
             font=dict(color=COLOR_TEXT),
             yaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
-            xaxis=dict(gridcolor="rgba(0,0,0,0)"),
+            xaxis=dict(gridcolor="rgba(0,0,0,0)", zeroline=False),
         )
 
-        st.plotly_chart(
-            fig_tier,
-            use_container_width=True,
-            config=PLOT_CONFIG,
-        )
+        st.plotly_chart(fig_tier, use_container_width=True, config=PLOT_CONFIG)
 
 
 # ============================================================
@@ -1242,12 +1231,7 @@ with left2:
 
     if {"Top 25%", "Bottom 25%"}.issubset(gap_df.columns):
         gap_df["gap"] = gap_df["Top 25%"] - gap_df["Bottom 25%"]
-        gap_df = (
-            gap_df
-            .dropna(subset=["gap"])
-            .sort_values("gap", ascending=False)
-            .head(top_n)
-        )
+        gap_df = gap_df.dropna(subset=["gap"]).sort_values("gap", ascending=False).head(top_n)
 
         if not gap_df.empty:
             fig_gap = px.bar(
@@ -1266,27 +1250,10 @@ with left2:
                 height=max(350, top_n * 32),
             )
 
-            fig_gap.update_traces(
-                marker_line_color=COLOR_CREAM,
-                marker_line_width=0.8,
-                opacity=0.94,
-            )
+            fig_gap.update_traces(marker_line_color=COLOR_CREAM, marker_line_width=0.8, opacity=0.94)
+            apply_plot_theme(fig_gap, show_legend=True)
 
-            fig_gap.update_layout(
-                plot_bgcolor="rgba(0,0,0,0)",
-                paper_bgcolor="rgba(0,0,0,0)",
-                margin=dict(l=5, r=5, t=15, b=5),
-                font=dict(color=COLOR_TEXT),
-                legend_title_text="Category",
-                xaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
-                yaxis=dict(gridcolor="rgba(0,0,0,0)"),
-            )
-
-            st.plotly_chart(
-                fig_gap,
-                use_container_width=True,
-                config=PLOT_CONFIG,
-            )
+            st.plotly_chart(fig_gap, use_container_width=True, config=PLOT_CONFIG)
 
 
 with right2:
@@ -1330,10 +1297,7 @@ with right2:
         )
 
     st.markdown(f'<div class="section-title">{segment_title}</div>', unsafe_allow_html=True)
-    st.markdown(
-        f'<div class="section-sub">{segment_subtitle}</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown(f'<div class="section-sub">{segment_subtitle}</div>', unsafe_allow_html=True)
 
     if not segment_perf.empty:
         if len(segment_perf) <= 8:
@@ -1342,27 +1306,24 @@ with right2:
                 x="segment",
                 y="value",
                 hover_data=["base", "attributes"],
-                labels={
-                    "segment": "",
-                    "value": selected_metric_label,
-                },
+                labels={"segment": "", "value": selected_metric_label},
                 height=350,
             )
 
             fig_segment.update_traces(
-                marker_color=COLOR_DUSTY_BLUE,
-                marker_line_color=COLOR_GOLD,
+                marker_color=THEME["blue"],
+                marker_line_color=THEME["gold"],
                 marker_line_width=0.8,
                 opacity=0.9,
             )
 
             fig_segment.update_layout(
-                plot_bgcolor="rgba(0,0,0,0)",
-                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor=THEME["plot_bg"],
+                paper_bgcolor=THEME["plot_bg"],
                 margin=dict(l=5, r=5, t=15, b=55),
                 font=dict(color=COLOR_TEXT),
                 yaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
-                xaxis=dict(gridcolor="rgba(0,0,0,0)", tickangle=-25),
+                xaxis=dict(gridcolor="rgba(0,0,0,0)", tickangle=-25, zeroline=False),
             )
 
         else:
@@ -1382,26 +1343,22 @@ with right2:
 
             fig_segment.update_traces(
                 marker=dict(
-                    color=COLOR_DUSTY_BLUE,
-                    line=dict(width=1.3, color=COLOR_GOLD),
-                    opacity=0.78,
+                    color=THEME["blue"],
+                    line=dict(width=1.3, color=THEME["gold"]),
+                    opacity=0.82,
                 )
             )
 
             fig_segment.update_layout(
-                plot_bgcolor="rgba(0,0,0,0)",
-                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor=THEME["plot_bg"],
+                paper_bgcolor=THEME["plot_bg"],
                 margin=dict(l=5, r=5, t=15, b=5),
                 font=dict(color=COLOR_TEXT),
                 xaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
                 yaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
             )
 
-        st.plotly_chart(
-            fig_segment,
-            use_container_width=True,
-            config=PLOT_CONFIG,
-        )
+        st.plotly_chart(fig_segment, use_container_width=True, config=PLOT_CONFIG)
 
 
 # ============================================================
@@ -1429,16 +1386,11 @@ base_cols = [
 ]
 
 table_cols = [c for c in active_segment_cols + base_cols if c in work.columns]
-
 table = work[table_cols].copy()
 
 for col in table.columns:
     if str(table[col].dtype) in ["object", "string", "category"]:
-        table[col] = (
-            table[col]
-            .astype(str)
-            .replace(["nan", "None", "<NA>", "null"], "—")
-        )
+        table[col] = table[col].astype(str).replace(["nan", "None", "<NA>", "null"], "—")
 
 table = table.rename(columns=col_label)
 
