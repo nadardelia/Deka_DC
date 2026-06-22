@@ -1,5 +1,5 @@
 # ============================================================
-# DEKA INSIGHT — NORM DASHBOARD
+# DEKA INSIGHT — PRODUCT TEST NORM DASHBOARD
 # app.py
 # ============================================================
 
@@ -66,12 +66,9 @@ def safe_int(x):
 def clean_value(x):
     if pd.isna(x):
         return "—"
-
     x = str(x).strip()
-
     if x.lower() in ["", "nan", "none", "null", "<na>"]:
         return "—"
-
     return x
 
 
@@ -79,7 +76,7 @@ def get_options(df, col):
     if col not in df.columns:
         return []
 
-    values = (
+    return (
         df[col]
         .dropna()
         .astype(str)
@@ -91,54 +88,41 @@ def get_options(df, col):
         .tolist()
     )
 
-    return values
-
 
 def filter_df(df, col, selected):
     if col not in df.columns or not selected:
         return df
-
     return df[df[col].astype(str).isin(selected)].copy()
 
 
 def metric_col(label):
-    mapping = {
+    return {
         "Mean Score": "mean_score",
         "Top Box": "tb_pct",
         "Top 2 Boxes": "t2b_pct",
         "Top 3 Boxes": "t3b_pct",
-    }
-
-    return mapping.get(label, "mean_score")
+    }.get(label, "mean_score")
 
 
 def metric_suffix(col):
-    if col in ["tb_pct", "t2b_pct", "t3b_pct"]:
-        return "%"
-
-    return ""
+    return "%" if col in ["tb_pct", "t2b_pct", "t3b_pct"] else ""
 
 
 def confidence(base):
     if pd.isna(base):
         return "No base"
-
     if base >= 500:
         return "Strong base"
-
     if base >= 100:
         return "Reliable base"
-
     if base >= 30:
         return "Directional"
-
     return "Low base"
 
 
 def dims_from_slice(slice_type):
     if slice_type == "Global":
         return []
-
     return [x.strip() for x in str(slice_type).split("|")]
 
 
@@ -179,7 +163,6 @@ def slice_label(slice_type):
         "methodology | test_type": "Methodology × Test Type",
         "type_of_study | methodology": "Type of Study × Methodology",
     }
-
     return mapping.get(slice_type, str(slice_type).replace("_", " ").title())
 
 
@@ -211,29 +194,23 @@ def col_label(col):
         "t3b_pct": "T3B",
         "base": "Base",
     }
-
     return mapping.get(col, col.replace("_", " ").title())
-
-
-BRAND_COLORS = {
-    "Liking": "#203A73",
-    "Taste": "#F2A93B",
-    "Aroma": "#7A8FB8",
-    "Appearance": "#C9A46A",
-    "Texture": "#2E7D5B",
-    "Purchase Intent": "#8C5A2B",
-    "Aftertaste": "#AFC3E8",
-    "Amount / Topping": "#D8B16A",
-    "Overall Taste": "#5E6B8A",
-    "Overall Attribute": "#5E6B8A",
-    "Other Attribute": "#9A8F83",
-}
 
 
 PLOT_CONFIG = {
     "displayModeBar": False,
     "responsive": True,
 }
+
+COLOR_NAVY = "#1E2A4A"
+COLOR_BLUE = "#2F5597"
+COLOR_GOLD = "#E7A93B"
+COLOR_GREEN = "#4E7D68"
+COLOR_TAUPE = "#9C9284"
+COLOR_SAND = "#D9B56D"
+COLOR_RED = "#B96A62"
+COLOR_GRID = "#E9E4DC"
+COLOR_TEXT = "#6E768A"
 
 
 # ============================================================
@@ -252,22 +229,20 @@ st.markdown(
         --card: #FFFFFF;
         --line: #E8E1D8;
         --muted: #737B8E;
-        --green: #2E7D5B;
-        --red: #B94A48;
-        --blue: #203A73;
-        --sand: #F4E7D0;
+        --green: #4E7D68;
+        --red: #B96A62;
     }
 
     .stApp {
         background:
-            radial-gradient(circle at top left, rgba(242,169,59,.10), transparent 27%),
-            linear-gradient(180deg, #FAF7F0 0%, #FFFFFF 42%, #FAF7F0 100%);
+            radial-gradient(circle at top left, rgba(242,169,59,.08), transparent 28%),
+            linear-gradient(180deg, #FAF7F0 0%, #FFFFFF 44%, #FAF7F0 100%);
         color: var(--ink);
     }
 
     .block-container {
         padding-top: 3.7rem;
-        padding-bottom: 2.2rem;
+        padding-bottom: 2.1rem;
         max-width: 1420px;
     }
 
@@ -323,12 +298,12 @@ st.markdown(
 
     .hero {
         background:
-            linear-gradient(135deg, rgba(242,169,59,.10) 0%, rgba(242,169,59,0) 36%),
+            linear-gradient(135deg, rgba(242,169,59,.08) 0%, rgba(242,169,59,0) 38%),
             linear-gradient(135deg, #111A39 0%, #192653 100%);
         border-radius: 24px;
         padding: 24px 32px;
         color: white;
-        box-shadow: 0 18px 44px rgba(9,15,37,.16);
+        box-shadow: 0 18px 44px rgba(9,15,37,.15);
         margin-top: 8px;
         margin-bottom: 20px;
         border: 1px solid rgba(255,255,255,.08);
@@ -388,16 +363,16 @@ st.markdown(
         border: 1px solid var(--line);
         border-radius: 20px;
         padding: 17px 18px;
-        box-shadow: 0 12px 30px rgba(11,16,38,.055);
+        box-shadow: 0 12px 30px rgba(11,16,38,.052);
         height: 100%;
     }
 
     .kpi-card {
-        min-height: 135px;
+        min-height: 132px;
     }
 
     .insight-card {
-        min-height: 245px;
+        min-height: 235px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -460,8 +435,8 @@ st.markdown(
     }
 
     .badge-green {
-        background: #E8F5EE;
-        color: var(--green);
+        background: #E9F3EE;
+        color: #3D725B;
     }
 
     .badge-gold {
@@ -470,8 +445,8 @@ st.markdown(
     }
 
     .badge-red {
-        background: #FDECEC;
-        color: var(--red);
+        background: #F7EDEA;
+        color: #9C514D;
     }
 
     div[data-testid="stDataFrame"] {
@@ -518,7 +493,6 @@ def get_engine():
         database = st.secrets["postgres"]["database"]
 
         url = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}?sslmode=require"
-
         return create_engine(url)
 
     except Exception as e:
@@ -545,36 +519,13 @@ if df.empty:
 # ============================================================
 
 expected_cols = [
-    "slice_type",
-    "study",
-    "category",
-    "sub_category",
-    "detail_product",
-    "gender",
-    "age_group",
-    "actual_age",
-    "ses",
-    "occupation",
-    "type_of_study",
-    "test_type",
-    "methodology",
-    "sub_method",
-    "num_of_product",
-    "sequence",
-    "parameter_id",
-    "parameter_name",
-    "parameter_key",
-    "parameter_group",
-    "scale",
-    "norm_grade",
-    "mean_score",
-    "tb_pct",
-    "t2b_pct",
-    "t3b_pct",
-    "base",
-    "min_score",
-    "max_score",
-    "std_score",
+    "slice_type", "study", "category", "sub_category", "detail_product",
+    "gender", "age_group", "actual_age", "ses", "occupation",
+    "type_of_study", "test_type", "methodology", "sub_method",
+    "num_of_product", "sequence", "parameter_id", "parameter_name",
+    "parameter_key", "parameter_group", "scale", "norm_grade",
+    "mean_score", "tb_pct", "t2b_pct", "t3b_pct", "base",
+    "min_score", "max_score", "std_score",
 ]
 
 for col in expected_cols:
@@ -582,24 +533,10 @@ for col in expected_cols:
         df[col] = pd.NA
 
 text_cols = [
-    "slice_type",
-    "study",
-    "category",
-    "sub_category",
-    "detail_product",
-    "gender",
-    "age_group",
-    "ses",
-    "occupation",
-    "type_of_study",
-    "test_type",
-    "methodology",
-    "sub_method",
-    "sequence",
-    "parameter_name",
-    "parameter_key",
-    "parameter_group",
-    "norm_grade",
+    "slice_type", "study", "category", "sub_category", "detail_product",
+    "gender", "age_group", "ses", "occupation", "type_of_study",
+    "test_type", "methodology", "sub_method", "sequence",
+    "parameter_name", "parameter_key", "parameter_group", "norm_grade",
 ]
 
 for col in text_cols:
@@ -611,18 +548,9 @@ for col in text_cols:
     )
 
 num_cols = [
-    "actual_age",
-    "num_of_product",
-    "parameter_id",
-    "scale",
-    "mean_score",
-    "tb_pct",
-    "t2b_pct",
-    "t3b_pct",
-    "base",
-    "min_score",
-    "max_score",
-    "std_score",
+    "actual_age", "num_of_product", "parameter_id", "scale",
+    "mean_score", "tb_pct", "t2b_pct", "t3b_pct", "base",
+    "min_score", "max_score", "std_score",
 ]
 
 for col in num_cols:
@@ -669,30 +597,13 @@ with st.sidebar:
     )
 
     preferred = [
-        "Global",
-        "study",
-        "category",
-        "sub_category",
-        "detail_product",
-        "gender",
-        "age_group",
-        "ses",
-        "occupation",
-        "type_of_study",
-        "test_type",
-        "methodology",
-        "sub_method",
-        "sequence",
-        "study | category",
-        "study | gender",
-        "study | age_group",
-        "study | ses",
-        "study | methodology",
-        "category | gender",
-        "category | age_group",
-        "category | ses",
-        "category | methodology",
-        "methodology | test_type",
+        "Global", "study", "category", "sub_category", "detail_product",
+        "gender", "age_group", "ses", "occupation", "type_of_study",
+        "test_type", "methodology", "sub_method", "sequence",
+        "study | category", "study | gender", "study | age_group",
+        "study | ses", "study | methodology",
+        "category | gender", "category | age_group", "category | ses",
+        "category | methodology", "methodology | test_type",
     ]
 
     ordered_slices = [x for x in preferred if x in available_slices]
@@ -761,7 +672,7 @@ with st.sidebar:
 
     work = filter_df(work, "parameter_name", selected_params)
 
-    st.caption("Category narrows the attribute list. Attribute selects the specific item to benchmark.")
+    st.caption("Category narrows the attribute list. Attribute selects the item to benchmark.")
 
     scale_options = (
         work["scale"]
@@ -830,9 +741,9 @@ st.markdown(
     f"""
     <div class="hero">
         <div class="kicker">DEKA INSIGHT NORM DATABASE</div>
-        <div class="hero-title">Deka Norm Intelligence.</div>
+        <div class="hero-title">Product Test Norm Dashboard.</div>
         <div class="hero-sub">
-            Turn product-test scores into benchmark context across studies, segments, methods, and attributes.
+            Compare product-test results with historical benchmarks across studies, segments, methods, and attributes.
         </div>
         <span class="pill">{selected_slice_label}</span>
         <span class="pill">{selected_metric_label}</span>
@@ -942,25 +853,53 @@ if not metric_df.empty:
     best_attr = attr_summary.sort_values("value", ascending=False).iloc[0]
     weak_attr = attr_summary.sort_values("value", ascending=True).iloc[0]
 
-    if "study" in insight_df.columns and insight_df["study"].notna().any():
-        study_summary = (
-            insight_df
-            .dropna(subset=["study"])
-            .groupby("study")
-            .agg(
-                value=(selected_metric, "mean"),
-                base=("base", "sum"),
-                attributes=("parameter_name", "nunique"),
+    segment_label = None
+    best_segment = None
+    weak_segment = None
+
+    if active_dims:
+        segment_col = active_dims[0]
+        if segment_col in insight_df.columns and insight_df[segment_col].notna().any():
+            segment_label = col_label(segment_col)
+            segment_summary = (
+                insight_df
+                .dropna(subset=[segment_col])
+                .groupby(segment_col)
+                .agg(
+                    value=(selected_metric, "mean"),
+                    base=("base", "sum"),
+                    attributes=("parameter_name", "nunique"),
+                )
+                .reset_index()
+                .rename(columns={segment_col: "segment"})
             )
-            .reset_index()
-        )
 
-        best_study = study_summary.sort_values("value", ascending=False).iloc[0]
-        weak_study = study_summary.sort_values("value", ascending=True).iloc[0]
+            if not segment_summary.empty:
+                best_segment = segment_summary.sort_values("value", ascending=False).iloc[0]
+                weak_segment = segment_summary.sort_values("value", ascending=True).iloc[0]
 
-    else:
-        best_study = None
-        weak_study = None
+    if best_segment is None:
+        study_df_for_insight = df[df["slice_type"].astype(str).eq("study")].copy()
+
+        if not study_df_for_insight.empty:
+            study_df_for_insight = study_df_for_insight.dropna(subset=["study", selected_metric])
+
+            if not study_df_for_insight.empty:
+                segment_label = "Study / Project"
+                segment_summary = (
+                    study_df_for_insight
+                    .groupby("study")
+                    .agg(
+                        value=(selected_metric, "mean"),
+                        base=("base", "sum"),
+                        attributes=("parameter_name", "nunique"),
+                    )
+                    .reset_index()
+                    .rename(columns={"study": "segment"})
+                )
+
+                best_segment = segment_summary.sort_values("value", ascending=False).iloc[0]
+                weak_segment = segment_summary.sort_values("value", ascending=True).iloc[0]
 
     i1, i2, i3, i4 = st.columns(4)
 
@@ -1003,17 +942,17 @@ if not metric_df.empty:
         )
 
     with i3:
-        if best_study is not None:
+        if best_segment is not None:
             st.markdown(
                 f"""
                 <div class="card insight-card">
                     <div>
-                        <div class="insight-title">Leading Study</div>
-                        <div class="insight-main">{clean_value(best_study["study"])}</div>
+                        <div class="insight-title">Leading {segment_label}</div>
+                        <div class="insight-main">{clean_value(best_segment["segment"])}</div>
                         <div class="insight-sub">
-                            {selected_metric_label}: <b>{safe_num(best_study["value"], 2)}{suffix}</b><br>
-                            Attributes: {safe_int(best_study["attributes"])}<br>
-                            Base: {safe_int(best_study["base"])}
+                            {selected_metric_label}: <b>{safe_num(best_segment["value"], 2)}{suffix}</b><br>
+                            Attributes: {safe_int(best_segment["attributes"])}<br>
+                            Base: {safe_int(best_segment["base"])}
                         </div>
                     </div>
                     <span class="badge badge-green">Lead</span>
@@ -1022,50 +961,21 @@ if not metric_df.empty:
                 unsafe_allow_html=True,
             )
 
-        else:
-            st.markdown(
-                """
-                <div class="card insight-card">
-                    <div>
-                        <div class="insight-title">Leading Study</div>
-                        <div class="insight-main">—</div>
-                        <div class="insight-sub">Study data is not available in this view.</div>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
     with i4:
-        if weak_study is not None:
+        if weak_segment is not None:
             st.markdown(
                 f"""
                 <div class="card insight-card">
                     <div>
-                        <div class="insight-title">Lowest Study</div>
-                        <div class="insight-main">{clean_value(weak_study["study"])}</div>
+                        <div class="insight-title">Lowest {segment_label}</div>
+                        <div class="insight-main">{clean_value(weak_segment["segment"])}</div>
                         <div class="insight-sub">
-                            {selected_metric_label}: <b>{safe_num(weak_study["value"], 2)}{suffix}</b><br>
-                            Attributes: {safe_int(weak_study["attributes"])}<br>
-                            Base: {safe_int(weak_study["base"])}
+                            {selected_metric_label}: <b>{safe_num(weak_segment["value"], 2)}{suffix}</b><br>
+                            Attributes: {safe_int(weak_segment["attributes"])}<br>
+                            Base: {safe_int(weak_segment["base"])}
                         </div>
                     </div>
                     <span class="badge badge-gold">Compare</span>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-        else:
-            st.markdown(
-                f"""
-                <div class="card insight-card">
-                    <div>
-                        <div class="insight-title">Tier Gap</div>
-                        <div class="insight-main">{safe_num(tier_gap, 2)}{suffix}</div>
-                        <div class="insight-sub">Top 25% minus Bottom 25%.</div>
-                    </div>
-                    <span class="badge badge-gold">Spread</span>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -1103,9 +1013,7 @@ with left:
             x="value",
             y="parameter_name",
             orientation="h",
-            color="parameter_group",
-            color_discrete_map=BRAND_COLORS,
-            hover_data=["base"],
+            hover_data=["parameter_group", "base"],
             labels={
                 "value": selected_metric_label,
                 "parameter_name": "",
@@ -1114,12 +1022,20 @@ with left:
             height=max(350, top_n * 32),
         )
 
+        fig_rank.update_traces(
+            marker_color=COLOR_NAVY,
+            marker_line_color=COLOR_GOLD,
+            marker_line_width=0.6,
+            opacity=0.92,
+        )
+
         fig_rank.update_layout(
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=5, r=5, t=15, b=5),
-            legend_title_text="Category",
-            font=dict(color="#737B8E"),
+            font=dict(color=COLOR_TEXT),
+            xaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
+            yaxis=dict(gridcolor="rgba(0,0,0,0)"),
         )
 
         st.plotly_chart(
@@ -1151,9 +1067,9 @@ with right:
         tier_df["norm_grade"] = tier_df["norm_grade"].astype(str)
 
         tier_color_map = {
-            "Top 25%": "#2E7D5B",
-            "Average 50%": "#F2A93B",
-            "Bottom 25%": "#B94A48",
+            "Top 25%": COLOR_GREEN,
+            "Average 50%": COLOR_GOLD,
+            "Bottom 25%": COLOR_TAUPE,
         }
 
         fig_tier = px.bar(
@@ -1175,7 +1091,9 @@ with right:
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=5, r=5, t=15, b=5),
             showlegend=False,
-            font=dict(color="#737B8E"),
+            font=dict(color=COLOR_TEXT),
+            yaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
+            xaxis=dict(gridcolor="rgba(0,0,0,0)"),
         )
 
         st.plotly_chart(
@@ -1186,7 +1104,7 @@ with right:
 
 
 # ============================================================
-# 11. ATTRIBUTE GAP & STUDY PERFORMANCE
+# 11. ATTRIBUTE GAP & SEGMENT PERFORMANCE
 # ============================================================
 
 left2, right2 = st.columns([1.2, 1])
@@ -1225,23 +1143,29 @@ with left2:
                 x="gap",
                 y="parameter_name",
                 orientation="h",
-                color="parameter_group",
-                color_discrete_map=BRAND_COLORS,
+                hover_data=["parameter_group", "Top 25%", "Bottom 25%"],
                 labels={
                     "gap": f"Tier Gap ({selected_metric_label})",
                     "parameter_name": "",
                     "parameter_group": "Category",
                 },
-                hover_data=["Top 25%", "Bottom 25%"],
                 height=max(350, top_n * 32),
+            )
+
+            fig_gap.update_traces(
+                marker_color=COLOR_SAND,
+                marker_line_color=COLOR_NAVY,
+                marker_line_width=0.4,
+                opacity=0.92,
             )
 
             fig_gap.update_layout(
                 plot_bgcolor="rgba(0,0,0,0)",
                 paper_bgcolor="rgba(0,0,0,0)",
                 margin=dict(l=5, r=5, t=15, b=5),
-                legend_title_text="Category",
-                font=dict(color="#737B8E"),
+                font=dict(color=COLOR_TEXT),
+                xaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
+                yaxis=dict(gridcolor="rgba(0,0,0,0)"),
             )
 
             st.plotly_chart(
@@ -1251,16 +1175,34 @@ with left2:
             )
 
 with right2:
-    st.markdown('<div class="section-title">Study Performance</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="section-sub">Performance and base size by study/project.</div>',
-        unsafe_allow_html=True,
-    )
+    if active_dims:
+        segment_col = active_dims[0]
+        segment_title = f"{col_label(segment_col)} Performance"
+        segment_subtitle = f"Average benchmark performance by {col_label(segment_col).lower()}."
 
-    if "study" in metric_df.columns and metric_df["study"].notna().any():
-        study_perf = (
+        segment_perf = (
             metric_df
-            .dropna(subset=["study"])
+            .dropna(subset=[segment_col])
+            .groupby(segment_col)
+            .agg(
+                value=(selected_metric, "mean"),
+                base=("base", "sum"),
+                attributes=("parameter_name", "nunique"),
+            )
+            .reset_index()
+            .rename(columns={segment_col: "segment"})
+            .sort_values("value", ascending=False)
+        )
+
+    else:
+        segment_title = "Study Performance"
+        segment_subtitle = "Average benchmark performance by study/project."
+
+        study_slice = df[df["slice_type"].astype(str).eq("study")].copy()
+
+        segment_perf = (
+            study_slice
+            .dropna(subset=["study", selected_metric])
             .groupby("study")
             .agg(
                 value=(selected_metric, "mean"),
@@ -1268,16 +1210,53 @@ with right2:
                 attributes=("parameter_name", "nunique"),
             )
             .reset_index()
+            .rename(columns={"study": "segment"})
             .sort_values("value", ascending=False)
         )
 
-        if not study_perf.empty:
-            fig_study = px.scatter(
-                study_perf,
+    st.markdown(f'<div class="section-title">{segment_title}</div>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="section-sub">{segment_subtitle}</div>',
+        unsafe_allow_html=True,
+    )
+
+    if not segment_perf.empty:
+        if len(segment_perf) <= 8:
+            fig_segment = px.bar(
+                segment_perf.sort_values("value", ascending=False),
+                x="segment",
+                y="value",
+                hover_data=["base", "attributes"],
+                labels={
+                    "segment": "",
+                    "value": selected_metric_label,
+                },
+                height=350,
+            )
+
+            fig_segment.update_traces(
+                marker_color=COLOR_GREEN,
+                marker_line_color=COLOR_GOLD,
+                marker_line_width=0.6,
+                opacity=0.9,
+            )
+
+            fig_segment.update_layout(
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=5, r=5, t=15, b=55),
+                font=dict(color=COLOR_TEXT),
+                yaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
+                xaxis=dict(gridcolor="rgba(0,0,0,0)", tickangle=-25),
+            )
+
+        else:
+            fig_segment = px.scatter(
+                segment_perf,
                 x="base",
                 y="value",
                 size="attributes",
-                hover_name="study",
+                hover_name="segment",
                 labels={
                     "base": "Total Base",
                     "value": selected_metric_label,
@@ -1286,29 +1265,28 @@ with right2:
                 height=350,
             )
 
-            fig_study.update_traces(
+            fig_segment.update_traces(
                 marker=dict(
-                    color="#203A73",
-                    line=dict(width=1.2, color="#F2A93B"),
+                    color=COLOR_GREEN,
+                    line=dict(width=1.2, color=COLOR_GOLD),
                     opacity=0.78,
                 )
             )
 
-            fig_study.update_layout(
+            fig_segment.update_layout(
                 plot_bgcolor="rgba(0,0,0,0)",
                 paper_bgcolor="rgba(0,0,0,0)",
                 margin=dict(l=5, r=5, t=15, b=5),
-                font=dict(color="#737B8E"),
+                font=dict(color=COLOR_TEXT),
+                xaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
+                yaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
             )
 
-            st.plotly_chart(
-                fig_study,
-                use_container_width=True,
-                config=PLOT_CONFIG,
-            )
-
-    else:
-        st.info("Study data is not available in the selected view.")
+        st.plotly_chart(
+            fig_segment,
+            use_container_width=True,
+            config=PLOT_CONFIG,
+        )
 
 
 # ============================================================
