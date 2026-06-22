@@ -42,7 +42,7 @@ st.set_page_config(
 
 
 # ============================================================
-# 2. HELPERS
+# 2. HELPER FUNCTIONS
 # ============================================================
 
 def safe_num(x, decimals=1):
@@ -66,9 +66,12 @@ def safe_int(x):
 def clean_value(x):
     if pd.isna(x):
         return "—"
+
     x = str(x).strip()
+
     if x.lower() in ["", "nan", "none", "null", "<na>"]:
         return "—"
+
     return x
 
 
@@ -76,7 +79,7 @@ def get_options(df, col):
     if col not in df.columns:
         return []
 
-    return (
+    values = (
         df[col]
         .dropna()
         .astype(str)
@@ -88,20 +91,25 @@ def get_options(df, col):
         .tolist()
     )
 
+    return values
+
 
 def filter_df(df, col, selected):
     if col not in df.columns or not selected:
         return df
+
     return df[df[col].astype(str).isin(selected)].copy()
 
 
 def metric_col(label):
-    return {
+    mapping = {
         "Mean Score": "mean_score",
         "Top Box": "tb_pct",
         "Top 2 Boxes": "t2b_pct",
         "Top 3 Boxes": "t3b_pct",
-    }.get(label, "mean_score")
+    }
+
+    return mapping.get(label, "mean_score")
 
 
 def metric_suffix(col):
@@ -111,18 +119,23 @@ def metric_suffix(col):
 def confidence(base):
     if pd.isna(base):
         return "No base"
+
     if base >= 500:
         return "Strong base"
+
     if base >= 100:
         return "Reliable base"
+
     if base >= 30:
         return "Directional"
+
     return "Low base"
 
 
 def dims_from_slice(slice_type):
     if slice_type == "Global":
         return []
+
     return [x.strip() for x in str(slice_type).split("|")]
 
 
@@ -163,6 +176,7 @@ def slice_label(slice_type):
         "methodology | test_type": "Methodology × Test Type",
         "type_of_study | methodology": "Type of Study × Methodology",
     }
+
     return mapping.get(slice_type, str(slice_type).replace("_", " ").title())
 
 
@@ -194,27 +208,54 @@ def col_label(col):
         "t3b_pct": "T3B",
         "base": "Base",
     }
+
     return mapping.get(col, col.replace("_", " ").title())
 
+
+# ============================================================
+# 3. CHART COLORS — DEKA SOFT PASTEL
+# ============================================================
 
 PLOT_CONFIG = {
     "displayModeBar": False,
     "responsive": True,
 }
 
-COLOR_NAVY = "#1E2A4A"
-COLOR_BLUE = "#2F5597"
-COLOR_GOLD = "#E7A93B"
-COLOR_GREEN = "#4E7D68"
-COLOR_TAUPE = "#9C9284"
-COLOR_SAND = "#D9B56D"
-COLOR_RED = "#B96A62"
-COLOR_GRID = "#E9E4DC"
-COLOR_TEXT = "#6E768A"
+COLOR_NAVY = "#263454"          # soft navy
+COLOR_NAVY_LIGHT = "#5E6B8A"    # muted blue gray
+COLOR_GOLD = "#E7B65F"          # pastel deka gold
+COLOR_GOLD_LIGHT = "#F4D89A"    # light gold
+COLOR_SAGE = "#7FA28A"          # soft sage green
+COLOR_SAGE_DARK = "#5F826C"     # muted green
+COLOR_TAUPE = "#AAA093"         # warm taupe
+COLOR_CLAY = "#C58F7D"          # soft clay
+COLOR_CREAM = "#F7EBD8"         # cream
+COLOR_GRID = "#E9E1D6"
+COLOR_TEXT = "#747B8D"
+
+TIER_COLOR_MAP = {
+    "Top 25%": COLOR_SAGE_DARK,
+    "Average 50%": COLOR_GOLD,
+    "Bottom 25%": COLOR_TAUPE,
+}
+
+BRAND_COLORS = {
+    "Liking": COLOR_NAVY,
+    "Taste": COLOR_GOLD,
+    "Aroma": COLOR_NAVY_LIGHT,
+    "Appearance": COLOR_TAUPE,
+    "Texture": COLOR_SAGE,
+    "Purchase Intent": COLOR_CLAY,
+    "Aftertaste": COLOR_GOLD_LIGHT,
+    "Amount / Topping": "#D9BD7A",
+    "Overall Taste": COLOR_NAVY_LIGHT,
+    "Overall Attribute": COLOR_NAVY_LIGHT,
+    "Other Attribute": COLOR_TAUPE,
+}
 
 
 # ============================================================
-# 3. CSS
+# 4. CSS
 # ============================================================
 
 st.markdown(
@@ -229,8 +270,8 @@ st.markdown(
         --card: #FFFFFF;
         --line: #E8E1D8;
         --muted: #737B8E;
-        --green: #4E7D68;
-        --red: #B96A62;
+        --green: #7FA28A;
+        --red: #C58F7D;
     }
 
     .stApp {
@@ -480,7 +521,7 @@ st.markdown(
 
 
 # ============================================================
-# 4. DATABASE
+# 5. DATABASE
 # ============================================================
 
 @st.cache_resource(show_spinner=False)
@@ -515,17 +556,40 @@ if df.empty:
 
 
 # ============================================================
-# 5. CLEAN DATA
+# 6. CLEAN DATA
 # ============================================================
 
 expected_cols = [
-    "slice_type", "study", "category", "sub_category", "detail_product",
-    "gender", "age_group", "actual_age", "ses", "occupation",
-    "type_of_study", "test_type", "methodology", "sub_method",
-    "num_of_product", "sequence", "parameter_id", "parameter_name",
-    "parameter_key", "parameter_group", "scale", "norm_grade",
-    "mean_score", "tb_pct", "t2b_pct", "t3b_pct", "base",
-    "min_score", "max_score", "std_score",
+    "slice_type",
+    "study",
+    "category",
+    "sub_category",
+    "detail_product",
+    "gender",
+    "age_group",
+    "actual_age",
+    "ses",
+    "occupation",
+    "type_of_study",
+    "test_type",
+    "methodology",
+    "sub_method",
+    "num_of_product",
+    "sequence",
+    "parameter_id",
+    "parameter_name",
+    "parameter_key",
+    "parameter_group",
+    "scale",
+    "norm_grade",
+    "mean_score",
+    "tb_pct",
+    "t2b_pct",
+    "t3b_pct",
+    "base",
+    "min_score",
+    "max_score",
+    "std_score",
 ]
 
 for col in expected_cols:
@@ -533,10 +597,24 @@ for col in expected_cols:
         df[col] = pd.NA
 
 text_cols = [
-    "slice_type", "study", "category", "sub_category", "detail_product",
-    "gender", "age_group", "ses", "occupation", "type_of_study",
-    "test_type", "methodology", "sub_method", "sequence",
-    "parameter_name", "parameter_key", "parameter_group", "norm_grade",
+    "slice_type",
+    "study",
+    "category",
+    "sub_category",
+    "detail_product",
+    "gender",
+    "age_group",
+    "ses",
+    "occupation",
+    "type_of_study",
+    "test_type",
+    "methodology",
+    "sub_method",
+    "sequence",
+    "parameter_name",
+    "parameter_key",
+    "parameter_group",
+    "norm_grade",
 ]
 
 for col in text_cols:
@@ -548,9 +626,18 @@ for col in text_cols:
     )
 
 num_cols = [
-    "actual_age", "num_of_product", "parameter_id", "scale",
-    "mean_score", "tb_pct", "t2b_pct", "t3b_pct", "base",
-    "min_score", "max_score", "std_score",
+    "actual_age",
+    "num_of_product",
+    "parameter_id",
+    "scale",
+    "mean_score",
+    "tb_pct",
+    "t2b_pct",
+    "t3b_pct",
+    "base",
+    "min_score",
+    "max_score",
+    "std_score",
 ]
 
 for col in num_cols:
@@ -566,7 +653,7 @@ df["norm_grade"] = pd.Categorical(
 
 
 # ============================================================
-# 6. SIDEBAR FILTERS
+# 7. SIDEBAR FILTERS
 # ============================================================
 
 with st.sidebar:
@@ -597,13 +684,30 @@ with st.sidebar:
     )
 
     preferred = [
-        "Global", "study", "category", "sub_category", "detail_product",
-        "gender", "age_group", "ses", "occupation", "type_of_study",
-        "test_type", "methodology", "sub_method", "sequence",
-        "study | category", "study | gender", "study | age_group",
-        "study | ses", "study | methodology",
-        "category | gender", "category | age_group", "category | ses",
-        "category | methodology", "methodology | test_type",
+        "Global",
+        "study",
+        "category",
+        "sub_category",
+        "detail_product",
+        "gender",
+        "age_group",
+        "ses",
+        "occupation",
+        "type_of_study",
+        "test_type",
+        "methodology",
+        "sub_method",
+        "sequence",
+        "study | category",
+        "study | gender",
+        "study | age_group",
+        "study | ses",
+        "study | methodology",
+        "category | gender",
+        "category | age_group",
+        "category | ses",
+        "category | methodology",
+        "methodology | test_type",
     ]
 
     ordered_slices = [x for x in preferred if x in available_slices]
@@ -734,7 +838,7 @@ with st.sidebar:
 
 
 # ============================================================
-# 7. HERO
+# 8. HERO
 # ============================================================
 
 st.markdown(
@@ -759,7 +863,7 @@ if work.empty:
 
 
 # ============================================================
-# 8. KPI SNAPSHOT
+# 9. KPI SNAPSHOT
 # ============================================================
 
 metric_df = work.dropna(subset=[selected_metric]).copy()
@@ -824,7 +928,7 @@ for col, (label, value, note) in zip([k1, k2, k3, k4, k5], kpis):
 
 
 # ============================================================
-# 9. KEY INSIGHTS
+# 10. KEY INSIGHTS
 # ============================================================
 
 st.markdown('<div class="section-title">Key Insights</div>', unsafe_allow_html=True)
@@ -859,8 +963,10 @@ if not metric_df.empty:
 
     if active_dims:
         segment_col = active_dims[0]
+
         if segment_col in insight_df.columns and insight_df[segment_col].notna().any():
             segment_label = col_label(segment_col)
+
             segment_summary = (
                 insight_df
                 .dropna(subset=[segment_col])
@@ -886,6 +992,7 @@ if not metric_df.empty:
 
             if not study_df_for_insight.empty:
                 segment_label = "Study / Project"
+
                 segment_summary = (
                     study_df_for_insight
                     .groupby("study")
@@ -983,7 +1090,7 @@ if not metric_df.empty:
 
 
 # ============================================================
-# 10. MAIN CHARTS
+# 11. MAIN CHARTS
 # ============================================================
 
 left, right = st.columns([1.25, 1])
@@ -1013,7 +1120,9 @@ with left:
             x="value",
             y="parameter_name",
             orientation="h",
-            hover_data=["parameter_group", "base"],
+            color="parameter_group",
+            color_discrete_map=BRAND_COLORS,
+            hover_data=["base"],
             labels={
                 "value": selected_metric_label,
                 "parameter_name": "",
@@ -1023,9 +1132,8 @@ with left:
         )
 
         fig_rank.update_traces(
-            marker_color=COLOR_NAVY,
-            marker_line_color=COLOR_GOLD,
-            marker_line_width=0.6,
+            marker_line_color=COLOR_CREAM,
+            marker_line_width=0.8,
             opacity=0.92,
         )
 
@@ -1034,6 +1142,7 @@ with left:
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=5, r=5, t=15, b=5),
             font=dict(color=COLOR_TEXT),
+            legend_title_text="Category",
             xaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
             yaxis=dict(gridcolor="rgba(0,0,0,0)"),
         )
@@ -1043,6 +1152,7 @@ with left:
             use_container_width=True,
             config=PLOT_CONFIG,
         )
+
 
 with right:
     st.markdown('<div class="section-title">Norm Tier Profile</div>', unsafe_allow_html=True)
@@ -1066,24 +1176,24 @@ with right:
     if not tier_df.empty:
         tier_df["norm_grade"] = tier_df["norm_grade"].astype(str)
 
-        tier_color_map = {
-            "Top 25%": COLOR_GREEN,
-            "Average 50%": COLOR_GOLD,
-            "Bottom 25%": COLOR_TAUPE,
-        }
-
         fig_tier = px.bar(
             tier_df,
             x="norm_grade",
             y="value",
             color="norm_grade",
-            color_discrete_map=tier_color_map,
+            color_discrete_map=TIER_COLOR_MAP,
             hover_data=["base", "rows"],
             labels={
                 "norm_grade": "",
                 "value": selected_metric_label,
             },
             height=350,
+        )
+
+        fig_tier.update_traces(
+            marker_line_color=COLOR_CREAM,
+            marker_line_width=0.8,
+            opacity=0.92,
         )
 
         fig_tier.update_layout(
@@ -1104,7 +1214,7 @@ with right:
 
 
 # ============================================================
-# 11. ATTRIBUTE GAP & SEGMENT PERFORMANCE
+# 12. ATTRIBUTE GAP & SEGMENT PERFORMANCE
 # ============================================================
 
 left2, right2 = st.columns([1.2, 1])
@@ -1143,7 +1253,9 @@ with left2:
                 x="gap",
                 y="parameter_name",
                 orientation="h",
-                hover_data=["parameter_group", "Top 25%", "Bottom 25%"],
+                color="parameter_group",
+                color_discrete_map=BRAND_COLORS,
+                hover_data=["Top 25%", "Bottom 25%"],
                 labels={
                     "gap": f"Tier Gap ({selected_metric_label})",
                     "parameter_name": "",
@@ -1153,9 +1265,8 @@ with left2:
             )
 
             fig_gap.update_traces(
-                marker_color=COLOR_SAND,
-                marker_line_color=COLOR_NAVY,
-                marker_line_width=0.4,
+                marker_line_color=COLOR_CREAM,
+                marker_line_width=0.8,
                 opacity=0.92,
             )
 
@@ -1164,6 +1275,7 @@ with left2:
                 paper_bgcolor="rgba(0,0,0,0)",
                 margin=dict(l=5, r=5, t=15, b=5),
                 font=dict(color=COLOR_TEXT),
+                legend_title_text="Category",
                 xaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
                 yaxis=dict(gridcolor="rgba(0,0,0,0)"),
             )
@@ -1173,6 +1285,7 @@ with left2:
                 use_container_width=True,
                 config=PLOT_CONFIG,
             )
+
 
 with right2:
     if active_dims:
@@ -1235,9 +1348,9 @@ with right2:
             )
 
             fig_segment.update_traces(
-                marker_color=COLOR_GREEN,
-                marker_line_color=COLOR_GOLD,
-                marker_line_width=0.6,
+                marker_color=COLOR_SAGE,
+                marker_line_color=COLOR_GOLD_LIGHT,
+                marker_line_width=0.9,
                 opacity=0.9,
             )
 
@@ -1267,9 +1380,9 @@ with right2:
 
             fig_segment.update_traces(
                 marker=dict(
-                    color=COLOR_GREEN,
-                    line=dict(width=1.2, color=COLOR_GOLD),
-                    opacity=0.78,
+                    color=COLOR_SAGE,
+                    line=dict(width=1.3, color=COLOR_GOLD_LIGHT),
+                    opacity=0.76,
                 )
             )
 
@@ -1290,7 +1403,7 @@ with right2:
 
 
 # ============================================================
-# 12. NORM TABLE
+# 13. NORM TABLE
 # ============================================================
 
 st.markdown('<div class="section-title">Norm Table</div>', unsafe_allow_html=True)
