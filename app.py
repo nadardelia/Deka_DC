@@ -213,7 +213,7 @@ def col_label(col):
 
 
 # ============================================================
-# 3. CHART COLORS — DEKA SOFT PASTEL
+# 3. CHART COLORS — DISTINCT MUTED DEKA PALETTE
 # ============================================================
 
 PLOT_CONFIG = {
@@ -221,36 +221,38 @@ PLOT_CONFIG = {
     "responsive": True,
 }
 
-COLOR_NAVY = "#263454"          # soft navy
-COLOR_NAVY_LIGHT = "#5E6B8A"    # muted blue gray
-COLOR_GOLD = "#E7B65F"          # pastel deka gold
-COLOR_GOLD_LIGHT = "#F4D89A"    # light gold
-COLOR_SAGE = "#7FA28A"          # soft sage green
-COLOR_SAGE_DARK = "#5F826C"     # muted green
-COLOR_TAUPE = "#AAA093"         # warm taupe
-COLOR_CLAY = "#C58F7D"          # soft clay
-COLOR_CREAM = "#F7EBD8"         # cream
+COLOR_NAVY = "#24304F"
+COLOR_GOLD = "#E3A93F"
+COLOR_SAGE = "#6F9278"
+COLOR_TERRACOTTA = "#C27763"
+COLOR_DUSTY_BLUE = "#6F86A8"
+COLOR_PLUM = "#8C6A86"
+COLOR_TEAL = "#5D9A9A"
+COLOR_OLIVE = "#A0A86B"
+COLOR_CARAMEL = "#B98246"
+COLOR_STONE = "#9A9288"
+COLOR_CREAM = "#F7EBD8"
 COLOR_GRID = "#E9E1D6"
 COLOR_TEXT = "#747B8D"
 
 TIER_COLOR_MAP = {
-    "Top 25%": COLOR_SAGE_DARK,
+    "Top 25%": COLOR_SAGE,
     "Average 50%": COLOR_GOLD,
-    "Bottom 25%": COLOR_TAUPE,
+    "Bottom 25%": COLOR_TERRACOTTA,
 }
 
 BRAND_COLORS = {
-    "Liking": COLOR_NAVY,
     "Taste": COLOR_GOLD,
-    "Aroma": COLOR_NAVY_LIGHT,
-    "Appearance": COLOR_TAUPE,
+    "Aroma": COLOR_DUSTY_BLUE,
+    "Appearance": COLOR_PLUM,
+    "Liking": COLOR_NAVY,
+    "Purchase Intent": COLOR_TERRACOTTA,
+    "Aftertaste": COLOR_TEAL,
+    "Amount / Topping": COLOR_CARAMEL,
     "Texture": COLOR_SAGE,
-    "Purchase Intent": COLOR_CLAY,
-    "Aftertaste": COLOR_GOLD_LIGHT,
-    "Amount / Topping": "#D9BD7A",
-    "Overall Taste": COLOR_NAVY_LIGHT,
-    "Overall Attribute": COLOR_NAVY_LIGHT,
-    "Other Attribute": COLOR_TAUPE,
+    "Overall Taste": COLOR_OLIVE,
+    "Overall Attribute": COLOR_OLIVE,
+    "Other Attribute": COLOR_STONE,
 }
 
 
@@ -270,8 +272,8 @@ st.markdown(
         --card: #FFFFFF;
         --line: #E8E1D8;
         --muted: #737B8E;
-        --green: #7FA28A;
-        --red: #C58F7D;
+        --green: #6F9278;
+        --red: #C27763;
     }
 
     .stApp {
@@ -1134,7 +1136,7 @@ with left:
         fig_rank.update_traces(
             marker_line_color=COLOR_CREAM,
             marker_line_width=0.8,
-            opacity=0.92,
+            opacity=0.94,
         )
 
         fig_rank.update_layout(
@@ -1193,7 +1195,7 @@ with right:
         fig_tier.update_traces(
             marker_line_color=COLOR_CREAM,
             marker_line_width=0.8,
-            opacity=0.92,
+            opacity=0.94,
         )
 
         fig_tier.update_layout(
@@ -1267,7 +1269,7 @@ with left2:
             fig_gap.update_traces(
                 marker_line_color=COLOR_CREAM,
                 marker_line_width=0.8,
-                opacity=0.92,
+                opacity=0.94,
             )
 
             fig_gap.update_layout(
@@ -1348,9 +1350,9 @@ with right2:
             )
 
             fig_segment.update_traces(
-                marker_color=COLOR_SAGE,
-                marker_line_color=COLOR_GOLD_LIGHT,
-                marker_line_width=0.9,
+                marker_color=COLOR_DUSTY_BLUE,
+                marker_line_color=COLOR_GOLD,
+                marker_line_width=0.8,
                 opacity=0.9,
             )
 
@@ -1380,9 +1382,9 @@ with right2:
 
             fig_segment.update_traces(
                 marker=dict(
-                    color=COLOR_SAGE,
-                    line=dict(width=1.3, color=COLOR_GOLD_LIGHT),
-                    opacity=0.76,
+                    color=COLOR_DUSTY_BLUE,
+                    line=dict(width=1.3, color=COLOR_GOLD),
+                    opacity=0.78,
                 )
             )
 
