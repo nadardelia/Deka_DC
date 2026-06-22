@@ -42,7 +42,7 @@ st.set_page_config(
 
 
 # ============================================================
-# 2. THEME
+# 2. THEME — LIGHT / DARK MODE
 # ============================================================
 
 theme_base = st.get_option("theme.base") or "light"
@@ -53,7 +53,7 @@ if IS_DARK:
         "app_bg": "#0F1424",
         "app_bg_2": "#151B2E",
         "card": "#171E32",
-        "card_soft": "rgba(23, 30, 50, 0.94)",
+        "card_soft": "rgba(23,30,50,0.96)",
         "line": "#2B344F",
         "text": "#F4F6FB",
         "muted": "#A8B0C3",
@@ -62,18 +62,20 @@ if IS_DARK:
         "sidebar": "#090F25",
         "grid": "#2D354D",
         "plot_bg": "rgba(0,0,0,0)",
+        "input_bg": "#F7F8FF",
+        "input_text": "#0B1026",
         "cream": "#1A2136",
         "gold": "#F2B85E",
         "gold_soft": "#F4D28A",
-        "navy": "#6E85B7",
-        "blue": "#86A0CB",
+        "navy": "#7C93C3",
+        "blue": "#8AA8D8",
         "sage": "#8FBA9D",
         "sage_dark": "#74A384",
         "terracotta": "#D48A78",
-        "plum": "#B894B2",
-        "teal": "#77B9B8",
-        "olive": "#B8BE7A",
-        "caramel": "#D09A5A",
+        "plum": "#C49AC0",
+        "teal": "#79C5C3",
+        "olive": "#C3C979",
+        "caramel": "#D9A25E",
         "taupe": "#B8AFA2",
         "stone": "#A7A0A0",
     }
@@ -82,7 +84,7 @@ else:
         "app_bg": "#FAF7F0",
         "app_bg_2": "#FFFFFF",
         "card": "#FFFFFF",
-        "card_soft": "rgba(255,255,255,0.94)",
+        "card_soft": "rgba(255,255,255,0.96)",
         "line": "#E8E1D8",
         "text": "#0B1026",
         "muted": "#737B8E",
@@ -91,6 +93,8 @@ else:
         "sidebar": "#090F25",
         "grid": "#E9E1D6",
         "plot_bg": "rgba(0,0,0,0)",
+        "input_bg": "#FFFFFF",
+        "input_text": "#0B1026",
         "cream": "#F7EBD8",
         "gold": "#E3A93F",
         "gold_soft": "#F4D89A",
@@ -106,7 +110,6 @@ else:
         "taupe": "#9A9288",
         "stone": "#8F8983",
     }
-
 
 COLOR_TEXT = THEME["muted"]
 COLOR_GRID = THEME["grid"]
@@ -139,7 +142,7 @@ PLOT_CONFIG = {
 
 
 # ============================================================
-# 3. HELPERS
+# 3. HELPER FUNCTIONS
 # ============================================================
 
 def safe_num(x, decimals=1):
@@ -302,8 +305,18 @@ def apply_plot_theme(fig, show_legend=True):
         font=dict(color=COLOR_TEXT),
         legend_title_text="Category",
         showlegend=show_legend,
-        xaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
-        yaxis=dict(gridcolor="rgba(0,0,0,0)", zeroline=False),
+        xaxis=dict(
+            gridcolor=COLOR_GRID,
+            zeroline=False,
+            tickfont=dict(color=COLOR_TEXT),
+            title_font=dict(color=COLOR_TEXT),
+        ),
+        yaxis=dict(
+            gridcolor="rgba(0,0,0,0)",
+            zeroline=False,
+            tickfont=dict(color=COLOR_TEXT),
+            title_font=dict(color=COLOR_TEXT),
+        ),
     )
     return fig
 
@@ -327,6 +340,8 @@ st.markdown(
         --bg2: {THEME["app_bg_2"]};
         --hero1: {THEME["hero_1"]};
         --hero2: {THEME["hero_2"]};
+        --input-bg: {THEME["input_bg"]};
+        --input-text: {THEME["input_text"]};
     }}
 
     .stApp {{
@@ -342,24 +357,76 @@ st.markdown(
         max-width: 1420px;
     }}
 
+    /* =========================
+       SIDEBAR
+    ========================= */
+
     section[data-testid="stSidebar"] {{
         background: var(--sidebar);
-        border-right: 1px solid rgba(255,255,255,.06);
+        border-right: 1px solid rgba(255,255,255,.08);
     }}
 
     section[data-testid="stSidebar"] h1,
     section[data-testid="stSidebar"] h2,
     section[data-testid="stSidebar"] h3,
     section[data-testid="stSidebar"] p,
-    section[data-testid="stSidebar"] label,
-    section[data-testid="stSidebar"] span {{
+    section[data-testid="stSidebar"] label {{
         color: #F7F8FF !important;
     }}
 
-    section[data-testid="stSidebar"] .stSelectbox div,
-    section[data-testid="stSidebar"] .stMultiSelect div,
-    section[data-testid="stSidebar"] .stNumberInput div {{
-        color: #0B1026 !important;
+    section[data-testid="stSidebar"] .sidebar-logo {{
+        text-align: center;
+        margin: 8px 0 18px 0;
+    }}
+
+    section[data-testid="stSidebar"] .sidebar-logo img {{
+        max-width: 136px;
+    }}
+
+    .filter-hint {{
+        font-size: 12px;
+        color: rgba(255,255,255,.62) !important;
+        line-height: 1.35;
+        margin: -2px 0 14px 0;
+    }}
+
+    /* =========================
+       SIDEBAR INPUT FIX
+       agar dark mode tetap kebaca
+    ========================= */
+
+    section[data-testid="stSidebar"] div[data-baseweb="select"] > div {{
+        background-color: var(--input-bg) !important;
+        border: 1px solid rgba(255,255,255,.12) !important;
+        border-radius: 12px !important;
+        color: var(--input-text) !important;
+        box-shadow: none !important;
+    }}
+
+    section[data-testid="stSidebar"] div[data-baseweb="select"] div,
+    section[data-testid="stSidebar"] div[data-baseweb="select"] span {{
+        color: var(--input-text) !important;
+    }}
+
+    section[data-testid="stSidebar"] div[data-baseweb="select"] svg {{
+        fill: var(--input-text) !important;
+        color: var(--input-text) !important;
+    }}
+
+    section[data-testid="stSidebar"] div[data-baseweb="input"] > div {{
+        background-color: var(--input-bg) !important;
+        border: 1px solid rgba(255,255,255,.12) !important;
+        border-radius: 12px !important;
+        color: var(--input-text) !important;
+    }}
+
+    section[data-testid="stSidebar"] input {{
+        color: var(--input-text) !important;
+        background-color: var(--input-bg) !important;
+    }}
+
+    section[data-testid="stSidebar"] input::placeholder {{
+        color: rgba(11,16,38,.55) !important;
     }}
 
     section[data-testid="stSidebar"] div[data-baseweb="tag"] {{
@@ -376,21 +443,30 @@ st.markdown(
         fill: #0B1026 !important;
     }}
 
-    .sidebar-logo {{
-        text-align: center;
-        margin: 8px 0 18px 0;
+    div[data-baseweb="popover"] ul {{
+        background-color: var(--input-bg) !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(11,16,38,.10) !important;
     }}
 
-    .sidebar-logo img {{
-        max-width: 136px;
+    div[data-baseweb="popover"] li {{
+        color: var(--input-text) !important;
+        background-color: var(--input-bg) !important;
     }}
 
-    .filter-hint {{
-        font-size: 12px;
-        color: rgba(255,255,255,.60);
-        line-height: 1.35;
-        margin: -2px 0 14px 0;
+    div[data-baseweb="popover"] li:hover {{
+        background-color: rgba(242,169,59,.18) !important;
+        color: var(--input-text) !important;
     }}
+
+    div[data-baseweb="popover"] li span,
+    div[data-baseweb="popover"] li div {{
+        color: var(--input-text) !important;
+    }}
+
+    /* =========================
+       HERO
+    ========================= */
 
     .hero {{
         background:
@@ -419,6 +495,7 @@ st.markdown(
         font-weight: 900;
         line-height: 1.05;
         margin: 0 0 8px 0;
+        color: #FFFFFF !important;
     }}
 
     .hero-sub {{
@@ -441,15 +518,19 @@ st.markdown(
         font-weight: 850;
     }}
 
+    /* =========================
+       MAIN CONTENT
+    ========================= */
+
     .section-title {{
         font-size: 20px;
         font-weight: 900;
-        color: var(--ink);
+        color: var(--ink) !important;
         margin: 20px 0 6px 0;
     }}
 
     .section-sub {{
-        color: var(--muted);
+        color: var(--muted) !important;
         font-size: 13px;
         margin-bottom: 12px;
     }}
@@ -475,7 +556,7 @@ st.markdown(
     }}
 
     .metric-label {{
-        color: var(--muted);
+        color: var(--muted) !important;
         font-size: 10.5px;
         font-weight: 900;
         letter-spacing: .09em;
@@ -484,14 +565,14 @@ st.markdown(
     }}
 
     .metric-value {{
-        color: var(--ink);
+        color: var(--ink) !important;
         font-size: 27px;
         font-weight: 900;
         line-height: 1.1;
     }}
 
     .metric-note {{
-        color: var(--muted);
+        color: var(--muted) !important;
         font-size: 12px;
         margin-top: 7px;
     }}
@@ -499,7 +580,7 @@ st.markdown(
     .insight-title {{
         font-size: 12px;
         font-weight: 900;
-        color: var(--muted);
+        color: var(--muted) !important;
         text-transform: uppercase;
         letter-spacing: .06em;
         margin-bottom: 8px;
@@ -508,14 +589,14 @@ st.markdown(
     .insight-main {{
         font-size: 20px;
         font-weight: 900;
-        color: var(--ink);
+        color: var(--ink) !important;
         line-height: 1.18;
         margin-bottom: 9px;
         min-height: 48px;
     }}
 
     .insight-sub {{
-        color: var(--muted);
+        color: var(--muted) !important;
         font-size: 12.5px;
         line-height: 1.48;
     }}
@@ -532,17 +613,17 @@ st.markdown(
 
     .badge-green {{
         background: rgba(111,146,120,.18);
-        color: {THEME["sage_dark"]};
+        color: {THEME["sage_dark"]} !important;
     }}
 
     .badge-gold {{
         background: rgba(242,184,94,.18);
-        color: {THEME["gold"]};
+        color: {THEME["gold"]} !important;
     }}
 
     .badge-red {{
         background: rgba(194,119,99,.18);
-        color: {THEME["terracotta"]};
+        color: {THEME["terracotta"]} !important;
     }}
 
     div[data-testid="stDataFrame"] {{
@@ -963,7 +1044,6 @@ st.markdown('<div class="section-title">Key Insights</div>', unsafe_allow_html=T
 
 if not metric_df.empty:
     insight_base_threshold = max(min_base, 30)
-
     insight_df = metric_df[metric_df["base"].fillna(0) >= insight_base_threshold].copy()
 
     if insight_df.empty:
@@ -1197,8 +1277,18 @@ with right:
             margin=dict(l=5, r=5, t=15, b=5),
             showlegend=False,
             font=dict(color=COLOR_TEXT),
-            yaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
-            xaxis=dict(gridcolor="rgba(0,0,0,0)", zeroline=False),
+            yaxis=dict(
+                gridcolor=COLOR_GRID,
+                zeroline=False,
+                tickfont=dict(color=COLOR_TEXT),
+                title_font=dict(color=COLOR_TEXT),
+            ),
+            xaxis=dict(
+                gridcolor="rgba(0,0,0,0)",
+                zeroline=False,
+                tickfont=dict(color=COLOR_TEXT),
+                title_font=dict(color=COLOR_TEXT),
+            ),
         )
 
         st.plotly_chart(fig_tier, use_container_width=True, config=PLOT_CONFIG)
@@ -1322,8 +1412,19 @@ with right2:
                 paper_bgcolor=THEME["plot_bg"],
                 margin=dict(l=5, r=5, t=15, b=55),
                 font=dict(color=COLOR_TEXT),
-                yaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
-                xaxis=dict(gridcolor="rgba(0,0,0,0)", tickangle=-25, zeroline=False),
+                yaxis=dict(
+                    gridcolor=COLOR_GRID,
+                    zeroline=False,
+                    tickfont=dict(color=COLOR_TEXT),
+                    title_font=dict(color=COLOR_TEXT),
+                ),
+                xaxis=dict(
+                    gridcolor="rgba(0,0,0,0)",
+                    tickangle=-25,
+                    zeroline=False,
+                    tickfont=dict(color=COLOR_TEXT),
+                    title_font=dict(color=COLOR_TEXT),
+                ),
             )
 
         else:
@@ -1354,8 +1455,18 @@ with right2:
                 paper_bgcolor=THEME["plot_bg"],
                 margin=dict(l=5, r=5, t=15, b=5),
                 font=dict(color=COLOR_TEXT),
-                xaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
-                yaxis=dict(gridcolor=COLOR_GRID, zeroline=False),
+                xaxis=dict(
+                    gridcolor=COLOR_GRID,
+                    zeroline=False,
+                    tickfont=dict(color=COLOR_TEXT),
+                    title_font=dict(color=COLOR_TEXT),
+                ),
+                yaxis=dict(
+                    gridcolor=COLOR_GRID,
+                    zeroline=False,
+                    tickfont=dict(color=COLOR_TEXT),
+                    title_font=dict(color=COLOR_TEXT),
+                ),
             )
 
         st.plotly_chart(fig_segment, use_container_width=True, config=PLOT_CONFIG)
