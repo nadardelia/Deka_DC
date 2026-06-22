@@ -52,7 +52,6 @@ if IS_DARK:
     THEME = {
         "app_bg": "#0F1424",
         "app_bg_2": "#151B2E",
-        "card": "#171E32",
         "card_soft": "rgba(23,30,50,0.96)",
         "line": "#2B344F",
         "text": "#F4F6FB",
@@ -66,7 +65,6 @@ if IS_DARK:
         "input_text": "#0B1026",
         "cream": "#1A2136",
         "gold": "#F2B85E",
-        "gold_soft": "#F4D28A",
         "navy": "#7C93C3",
         "blue": "#8AA8D8",
         "sage": "#8FBA9D",
@@ -76,14 +74,12 @@ if IS_DARK:
         "teal": "#79C5C3",
         "olive": "#C3C979",
         "caramel": "#D9A25E",
-        "taupe": "#B8AFA2",
         "stone": "#A7A0A0",
     }
 else:
     THEME = {
         "app_bg": "#FAF7F0",
         "app_bg_2": "#FFFFFF",
-        "card": "#FFFFFF",
         "card_soft": "rgba(255,255,255,0.96)",
         "line": "#E8E1D8",
         "text": "#0B1026",
@@ -97,7 +93,6 @@ else:
         "input_text": "#0B1026",
         "cream": "#F7EBD8",
         "gold": "#E3A93F",
-        "gold_soft": "#F4D89A",
         "navy": "#24304F",
         "blue": "#6F86A8",
         "sage": "#6F9278",
@@ -107,7 +102,6 @@ else:
         "teal": "#5D9A9A",
         "olive": "#A0A86B",
         "caramel": "#B98246",
-        "taupe": "#9A9288",
         "stone": "#8F8983",
     }
 
@@ -270,7 +264,7 @@ def col_label(col):
     mapping = {
         "slice_type": "View",
         "study": "Study / Project",
-        "category": "Category",
+        "category": "Benchmark Category",
         "sub_category": "Sub Category",
         "detail_product": "Detail Product",
         "gender": "Gender",
@@ -284,8 +278,8 @@ def col_label(col):
         "sub_method": "Sub Method",
         "num_of_product": "# Product",
         "sequence": "Sequence",
-        "parameter_name": "Attribute",
-        "parameter_group": "Category",
+        "parameter_name": "Parameter",
+        "parameter_group": "Parameter Group",
         "scale": "Scale",
         "norm_grade": "Norm",
         "mean_score": "Mean",
@@ -297,13 +291,28 @@ def col_label(col):
     return mapping.get(col, col.replace("_", " ").title())
 
 
+def make_unique_columns(columns):
+    seen = {}
+    new_columns = []
+
+    for col in columns:
+        if col not in seen:
+            seen[col] = 0
+            new_columns.append(col)
+        else:
+            seen[col] += 1
+            new_columns.append(f"{col} ({seen[col] + 1})")
+
+    return new_columns
+
+
 def apply_plot_theme(fig, show_legend=True):
     fig.update_layout(
         plot_bgcolor=THEME["plot_bg"],
         paper_bgcolor=THEME["plot_bg"],
         margin=dict(l=5, r=5, t=15, b=5),
         font=dict(color=COLOR_TEXT),
-        legend_title_text="Category",
+        legend_title_text="Parameter Group",
         showlegend=show_legend,
         xaxis=dict(
             gridcolor=COLOR_GRID,
@@ -333,7 +342,6 @@ st.markdown(
         --ink: {THEME["text"]};
         --muted: {THEME["muted"]};
         --gold: {THEME["gold"]};
-        --card: {THEME["card"]};
         --card-soft: {THEME["card_soft"]};
         --line: {THEME["line"]};
         --bg: {THEME["app_bg"]};
@@ -356,10 +364,6 @@ st.markdown(
         padding-bottom: 2.1rem;
         max-width: 1420px;
     }}
-
-    /* =========================
-       SIDEBAR
-    ========================= */
 
     section[data-testid="stSidebar"] {{
         background: var(--sidebar);
@@ -389,11 +393,6 @@ st.markdown(
         line-height: 1.35;
         margin: -2px 0 14px 0;
     }}
-
-    /* =========================
-       SIDEBAR INPUT FIX
-       agar dark mode tetap kebaca
-    ========================= */
 
     section[data-testid="stSidebar"] div[data-baseweb="select"] > div {{
         background-color: var(--input-bg) !important;
@@ -425,8 +424,22 @@ st.markdown(
         background-color: var(--input-bg) !important;
     }}
 
-    section[data-testid="stSidebar"] input::placeholder {{
-        color: rgba(11,16,38,.55) !important;
+    div[data-baseweb="popover"] ul {{
+        background-color: var(--input-bg) !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(11,16,38,.10) !important;
+    }}
+
+    div[data-baseweb="popover"] li,
+    div[data-baseweb="popover"] li span,
+    div[data-baseweb="popover"] li div {{
+        color: var(--input-text) !important;
+        background-color: var(--input-bg) !important;
+    }}
+
+    div[data-baseweb="popover"] li:hover {{
+        background-color: rgba(242,169,59,.18) !important;
+        color: var(--input-text) !important;
     }}
 
     section[data-testid="stSidebar"] div[data-baseweb="tag"] {{
@@ -442,31 +455,6 @@ st.markdown(
     section[data-testid="stSidebar"] div[data-baseweb="tag"] svg {{
         fill: #0B1026 !important;
     }}
-
-    div[data-baseweb="popover"] ul {{
-        background-color: var(--input-bg) !important;
-        border-radius: 12px !important;
-        border: 1px solid rgba(11,16,38,.10) !important;
-    }}
-
-    div[data-baseweb="popover"] li {{
-        color: var(--input-text) !important;
-        background-color: var(--input-bg) !important;
-    }}
-
-    div[data-baseweb="popover"] li:hover {{
-        background-color: rgba(242,169,59,.18) !important;
-        color: var(--input-text) !important;
-    }}
-
-    div[data-baseweb="popover"] li span,
-    div[data-baseweb="popover"] li div {{
-        color: var(--input-text) !important;
-    }}
-
-    /* =========================
-       HERO
-    ========================= */
 
     .hero {{
         background:
@@ -517,10 +505,6 @@ st.markdown(
         font-size: 11px;
         font-weight: 850;
     }}
-
-    /* =========================
-       MAIN CONTENT
-    ========================= */
 
     .section-title {{
         font-size: 20px;
@@ -880,24 +864,24 @@ with st.sidebar:
     selected_metric = metric_col(selected_metric_label)
 
     selected_groups = st.multiselect(
-        "Attribute category",
+        "Parameter group",
         options=get_options(work, "parameter_group"),
         default=[],
-        placeholder="All categories",
+        placeholder="All parameter groups",
     )
 
     work = filter_df(work, "parameter_group", selected_groups)
 
     selected_params = st.multiselect(
-        "Attribute",
+        "Parameter",
         options=get_options(work, "parameter_name"),
         default=[],
-        placeholder="All attributes",
+        placeholder="All parameters",
     )
 
     work = filter_df(work, "parameter_name", selected_params)
 
-    st.caption("Category narrows the attribute list. Attribute selects the item to benchmark.")
+    st.caption("Parameter group narrows the parameter list. Parameter selects the item to benchmark.")
 
     scale_options = (
         work["scale"]
@@ -936,7 +920,7 @@ with st.sidebar:
     min_base = st.number_input("Minimum base", min_value=0, value=10, step=10)
     work = work[work["base"].fillna(0) >= min_base].copy()
 
-    top_n = st.slider("Top attributes", min_value=5, max_value=20, value=10, step=1)
+    top_n = st.slider("Top parameters", min_value=5, max_value=20, value=10, step=1)
 
     st.markdown("---")
 
@@ -956,7 +940,7 @@ st.markdown(
         <div class="kicker">DEKA INSIGHT NORM DATABASE</div>
         <div class="hero-title">Product Test Norm Dashboard.</div>
         <div class="hero-sub">
-            Compare product-test results with historical benchmarks across studies, segments, methods, and attributes.
+            Compare product-test results with historical benchmarks across studies, segments, methods, and parameters.
         </div>
         <span class="pill">{selected_slice_label}</span>
         <span class="pill">{selected_metric_label}</span>
@@ -1006,7 +990,7 @@ if not pd.isna(top_tier_mean) and not pd.isna(bottom_tier_mean):
     tier_gap = top_tier_mean - bottom_tier_mean
 
 study_count = work["study"].dropna().nunique()
-attribute_count = work["parameter_name"].dropna().nunique()
+parameter_count = work["parameter_name"].dropna().nunique()
 median_base = work["base"].median()
 avg_metric = metric_df[selected_metric].mean()
 
@@ -1016,7 +1000,7 @@ k1, k2, k3, k4, k5 = st.columns(5)
 
 kpis = [
     ("Norm Coverage", safe_int(len(work)), f"{safe_int(study_count)} studies"),
-    ("Attributes", safe_int(attribute_count), "Compared items"),
+    ("Parameters", safe_int(parameter_count), "Compared items"),
     ("Base Quality", safe_int(median_base), confidence(median_base)),
     ("Market Avg", f"{safe_num(avg_metric, 2)}{suffix}", selected_metric_label),
     ("Tier Gap", f"{safe_num(tier_gap, 2)}{suffix}", "Top vs bottom tier"),
@@ -1049,7 +1033,7 @@ if not metric_df.empty:
     if insight_df.empty:
         insight_df = metric_df.copy()
 
-    attr_summary = (
+    param_summary = (
         insight_df
         .groupby(["parameter_name", "parameter_group"], dropna=False)
         .agg(
@@ -1060,8 +1044,8 @@ if not metric_df.empty:
         .reset_index()
     )
 
-    best_attr = attr_summary.sort_values("value", ascending=False).iloc[0]
-    weak_attr = attr_summary.sort_values("value", ascending=True).iloc[0]
+    best_param = param_summary.sort_values("value", ascending=False).iloc[0]
+    weak_param = param_summary.sort_values("value", ascending=True).iloc[0]
 
     segment_label = None
     best_segment = None
@@ -1080,7 +1064,7 @@ if not metric_df.empty:
                 .agg(
                     value=(selected_metric, "mean"),
                     base=("base", "sum"),
-                    attributes=("parameter_name", "nunique"),
+                    parameters=("parameter_name", "nunique"),
                 )
                 .reset_index()
                 .rename(columns={segment_col: "segment"})
@@ -1105,7 +1089,7 @@ if not metric_df.empty:
                     .agg(
                         value=(selected_metric, "mean"),
                         base=("base", "sum"),
-                        attributes=("parameter_name", "nunique"),
+                        parameters=("parameter_name", "nunique"),
                     )
                     .reset_index()
                     .rename(columns={"study": "segment"})
@@ -1121,12 +1105,12 @@ if not metric_df.empty:
             f"""
             <div class="card insight-card">
                 <div>
-                    <div class="insight-title">Leading Attribute</div>
-                    <div class="insight-main">{clean_value(best_attr["parameter_name"])}</div>
+                    <div class="insight-title">Leading Parameter</div>
+                    <div class="insight-main">{clean_value(best_param["parameter_name"])}</div>
                     <div class="insight-sub">
-                        {selected_metric_label}: <b>{safe_num(best_attr["value"], 2)}{suffix}</b><br>
-                        Category: {clean_value(best_attr["parameter_group"])}<br>
-                        Base: {safe_int(best_attr["base"])}
+                        {selected_metric_label}: <b>{safe_num(best_param["value"], 2)}{suffix}</b><br>
+                        Parameter Group: {clean_value(best_param["parameter_group"])}<br>
+                        Base: {safe_int(best_param["base"])}
                     </div>
                 </div>
                 <span class="badge badge-green">Strength</span>
@@ -1141,11 +1125,11 @@ if not metric_df.empty:
             <div class="card insight-card">
                 <div>
                     <div class="insight-title">Improvement Area</div>
-                    <div class="insight-main">{clean_value(weak_attr["parameter_name"])}</div>
+                    <div class="insight-main">{clean_value(weak_param["parameter_name"])}</div>
                     <div class="insight-sub">
-                        {selected_metric_label}: <b>{safe_num(weak_attr["value"], 2)}{suffix}</b><br>
-                        Category: {clean_value(weak_attr["parameter_group"])}<br>
-                        Base: {safe_int(weak_attr["base"])}
+                        {selected_metric_label}: <b>{safe_num(weak_param["value"], 2)}{suffix}</b><br>
+                        Parameter Group: {clean_value(weak_param["parameter_group"])}<br>
+                        Base: {safe_int(weak_param["base"])}
                     </div>
                 </div>
                 <span class="badge badge-red">Watch</span>
@@ -1164,7 +1148,7 @@ if not metric_df.empty:
                         <div class="insight-main">{clean_value(best_segment["segment"])}</div>
                         <div class="insight-sub">
                             {selected_metric_label}: <b>{safe_num(best_segment["value"], 2)}{suffix}</b><br>
-                            Attributes: {safe_int(best_segment["attributes"])}<br>
+                            Parameters: {safe_int(best_segment["parameters"])}<br>
                             Base: {safe_int(best_segment["base"])}
                         </div>
                     </div>
@@ -1184,7 +1168,7 @@ if not metric_df.empty:
                         <div class="insight-main">{clean_value(weak_segment["segment"])}</div>
                         <div class="insight-sub">
                             {selected_metric_label}: <b>{safe_num(weak_segment["value"], 2)}{suffix}</b><br>
-                            Attributes: {safe_int(weak_segment["attributes"])}<br>
+                            Parameters: {safe_int(weak_segment["parameters"])}<br>
                             Base: {safe_int(weak_segment["base"])}
                         </div>
                     </div>
@@ -1202,9 +1186,9 @@ if not metric_df.empty:
 left, right = st.columns([1.25, 1])
 
 with left:
-    st.markdown('<div class="section-title">Attribute Ranking</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Parameter Ranking</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="section-sub">Highest-performing attributes for the selected benchmark.</div>',
+        '<div class="section-sub">Highest-performing parameters for the selected benchmark.</div>',
         unsafe_allow_html=True,
     )
 
@@ -1229,7 +1213,7 @@ with left:
             labels={
                 "value": selected_metric_label,
                 "parameter_name": "",
-                "parameter_group": "Category",
+                "parameter_group": "Parameter Group",
             },
             height=max(350, top_n * 32),
         )
@@ -1295,15 +1279,15 @@ with right:
 
 
 # ============================================================
-# 12. ATTRIBUTE GAP & SEGMENT PERFORMANCE
+# 12. PARAMETER GAP & SEGMENT PERFORMANCE
 # ============================================================
 
 left2, right2 = st.columns([1.2, 1])
 
 with left2:
-    st.markdown('<div class="section-title">Attribute Discrimination</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Parameter Discrimination</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="section-sub">Gap between top and bottom benchmark tiers by attribute.</div>',
+        '<div class="section-sub">Gap between top and bottom benchmark tiers by parameter.</div>',
         unsafe_allow_html=True,
     )
 
@@ -1335,7 +1319,7 @@ with left2:
                 labels={
                     "gap": f"Tier Gap ({selected_metric_label})",
                     "parameter_name": "",
-                    "parameter_group": "Category",
+                    "parameter_group": "Parameter Group",
                 },
                 height=max(350, top_n * 32),
             )
@@ -1359,7 +1343,7 @@ with right2:
             .agg(
                 value=(selected_metric, "mean"),
                 base=("base", "sum"),
-                attributes=("parameter_name", "nunique"),
+                parameters=("parameter_name", "nunique"),
             )
             .reset_index()
             .rename(columns={segment_col: "segment"})
@@ -1379,7 +1363,7 @@ with right2:
             .agg(
                 value=(selected_metric, "mean"),
                 base=("base", "sum"),
-                attributes=("parameter_name", "nunique"),
+                parameters=("parameter_name", "nunique"),
             )
             .reset_index()
             .rename(columns={"study": "segment"})
@@ -1395,7 +1379,7 @@ with right2:
                 segment_perf.sort_values("value", ascending=False),
                 x="segment",
                 y="value",
-                hover_data=["base", "attributes"],
+                hover_data=["base", "parameters"],
                 labels={"segment": "", "value": selected_metric_label},
                 height=350,
             )
@@ -1432,12 +1416,12 @@ with right2:
                 segment_perf,
                 x="base",
                 y="value",
-                size="attributes",
+                size="parameters",
                 hover_name="segment",
                 labels={
                     "base": "Total Base",
                     "value": selected_metric_label,
-                    "attributes": "Attributes",
+                    "parameters": "Parameters",
                 },
                 height=350,
             )
@@ -1500,10 +1484,16 @@ table_cols = [c for c in active_segment_cols + base_cols if c in work.columns]
 table = work[table_cols].copy()
 
 for col in table.columns:
-    if str(table[col].dtype) in ["object", "string", "category"]:
-        table[col] = table[col].astype(str).replace(["nan", "None", "<NA>", "null"], "—")
+    if pd.api.types.is_categorical_dtype(table[col]):
+        table[col] = table[col].astype(str)
+
+    elif pd.api.types.is_string_dtype(table[col]) or table[col].dtype == "object":
+        table[col] = table[col].astype(str)
+
+    table[col] = table[col].replace(["nan", "None", "<NA>", "null", "NaT"], "—")
 
 table = table.rename(columns=col_label)
+table.columns = make_unique_columns(table.columns)
 
 st.dataframe(
     table.head(300),
