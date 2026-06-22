@@ -30,16 +30,19 @@ def image_to_base64(path):
     return None
 
 
-PAGE_ICON = str(ICON_PATH) if ICON_PATH.exists() else "📊"
+logo_b64 = image_to_base64(LOGO_PATH)
+
+if ICON_PATH.exists():
+    page_icon = str(ICON_PATH)
+else:
+    page_icon = "📊"
 
 st.set_page_config(
     page_title="Deka Norm Dashboard",
-    page_icon=PAGE_ICON,
+    page_icon=page_icon,
     layout="wide",
     initial_sidebar_state="expanded",
 )
-
-logo_b64 = image_to_base64(LOGO_PATH)
 
 
 # ============================================================
@@ -77,7 +80,7 @@ def get_options(df, col):
     if col not in df.columns:
         return []
 
-    values = (
+    return (
         df[col]
         .dropna()
         .astype(str)
@@ -88,8 +91,6 @@ def get_options(df, col):
         .sort_values()
         .tolist()
     )
-
-    return values
 
 
 def filter_df(df, col, selected):
@@ -196,7 +197,6 @@ def col_label(col):
         "sub_method": "Sub Method",
         "num_of_product": "# Product",
         "sequence": "Sequence",
-        "parameter_id": "ID",
         "parameter_name": "Parameter",
         "parameter_group": "Group",
         "scale": "Scale",
@@ -206,9 +206,6 @@ def col_label(col):
         "t2b_pct": "T2B",
         "t3b_pct": "T3B",
         "base": "Base",
-        "min_score": "Min",
-        "max_score": "Max",
-        "std_score": "Std",
     }
     return mapping.get(col, col.replace("_", " ").title())
 
@@ -222,7 +219,7 @@ st.markdown(
     <style>
     :root {
         --navy: #090F25;
-        --navy2: #162044;
+        --navy2: #18244A;
         --gold: #F2A93B;
         --cream: #FAF7F0;
         --card: #FFFFFF;
@@ -230,19 +227,17 @@ st.markdown(
         --text: #0B1026;
         --muted: #737B8E;
         --green: #2E7D5B;
-        --red: #D95F59;
-        --soft-gold: #FFF4DF;
-        --soft-blue: #F2F5FB;
+        --red: #C9453F;
     }
 
     .stApp {
-        background: linear-gradient(180deg, #FAF7F0 0%, #FFFFFF 42%, #FAF7F0 100%);
+        background: linear-gradient(180deg, #FAF7F0 0%, #FFFFFF 43%, #FAF7F0 100%);
         color: var(--text);
     }
 
     .block-container {
-        padding-top: 1.1rem;
-        padding-bottom: 2.4rem;
+        padding-top: 3.8rem;
+        padding-bottom: 2.5rem;
         max-width: 1420px;
     }
 
@@ -263,11 +258,11 @@ st.markdown(
     section[data-testid="stSidebar"] .stSelectbox div,
     section[data-testid="stSidebar"] .stMultiSelect div,
     section[data-testid="stSidebar"] .stNumberInput div {
-        color: var(--text) !important;
+        color: #0B1026 !important;
     }
 
     section[data-testid="stSidebar"] div[data-baseweb="tag"] {
-        background-color: #F2A93B !important;
+        background-color: var(--gold) !important;
         border-radius: 999px !important;
     }
 
@@ -286,7 +281,7 @@ st.markdown(
     }
 
     .sidebar-logo img {
-        max-width: 138px;
+        max-width: 136px;
     }
 
     .filter-hint {
@@ -297,40 +292,41 @@ st.markdown(
     }
 
     .hero {
-        background: linear-gradient(135deg, #111A39 0%, #18244A 72%, #202D58 100%);
+        background: linear-gradient(135deg, #111A39 0%, #192653 100%);
         border-radius: 22px;
-        padding: 24px 30px;
+        padding: 22px 30px;
         color: white;
         box-shadow: 0 16px 38px rgba(9,15,37,.16);
-        margin-bottom: 20px;
+        margin-top: 10px;
+        margin-bottom: 18px;
     }
 
     .kicker {
         color: var(--gold);
-        font-size: 11px;
+        font-size: 10.5px;
         font-weight: 900;
         letter-spacing: .14em;
         text-transform: uppercase;
-        margin-bottom: 7px;
+        margin-bottom: 6px;
     }
 
     .hero-title {
-        font-size: 34px;
+        font-size: 32px;
         font-weight: 900;
         line-height: 1.08;
         margin: 0 0 7px 0;
     }
 
     .hero-sub {
-        color: rgba(255,255,255,.75);
+        color: rgba(255,255,255,.74);
         font-size: 14px;
-        line-height: 1.5;
-        max-width: 760px;
+        line-height: 1.45;
+        max-width: 720px;
     }
 
     .pill {
         display: inline-block;
-        margin-top: 13px;
+        margin-top: 12px;
         margin-right: 7px;
         padding: 6px 11px;
         border-radius: 999px;
@@ -345,20 +341,20 @@ st.markdown(
         font-size: 20px;
         font-weight: 900;
         color: var(--text);
-        margin: 20px 0 6px 0;
+        margin: 19px 0 6px 0;
     }
 
     .section-sub {
         color: var(--muted);
         font-size: 13px;
-        margin-bottom: 13px;
+        margin-bottom: 12px;
     }
 
     .card {
         background: var(--card);
         border: 1px solid var(--line);
         border-radius: 18px;
-        padding: 17px 17px;
+        padding: 16px 17px;
         box-shadow: 0 10px 26px rgba(11,16,38,.052);
         height: 100%;
     }
@@ -395,7 +391,7 @@ st.markdown(
     }
 
     .insight-main {
-        font-size: 22px;
+        font-size: 21px;
         font-weight: 900;
         color: var(--text);
         line-height: 1.18;
@@ -453,8 +449,8 @@ st.markdown(
     }
 
     hr {
-        margin-top: 1.6rem;
-        margin-bottom: 1.2rem;
+        margin-top: 1.4rem;
+        margin-bottom: 1.1rem;
     }
     </style>
     """,
@@ -544,7 +540,7 @@ df["norm_grade"] = pd.Categorical(df["norm_grade"], categories=grade_order, orde
 
 
 # ============================================================
-# 6. SIDEBAR
+# 6. SIDEBAR FILTERS
 # ============================================================
 
 with st.sidebar:
@@ -637,6 +633,14 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### Refine")
 
+    selected_metric_label = st.selectbox(
+        "Metric",
+        options=["Mean Score", "Top Box", "Top 2 Boxes", "Top 3 Boxes"],
+        index=0,
+    )
+
+    selected_metric = metric_col(selected_metric_label)
+
     group_options = get_options(work, "parameter_group")
     selected_groups = st.multiselect(
         "Parameter group",
@@ -689,15 +693,7 @@ with st.sidebar:
     min_base = st.number_input("Minimum base", min_value=0, value=10, step=10)
     work = work[work["base"].fillna(0) >= min_base].copy()
 
-    selected_metric_label = st.selectbox(
-        "Metric",
-        options=["Mean Score", "Top Box", "Top 2 Boxes", "Top 3 Boxes"],
-        index=0,
-    )
-
-    selected_metric = metric_col(selected_metric_label)
-
-    top_n = st.slider("Top attributes", min_value=5, max_value=25, value=10, step=1)
+    top_n = st.slider("Top attributes", min_value=5, max_value=20, value=10, step=1)
 
     st.markdown("---")
 
@@ -717,7 +713,7 @@ st.markdown(
         <div class="kicker">DEKA INSIGHT NORM DATABASE</div>
         <div class="hero-title">Product norm benchmark.</div>
         <div class="hero-sub">
-            Read product-test performance by study, segment, method, and attribute.
+            Benchmark product-test performance by study, segment, method, and attribute.
         </div>
         <span class="pill">{selected_slice_label}</span>
         <span class="pill">{selected_metric_label}</span>
@@ -733,29 +729,57 @@ if work.empty:
 
 
 # ============================================================
-# 8. SNAPSHOT
+# 8. KPI SNAPSHOT
 # ============================================================
 
-st.markdown('<div class="section-title">Snapshot</div>', unsafe_allow_html=True)
+metric_df = work.dropna(subset=[selected_metric]).copy()
+suffix = metric_suffix(selected_metric)
 
-total_rows = len(work)
-unique_params = work["parameter_name"].nunique()
-unique_groups = work["parameter_group"].nunique()
+top_tier_mean = np.nan
+bottom_tier_mean = np.nan
+tier_gap = np.nan
+
+tier_summary_for_kpi = (
+    metric_df
+    .dropna(subset=["norm_grade"])
+    .groupby("norm_grade", observed=False)
+    .agg(value=(selected_metric, "mean"))
+    .reset_index()
+)
+
+if "Top 25%" in tier_summary_for_kpi["norm_grade"].astype(str).tolist():
+    top_tier_mean = tier_summary_for_kpi.loc[
+        tier_summary_for_kpi["norm_grade"].astype(str).eq("Top 25%"),
+        "value"
+    ].iloc[0]
+
+if "Bottom 25%" in tier_summary_for_kpi["norm_grade"].astype(str).tolist():
+    bottom_tier_mean = tier_summary_for_kpi.loc[
+        tier_summary_for_kpi["norm_grade"].astype(str).eq("Bottom 25%"),
+        "value"
+    ].iloc[0]
+
+if not pd.isna(top_tier_mean) and not pd.isna(bottom_tier_mean):
+    tier_gap = top_tier_mean - bottom_tier_mean
+
+study_count = work["study"].dropna().nunique()
+attribute_count = work["parameter_name"].dropna().nunique()
 median_base = work["base"].median()
-avg_mean = work["mean_score"].mean()
-avg_t2b = work["t2b_pct"].mean()
+avg_metric = metric_df[selected_metric].mean()
 
-m1, m2, m3, m4, m5 = st.columns(5)
+st.markdown('<div class="section-title">Performance Snapshot</div>', unsafe_allow_html=True)
 
-snapshot = [
-    ("Rows", safe_int(total_rows), "After filters"),
-    ("Attributes", safe_int(unique_params), "Unique parameters"),
-    ("Groups", safe_int(unique_groups), "Attribute groups"),
+k1, k2, k3, k4, k5 = st.columns(5)
+
+kpis = [
+    ("Studies", safe_int(study_count), "Projects covered"),
+    ("Attributes", safe_int(attribute_count), "Parameters compared"),
     ("Median Base", safe_int(median_base), confidence(median_base)),
-    ("Avg T2B", f"{safe_num(avg_t2b, 1)}%", "Top 2 Boxes"),
+    (f"Avg {selected_metric_label}", f"{safe_num(avg_metric, 2)}{suffix}", "Filtered benchmark"),
+    ("Tier Gap", f"{safe_num(tier_gap, 2)}{suffix}", "Top 25% minus Bottom 25%"),
 ]
 
-for col, (label, value, note) in zip([m1, m2, m3, m4, m5], snapshot):
+for col, (label, value, note) in zip([k1, k2, k3, k4, k5], kpis):
     with col:
         st.markdown(
             f"""
@@ -770,16 +794,12 @@ for col, (label, value, note) in zip([m1, m2, m3, m4, m5], snapshot):
 
 
 # ============================================================
-# 9. INSIGHTS
+# 9. KEY INSIGHTS
 # ============================================================
 
 st.markdown('<div class="section-title">Key Insights</div>', unsafe_allow_html=True)
 
-metric_df = work.dropna(subset=[selected_metric]).copy()
-
 if not metric_df.empty:
-    suffix = metric_suffix(selected_metric)
-
     attr_summary = (
         metric_df
         .groupby(["parameter_name", "parameter_group"], dropna=False)
@@ -806,70 +826,62 @@ if not metric_df.empty:
             )
             .reset_index()
         )
+
         best_study = study_summary.sort_values("value", ascending=False).iloc[0]
+        weak_study = study_summary.sort_values("value", ascending=True).iloc[0]
     else:
         best_study = None
+        weak_study = None
 
-    grade_summary = (
-        metric_df
-        .dropna(subset=["norm_grade"])
-        .groupby("norm_grade", observed=False)
-        .agg(value=(selected_metric, "mean"))
-        .reset_index()
-    )
+    i1, i2, i3, i4 = st.columns(4)
 
-    spread_text = "—"
-    if {"Top 25%", "Bottom 25%"}.issubset(set(grade_summary["norm_grade"].astype(str))):
-        top_value = grade_summary.loc[grade_summary["norm_grade"].astype(str).eq("Top 25%"), "value"].iloc[0]
-        bottom_value = grade_summary.loc[grade_summary["norm_grade"].astype(str).eq("Bottom 25%"), "value"].iloc[0]
-        spread_text = f"{safe_num(top_value - bottom_value, 2)}{suffix}"
-
-    c1, c2, c3, c4 = st.columns(4)
-
-    with c1:
+    with i1:
         st.markdown(
             f"""
             <div class="card">
-                <div class="insight-title">Top Attribute</div>
+                <div class="insight-title">Best Attribute</div>
                 <div class="insight-main">{clean_value(best_attr["parameter_name"])}</div>
                 <div class="insight-sub">
-                    {metric_label(selected_metric)}: <b>{safe_num(best_attr["value"], 2)}{suffix}</b><br>
+                    {selected_metric_label}: <b>{safe_num(best_attr["value"], 2)}{suffix}</b><br>
                     Group: {clean_value(best_attr["parameter_group"])}<br>
                     Base: {safe_int(best_attr["base"])}
                 </div>
+                <span class="badge badge-green">Strength</span>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    with c2:
+    with i2:
         st.markdown(
             f"""
             <div class="card">
-                <div class="insight-title">Watch-out</div>
+                <div class="insight-title">Watch-out Attribute</div>
                 <div class="insight-main">{clean_value(weak_attr["parameter_name"])}</div>
                 <div class="insight-sub">
-                    {metric_label(selected_metric)}: <b>{safe_num(weak_attr["value"], 2)}{suffix}</b><br>
+                    {selected_metric_label}: <b>{safe_num(weak_attr["value"], 2)}{suffix}</b><br>
                     Group: {clean_value(weak_attr["parameter_group"])}<br>
                     Base: {safe_int(weak_attr["base"])}
                 </div>
+                <span class="badge badge-red">Review</span>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-    with c3:
+    with i3:
         if best_study is not None:
             st.markdown(
                 f"""
                 <div class="card">
-                    <div class="insight-title">Best Study</div>
+                    <div class="insight-title">Leading Study</div>
                     <div class="insight-main">{clean_value(best_study["study"])}</div>
                     <div class="insight-sub">
-                        {metric_label(selected_metric)}: <b>{safe_num(best_study["value"], 2)}{suffix}</b><br>
+                        {selected_metric_label}: <b>{safe_num(best_study["value"], 2)}{suffix}</b><br>
                         Attributes: {safe_int(best_study["attributes"])}<br>
                         Base: {safe_int(best_study["base"])}
                     </div>
+                    <span class="badge badge-green">Leading</span>
                 </div>
                 """,
                 unsafe_allow_html=True,
@@ -878,41 +890,55 @@ if not metric_df.empty:
             st.markdown(
                 """
                 <div class="card">
-                    <div class="insight-title">Best Study</div>
+                    <div class="insight-title">Leading Study</div>
                     <div class="insight-main">—</div>
-                    <div class="insight-sub">Study data is not available for this view.</div>
+                    <div class="insight-sub">Study is not available in this view.</div>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
-    with c4:
-        st.markdown(
-            f"""
-            <div class="card">
-                <div class="insight-title">Tier Spread</div>
-                <div class="insight-main">{spread_text}</div>
-                <div class="insight-sub">
-                    Difference between Top 25% and Bottom 25%.<br>
-                    Wider spread means stronger discrimination.
+    with i4:
+        if weak_study is not None:
+            st.markdown(
+                f"""
+                <div class="card">
+                    <div class="insight-title">Lowest Study</div>
+                    <div class="insight-main">{clean_value(weak_study["study"])}</div>
+                    <div class="insight-sub">
+                        {selected_metric_label}: <b>{safe_num(weak_study["value"], 2)}{suffix}</b><br>
+                        Attributes: {safe_int(weak_study["attributes"])}<br>
+                        Base: {safe_int(weak_study["base"])}
+                    </div>
+                    <span class="badge badge-gold">Compare</span>
                 </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                f"""
+                <div class="card">
+                    <div class="insight-title">Tier Gap</div>
+                    <div class="insight-main">{safe_num(tier_gap, 2)}{suffix}</div>
+                    <div class="insight-sub">Top 25% minus Bottom 25%.</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
 
 # ============================================================
-# 10. CHARTS
+# 10. MAIN CHARTS
 # ============================================================
 
 left, right = st.columns([1.25, 1])
 
 with left:
     st.markdown('<div class="section-title">Attribute Ranking</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-sub">Top attributes by selected metric.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-sub">Highest-performing attributes for the selected benchmark.</div>', unsafe_allow_html=True)
 
-    chart_df = (
+    rank_df = (
         metric_df
         .groupby(["parameter_name", "parameter_group"], dropna=False)
         .agg(
@@ -924,38 +950,38 @@ with left:
         .head(top_n)
     )
 
-    if not chart_df.empty:
-        fig = px.bar(
-            chart_df.sort_values("value", ascending=True),
+    if not rank_df.empty:
+        fig_rank = px.bar(
+            rank_df.sort_values("value", ascending=True),
             x="value",
             y="parameter_name",
             orientation="h",
             color="parameter_group",
             hover_data=["base"],
             labels={
-                "value": metric_label(selected_metric),
+                "value": selected_metric_label,
                 "parameter_name": "",
                 "parameter_group": "Group",
             },
-            height=max(360, top_n * 32),
+            height=max(350, top_n * 32),
         )
 
-        fig.update_layout(
+        fig_rank.update_layout(
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=5, r=5, t=15, b=5),
             legend_title_text="Group",
         )
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig_rank, use_container_width=True)
 
 with right:
-    st.markdown('<div class="section-title">Norm Tier</div>', unsafe_allow_html=True)
-    st.markdown('<div class="section-sub">Average by benchmark tier.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Norm Tier Profile</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-sub">Average score by benchmark tier.</div>', unsafe_allow_html=True)
 
-    grade_df = (
-        work
-        .dropna(subset=["norm_grade", selected_metric])
+    tier_df = (
+        metric_df
+        .dropna(subset=["norm_grade"])
         .groupby("norm_grade", observed=False)
         .agg(
             value=(selected_metric, "mean"),
@@ -965,74 +991,124 @@ with right:
         .reset_index()
     )
 
-    if not grade_df.empty:
-        grade_df["norm_grade"] = grade_df["norm_grade"].astype(str)
+    if not tier_df.empty:
+        tier_df["norm_grade"] = tier_df["norm_grade"].astype(str)
 
-        fig2 = px.bar(
-            grade_df,
+        fig_tier = px.bar(
+            tier_df,
             x="norm_grade",
             y="value",
             hover_data=["base", "rows"],
             labels={
                 "norm_grade": "",
-                "value": metric_label(selected_metric),
+                "value": selected_metric_label,
             },
-            height=360,
+            height=350,
         )
 
-        fig2.update_layout(
+        fig_tier.update_layout(
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             margin=dict(l=5, r=5, t=15, b=5),
             showlegend=False,
         )
 
-        st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(fig_tier, use_container_width=True)
 
 
 # ============================================================
-# 11. STUDY COVERAGE
+# 11. ATTRIBUTE GAP & STUDY PERFORMANCE
 # ============================================================
 
-if "study" in df.columns and df["study"].notna().any():
-    study_slice = df[df["slice_type"].astype(str).eq("study")].copy()
+left2, right2 = st.columns([1.2, 1])
 
-    if not study_slice.empty:
-        st.markdown('<div class="section-title">Study Coverage</div>', unsafe_allow_html=True)
-        st.markdown('<div class="section-sub">Number of norm rows by study/project.</div>', unsafe_allow_html=True)
+with left2:
+    st.markdown('<div class="section-title">Attribute Discrimination</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-sub">Gap between Top 25% and Bottom 25% by attribute.</div>', unsafe_allow_html=True)
 
-        study_df = (
-            study_slice
+    gap_df = (
+        metric_df
+        .dropna(subset=["norm_grade"])
+        .pivot_table(
+            index=["parameter_name", "parameter_group"],
+            columns="norm_grade",
+            values=selected_metric,
+            aggfunc="mean",
+        )
+        .reset_index()
+    )
+
+    if {"Top 25%", "Bottom 25%"}.issubset(gap_df.columns):
+        gap_df["gap"] = gap_df["Top 25%"] - gap_df["Bottom 25%"]
+        gap_df = gap_df.dropna(subset=["gap"]).sort_values("gap", ascending=False).head(top_n)
+
+        if not gap_df.empty:
+            fig_gap = px.bar(
+                gap_df.sort_values("gap", ascending=True),
+                x="gap",
+                y="parameter_name",
+                orientation="h",
+                color="parameter_group",
+                labels={
+                    "gap": f"Tier Gap ({selected_metric_label})",
+                    "parameter_name": "",
+                    "parameter_group": "Group",
+                },
+                hover_data=["Top 25%", "Bottom 25%"],
+                height=max(350, top_n * 32),
+            )
+
+            fig_gap.update_layout(
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=5, r=5, t=15, b=5),
+                legend_title_text="Group",
+            )
+
+            st.plotly_chart(fig_gap, use_container_width=True)
+
+with right2:
+    st.markdown('<div class="section-title">Study Performance</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-sub">Average benchmark performance by study/project.</div>', unsafe_allow_html=True)
+
+    if "study" in metric_df.columns and metric_df["study"].notna().any():
+        study_perf = (
+            metric_df
             .dropna(subset=["study"])
             .groupby("study")
             .agg(
-                rows=("parameter_name", "count"),
+                value=(selected_metric, "mean"),
+                base=("base", "sum"),
                 attributes=("parameter_name", "nunique"),
-                median_base=("base", "median"),
-                avg_mean=("mean_score", "mean"),
             )
             .reset_index()
-            .sort_values("study")
+            .sort_values("value", ascending=False)
         )
 
-        fig3 = px.bar(
-            study_df,
-            x="study",
-            y="rows",
-            hover_data=["attributes", "median_base", "avg_mean"],
-            labels={"study": "", "rows": "Rows"},
-            height=330,
-        )
+        if not study_perf.empty:
+            fig_study = px.scatter(
+                study_perf,
+                x="base",
+                y="value",
+                size="attributes",
+                hover_name="study",
+                labels={
+                    "base": "Total Base",
+                    "value": selected_metric_label,
+                    "attributes": "Attributes",
+                },
+                height=350,
+            )
 
-        fig3.update_layout(
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
-            xaxis_tickangle=-35,
-            margin=dict(l=5, r=5, t=15, b=80),
-            showlegend=False,
-        )
+            fig_study.update_layout(
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+                margin=dict(l=5, r=5, t=15, b=5),
+            )
 
-        st.plotly_chart(fig3, use_container_width=True)
+            st.plotly_chart(fig_study, use_container_width=True)
+    else:
+        st.info("Study data is not available in the selected view.")
 
 
 # ============================================================
@@ -1040,6 +1116,7 @@ if "study" in df.columns and df["study"].notna().any():
 # ============================================================
 
 st.markdown('<div class="section-title">Norm Table</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-sub">Filtered benchmark table for export or detailed review.</div>', unsafe_allow_html=True)
 
 active_segment_cols = active_dims.copy()
 
@@ -1069,7 +1146,7 @@ st.dataframe(
     table.head(300),
     use_container_width=True,
     hide_index=True,
-    height=360,
+    height=330,
 )
 
 st.caption(f"Showing 300 of {len(table):,} filtered rows.")
@@ -1088,5 +1165,5 @@ st.download_button(
 
 st.markdown("---")
 st.caption(
-    "Top 25% indicates stronger benchmark performance; Bottom 25% indicates weaker benchmark performance. Interpret results together with base size."
+    "Top 25% = stronger benchmark tier. Bottom 25% = weaker benchmark tier. Interpret every result together with base size."
 )
