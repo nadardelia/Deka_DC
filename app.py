@@ -1,5 +1,6 @@
 import base64
 from pathlib import Path
+from textwrap import dedent
 from urllib.parse import quote_plus
 
 import numpy as np
@@ -32,6 +33,34 @@ st.set_page_config(
 
 
 # ============================================================
+# BASIC HELPERS
+# ============================================================
+
+def html(content: str) -> str:
+    return dedent(content).strip()
+
+
+def image_to_base64(path: Path):
+    if not path.exists():
+        return None
+    return base64.b64encode(path.read_bytes()).decode()
+
+
+logo_base64 = image_to_base64(LOGO_PATH)
+
+if logo_base64:
+    LOGO_HTML = f'<img src="data:image/png;base64,{logo_base64}" class="brand-logo" />'
+    SIDEBAR_LOGO_HTML = f'''
+    <div class="sidebar-logo-wrap">
+        <img src="data:image/png;base64,{logo_base64}" class="sidebar-logo" />
+    </div>
+    '''
+else:
+    LOGO_HTML = '<div class="brand-fallback"><span>deka</span><br>insight</div>'
+    SIDEBAR_LOGO_HTML = '<div class="sidebar-logo-fallback"><span>deka</span><br>insight</div>'
+
+
+# ============================================================
 # BRAND COLORS
 # ============================================================
 
@@ -48,41 +77,11 @@ RED = "#D95F59"
 
 
 # ============================================================
-# IMAGE HELPERS
-# ============================================================
-
-def image_to_base64(path: Path):
-    if not path.exists():
-        return None
-    return base64.b64encode(path.read_bytes()).decode()
-
-
-logo_base64 = image_to_base64(LOGO_PATH)
-
-if logo_base64:
-    LOGO_HTML = f"""
-    <img src="data:image/png;base64,{logo_base64}" class="brand-logo" />
-    """
-    SIDEBAR_LOGO_HTML = f"""
-    <div class="sidebar-logo-wrap">
-        <img src="data:image/png;base64,{logo_base64}" class="sidebar-logo" />
-    </div>
-    """
-else:
-    LOGO_HTML = """
-    <div class="brand-fallback"><span>deka</span><br>insight</div>
-    """
-    SIDEBAR_LOGO_HTML = """
-    <div class="sidebar-logo-fallback"><span>deka</span><br>insight</div>
-    """
-
-
-# ============================================================
 # CSS
 # ============================================================
 
 st.markdown(
-    f"""
+    html(f"""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
@@ -119,16 +118,16 @@ st.markdown(
         }}
 
         .sidebar-logo-wrap {{
-            width: 118px;
-            margin: 18px 0 28px 0;
+            width: 130px;
+            margin: 18px 0 30px 0;
             overflow: visible;
         }}
 
         .sidebar-logo {{
-            width: 118px;
+            width: 130px;
             height: auto;
-            display: block;
             object-fit: contain;
+            display: block;
         }}
 
         .sidebar-logo-fallback {{
@@ -173,8 +172,8 @@ st.markdown(
         }}
 
         .brand-logo {{
-            width: 104px;
-            max-height: 46px;
+            width: 108px;
+            max-height: 48px;
             object-fit: contain;
             display: block;
         }}
@@ -477,7 +476,7 @@ st.markdown(
             margin: 28px 0;
         }}
     </style>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -498,10 +497,42 @@ def get_engine():
     return create_engine(url)
 
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=3600)
 def load_data():
     engine = get_engine()
-    return pd.read_sql("SELECT * FROM norm_value_all", engine)
+
+    query = """
+    SELECT
+        slice_type,
+        category,
+        sub_category,
+        detail_product,
+        gender,
+        age_group,
+        actual_age,
+        ses,
+        occupation,
+        type_of_study,
+        test_type,
+        methodology,
+        sub_method,
+        num_of_product,
+        sequence,
+        parameter_name,
+        scale,
+        norm_grade,
+        mean_score,
+        tb_pct,
+        t2b_pct,
+        t3b_pct,
+        base,
+        min_score,
+        max_score,
+        std_score
+    FROM norm_value_all
+    """
+
+    return pd.read_sql(query, engine)
 
 
 df = load_data()
@@ -512,8 +543,15 @@ df = load_data()
 # ============================================================
 
 numeric_cols = [
-    "scale", "mean_score", "tb_pct", "t2b_pct", "t3b_pct",
-    "base", "min_score", "max_score", "std_score",
+    "scale",
+    "mean_score",
+    "tb_pct",
+    "t2b_pct",
+    "t3b_pct",
+    "base",
+    "min_score",
+    "max_score",
+    "std_score",
 ]
 
 for col in numeric_cols:
@@ -538,6 +576,12 @@ if "gender" in df.columns:
     })
 
 grade_order = ["Top 25%", "Average 50%", "Bottom 25%"]
+
+df["norm_grade"] = pd.Categorical(
+    df["norm_grade"],
+    categories=grade_order,
+    ordered=True,
+)
 
 
 # ============================================================
@@ -602,82 +646,7 @@ def sort_dropdown_values(col, values):
 
 
 # ============================================================
-# DUPLICATE COLLAPSE
-# ============================================================
-
-def weighted_avg(series, weights):
-    series = pd.to_numeric(series, errors="coerce")
-    weights = pd.to_numeric(weights, errors="coerce").fillna(0)
-    mask = series.notna() & weights.notna() & (weights > 0)
-
-    if not mask.any():
-        return np.nan
-
-    return np.average(series[mask], weights=weights[mask])
-
-
-def collapse_duplicate_norms(data):
-    dimension_cols = [
-        "slice_type",
-        "category",
-        "sub_category",
-        "detail_product",
-        "gender",
-        "age_group",
-        "actual_age",
-        "ses",
-        "occupation",
-        "type_of_study",
-        "test_type",
-        "methodology",
-        "sub_method",
-        "num_of_product",
-        "sequence",
-        "parameter_name",
-        "scale",
-        "norm_grade",
-    ]
-
-    group_cols = [c for c in dimension_cols if c in data.columns]
-    metric_cols = ["mean_score", "tb_pct", "t2b_pct", "t3b_pct", "std_score"]
-
-    def summarize(group):
-        weights = pd.to_numeric(group["base"], errors="coerce").fillna(0)
-        out = {}
-
-        for metric in metric_cols:
-            if metric in group.columns:
-                out[metric] = weighted_avg(group[metric], weights)
-
-        out["base"] = weights.sum()
-
-        if "min_score" in group.columns:
-            out["min_score"] = pd.to_numeric(group["min_score"], errors="coerce").min()
-
-        if "max_score" in group.columns:
-            out["max_score"] = pd.to_numeric(group["max_score"], errors="coerce").max()
-
-        return pd.Series(out)
-
-    return (
-        data
-        .groupby(group_cols, dropna=False)
-        .apply(summarize)
-        .reset_index()
-    )
-
-
-df = collapse_duplicate_norms(df)
-
-df["norm_grade"] = pd.Categorical(
-    df["norm_grade"],
-    categories=grade_order,
-    ordered=True,
-)
-
-
-# ============================================================
-# HELPERS
+# GENERAL HELPERS
 # ============================================================
 
 def fmt_value(value, metric_col):
@@ -715,20 +684,20 @@ def get_tier_value(data, grade, metric_col):
 
 def render_metric(col, label, value, note):
     col.markdown(
-        f"""
+        html(f"""
         <div class="metric-card">
             <div class="metric-label">{label}</div>
             <div class="metric-value">{value}</div>
             <div class="metric-note">{note}</div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
 
 def render_signal(col, title, pill, copy):
     col.markdown(
-        f"""
+        html(f"""
         <div class="signal-card">
             <div class="signal-title">{title}</div>
             <div class="signal-copy">
@@ -736,7 +705,7 @@ def render_signal(col, title, pill, copy):
                 {copy}
             </div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
@@ -745,7 +714,7 @@ def render_signal(col, title, pill, copy):
 # SIDEBAR
 # ============================================================
 
-st.sidebar.markdown(SIDEBAR_LOGO_HTML, unsafe_allow_html=True)
+st.sidebar.markdown(html(SIDEBAR_LOGO_HTML), unsafe_allow_html=True)
 st.sidebar.markdown("## Filters")
 st.sidebar.caption("Choose a benchmark cut, then refine.")
 
@@ -859,7 +828,7 @@ if filtered.empty:
 # ============================================================
 
 st.markdown(
-    f"""
+    html(f"""
     <div class="hero">
         <div class="brand-row">
             <div class="brand-left">
@@ -877,8 +846,8 @@ st.markdown(
         </div>
 
         <div class="hero-copy">
-            Read every survey score against historical norms. See what is strong, what is normal,
-            and what needs attention — by attribute, segment, scale, and norm tier.
+            Read survey scores against historical norms. See what is strong, what is normal,
+            and what needs attention by attribute, segment, scale, and norm tier.
         </div>
 
         <div class="mini-flow">
@@ -888,7 +857,7 @@ st.markdown(
             <span><b>04</b> Spot gap</span>
         </div>
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -922,11 +891,11 @@ render_metric(k5, "T2B", f"{avg_t2b:.1f}%", "Top 2")
 render_metric(k6, "T3B", "—" if pd.isna(avg_t3b) else f"{avg_t3b:.1f}%", "Scale 7+")
 
 st.markdown(
-    """
+    html("""
     <div class="hint">
         Compare scores within the same scale only. A 5-point score should not be read against 7-point or 9-point norms.
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
@@ -950,31 +919,32 @@ st.markdown(
 v1, v2, v3, v4 = st.columns([1.25, 1, 1, 1])
 
 v1.markdown(
-    f"""
+    html(f"""
     <div class="verdict-card">
         <div class="verdict-kicker">Current cut</div>
         <div class="verdict-main">Strong starts at {fmt_value(top_value, metric_col)}</div>
         <div class="verdict-text">
-            Use Top 25% as the high benchmark, Average 50% as the norm line,
-            and Bottom 25% as the watch-out zone.
+            Top 25% marks strong performance. Average 50% is the norm line.
+            Bottom 25% is the watch-out zone.
             <br>
             <span class="confidence {conf_class}">{conf_label}</span>
             <br>{conf_note}
         </div>
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
 
+
 def tier_card(col, title, value, copy):
     col.markdown(
-        f"""
+        html(f"""
         <div class="tier-card">
             <div class="tier-title">{title}</div>
             <div class="tier-value">{fmt_value(value, metric_col)}</div>
             <div class="tier-copy">{copy}</div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
@@ -1034,12 +1004,9 @@ check_scope = filtered[
     & (filtered["scale"] == selected_scale)
 ].copy()
 
-if metric_col == "mean_score":
-    score_max = float(selected_scale)
-else:
-    score_max = 100.0
-
+score_max = float(selected_scale) if metric_col == "mean_score" else 100.0
 default_score = check_scope[metric_col].mean()
+
 if pd.isna(default_score):
     default_score = 0.0
 
@@ -1070,22 +1037,22 @@ if pd.notna(top_ref) and pd.notna(avg_ref):
         score_note = "Not critical, but room to improve."
 
     c3.markdown(
-        f"""
+        html(f"""
         <div class="tier-card" style="min-height: 112px;">
             <div class="tier-title">{score_status}</div>
             <div class="tier-copy">{score_note}</div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 else:
     c3.markdown(
-        """
+        html("""
         <div class="tier-card" style="min-height: 112px;">
             <div class="tier-title">Limited norm</div>
             <div class="tier-copy">This parameter does not have enough tiers for a score read.</div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
@@ -1425,8 +1392,10 @@ table_df = table_df.astype("object")
 table_df = table_df.where(pd.notna(table_df), "—")
 table_df = table_df.replace(["None", "nan", "NaN", "NULL", ""], "—")
 
+table_show = table_df.head(300)
+
 st.dataframe(
-    table_df,
+    table_show,
     use_container_width=True,
     hide_index=True,
     height=430,
@@ -1442,11 +1411,11 @@ st.download_button(
 )
 
 st.markdown(
-    """
+    html("""
     <div class="hint">
         Norm groups are calculated from ranked respondent-level scores within each parameter and scale.
         Dashboard reads are for benchmark interpretation, not causal inference.
     </div>
-    """,
+    """),
     unsafe_allow_html=True,
 )
