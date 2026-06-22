@@ -11,24 +11,18 @@ from sqlalchemy import create_engine
 
 
 # ============================================================
-# LOGO & PAGE ICON
+# ASSETS & PAGE CONFIG
 # ============================================================
 
-APP_ICON_PATH = Path("deka-icon.png")
 LOGO_PATH = Path("deka-logo.png")
+ICON_PATH = Path("deka-icon.png")
 
-if APP_ICON_PATH.exists():
-    PAGE_ICON = Image.open(APP_ICON_PATH)
+if ICON_PATH.exists():
+    PAGE_ICON = Image.open(ICON_PATH)
 elif LOGO_PATH.exists():
     PAGE_ICON = Image.open(LOGO_PATH)
 else:
     PAGE_ICON = "🟡"
-
-
-# ============================================================
-# PAGE CONFIG
-# Must be the first Streamlit command
-# ============================================================
 
 st.set_page_config(
     page_title="Deka Norm Dashboard",
@@ -38,7 +32,7 @@ st.set_page_config(
 
 
 # ============================================================
-# BRAND PALETTE
+# BRAND COLORS
 # ============================================================
 
 NAVY = "#0B1026"
@@ -48,21 +42,18 @@ CREAM = "#FAF8F2"
 CARD = "#FFFFFF"
 GREY = "#747B8D"
 LINE = "#E7E0D6"
+TAUPE = "#C8BFB2"
 GREEN = "#2E7D5B"
 RED = "#D95F59"
-TAUPE = "#C8BFB2"
 
 
 # ============================================================
-# LOGO HANDLING
+# IMAGE HELPERS
 # ============================================================
 
-def image_to_base64(path):
-    path = Path(path)
-
+def image_to_base64(path: Path):
     if not path.exists():
         return None
-
     return base64.b64encode(path.read_bytes()).decode()
 
 
@@ -70,18 +61,24 @@ logo_base64 = image_to_base64(LOGO_PATH)
 
 if logo_base64:
     LOGO_HTML = f"""
-        <img src="data:image/png;base64,{logo_base64}" class="brand-logo" />
+    <img src="data:image/png;base64,{logo_base64}" class="brand-logo" />
+    """
+    SIDEBAR_LOGO_HTML = f"""
+    <div class="sidebar-logo-wrap">
+        <img src="data:image/png;base64,{logo_base64}" class="sidebar-logo" />
+    </div>
     """
 else:
     LOGO_HTML = """
-        <div class="brand-fallback">
-            <span>deka</span><br>insight
-        </div>
+    <div class="brand-fallback"><span>deka</span><br>insight</div>
+    """
+    SIDEBAR_LOGO_HTML = """
+    <div class="sidebar-logo-fallback"><span>deka</span><br>insight</div>
     """
 
 
 # ============================================================
-# GLOBAL STYLE
+# CSS
 # ============================================================
 
 st.markdown(
@@ -95,15 +92,20 @@ st.markdown(
 
         .stApp {{
             background:
-                radial-gradient(circle at 12% 8%, rgba(242,169,59,0.12), transparent 24%),
+                radial-gradient(circle at 8% 5%, rgba(242,169,59,0.10), transparent 24%),
                 linear-gradient(180deg, #FFFCF7 0%, {CREAM} 100%);
             color: {NAVY};
         }}
 
+        header[data-testid="stHeader"] {{
+            background: rgba(255,255,255,0.72);
+            backdrop-filter: blur(10px);
+        }}
+
         .main .block-container {{
-            max-width: 1480px;
-            padding-top: 2rem;
-            padding-bottom: 5rem;
+            max-width: 1360px;
+            padding-top: 1.2rem;
+            padding-bottom: 4rem;
         }}
 
         section[data-testid="stSidebar"] {{
@@ -116,11 +118,50 @@ st.markdown(
             color: {BLUE};
         }}
 
-        .brand-bar {{
+        .sidebar-logo-wrap {{
+            width: 118px;
+            margin: 18px 0 28px 0;
+            overflow: visible;
+        }}
+
+        .sidebar-logo {{
+            width: 118px;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }}
+
+        .sidebar-logo-fallback {{
+            color: {NAVY};
+            font-size: 1.25rem;
+            font-weight: 900;
+            line-height: 0.9;
+            margin-bottom: 28px;
+        }}
+
+        .sidebar-logo-fallback span {{
+            color: {GOLD};
+        }}
+
+        .hero {{
+            position: relative;
+            background:
+                radial-gradient(circle at top right, rgba(242,169,59,0.13), transparent 26%),
+                linear-gradient(135deg, #FFFFFF 0%, #FFF8EC 100%);
+            border: 1px solid #EFE1CB;
+            border-radius: 30px;
+            padding: 32px 40px 34px 40px;
+            box-shadow: 0 22px 56px rgba(11,16,38,0.07);
+            margin-bottom: 28px;
+            overflow: hidden;
+        }}
+
+        .brand-row {{
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 26px;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 22px;
             position: relative;
             z-index: 2;
         }}
@@ -132,81 +173,59 @@ st.markdown(
         }}
 
         .brand-logo {{
-            width: 96px;
-            height: auto;
+            width: 104px;
+            max-height: 46px;
             object-fit: contain;
+            display: block;
         }}
 
         .brand-fallback {{
-            color: {NAVY};
             font-weight: 900;
+            color: {NAVY};
             line-height: 0.9;
-            font-size: 1.15rem;
         }}
 
         .brand-fallback span {{
             color: {GOLD};
         }}
 
-        .brand-kicker {{
+        .brand-sub {{
             color: {GREY};
-            font-size: 0.82rem;
+            font-size: 0.80rem;
             font-weight: 800;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }}
 
-        .brand-pill {{
+        .brand-chip {{
             background: {NAVY};
-            color: white;
-            padding: 10px 18px;
+            color: #FFFFFF;
+            padding: 9px 16px;
             border-radius: 999px;
-            font-size: 0.82rem;
             font-weight: 800;
-        }}
-
-        .hero {{
-            position: relative;
-            background:
-                radial-gradient(circle at top left, rgba(242,169,59,0.20), transparent 30%),
-                linear-gradient(135deg, #FFFFFF 0%, #FFF8EC 100%);
-            border: 1px solid #EFE1CB;
-            border-radius: 34px;
-            padding: 42px 52px 46px 52px;
-            box-shadow: 0 28px 70px rgba(11,16,38,0.08);
-            margin-bottom: 34px;
-            overflow: hidden;
-        }}
-
-        .hero:after {{
-            content: "";
-            position: absolute;
-            right: -90px;
-            top: -90px;
-            width: 280px;
-            height: 280px;
-            background: rgba(242,169,59,0.13);
-            border-radius: 50%;
+            font-size: 0.80rem;
+            white-space: nowrap;
         }}
 
         .eyebrow {{
-            font-size: 0.78rem;
-            letter-spacing: 0.14em;
             color: {GOLD};
+            font-size: 0.76rem;
             font-weight: 900;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             position: relative;
             z-index: 2;
         }}
 
         .hero-title {{
-            font-size: 3.25rem;
-            line-height: 1.02;
             color: {NAVY};
+            font-size: 2.85rem;
+            line-height: 1.03;
             font-weight: 900;
             letter-spacing: -0.055em;
-            margin-bottom: 18px;
-            max-width: 980px;
+            margin-bottom: 12px;
+            max-width: 930px;
             position: relative;
             z-index: 2;
         }}
@@ -219,74 +238,74 @@ st.markdown(
         }}
 
         .hero-copy {{
-            font-size: 1.06rem;
-            line-height: 1.75;
             color: {BLUE};
-            max-width: 930px;
+            font-size: 1.00rem;
+            line-height: 1.62;
+            max-width: 820px;
             position: relative;
             z-index: 2;
         }}
 
-        .method-strip {{
+        .mini-flow {{
             display: flex;
-            gap: 12px;
-            margin-top: 26px;
             flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
             position: relative;
             z-index: 2;
         }}
 
-        .method-item {{
-            background: rgba(255,255,255,0.75);
+        .mini-flow span {{
+            background: rgba(255,255,255,0.76);
             border: 1px solid #EFE1CB;
-            border-radius: 999px;
-            padding: 9px 14px;
             color: {BLUE};
-            font-size: 0.84rem;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 0.80rem;
             font-weight: 800;
         }}
 
-        .method-item span {{
+        .mini-flow b {{
             color: {GOLD};
         }}
 
         .section-title {{
             color: {NAVY};
-            font-size: 1.55rem;
+            font-size: 1.42rem;
             font-weight: 900;
             letter-spacing: -0.035em;
-            margin: 8px 0 6px 0;
+            margin: 4px 0 4px 0;
         }}
 
         .section-subtitle {{
             color: {GREY};
-            font-size: 0.96rem;
-            margin-bottom: 18px;
+            font-size: 0.92rem;
+            margin-bottom: 14px;
         }}
 
         .metric-card {{
             background: {CARD};
             border: 1px solid {LINE};
-            border-radius: 24px;
-            padding: 22px 22px;
-            box-shadow: 0 14px 32px rgba(11,16,38,0.06);
-            height: 148px;
+            border-radius: 20px;
+            padding: 18px 18px;
+            box-shadow: 0 12px 28px rgba(11,16,38,0.05);
+            height: 126px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }}
 
         .metric-label {{
-            font-size: 0.73rem;
             color: {GREY};
+            font-size: 0.70rem;
             font-weight: 900;
-            letter-spacing: 0.09em;
+            letter-spacing: 0.10em;
             text-transform: uppercase;
         }}
 
         .metric-value {{
             color: {NAVY};
-            font-size: 2.02rem;
+            font-size: 1.84rem;
             font-weight: 900;
             letter-spacing: -0.045em;
             line-height: 1;
@@ -294,115 +313,112 @@ st.markdown(
 
         .metric-note {{
             color: {GREY};
-            font-size: 0.80rem;
-            line-height: 1.35;
+            font-size: 0.76rem;
         }}
 
         .verdict-card {{
             background: {NAVY};
             color: white;
-            border-radius: 28px;
-            padding: 28px 30px;
-            box-shadow: 0 22px 52px rgba(11,16,38,0.18);
-            min-height: 215px;
+            border-radius: 24px;
+            padding: 24px 26px;
+            min-height: 180px;
+            box-shadow: 0 18px 42px rgba(11,16,38,0.16);
         }}
 
-        .verdict-label {{
+        .verdict-kicker {{
             color: {GOLD};
-            font-size: 0.75rem;
+            font-size: 0.70rem;
             font-weight: 900;
-            letter-spacing: 0.12em;
+            letter-spacing: 0.13em;
             text-transform: uppercase;
-            margin-bottom: 14px;
-        }}
-
-        .verdict-title {{
-            color: white;
-            font-size: 1.65rem;
-            font-weight: 900;
-            letter-spacing: -0.035em;
-            line-height: 1.18;
             margin-bottom: 12px;
         }}
 
-        .verdict-copy {{
-            color: #E6E9F0;
-            font-size: 0.96rem;
-            line-height: 1.6;
+        .verdict-main {{
+            color: white;
+            font-size: 1.44rem;
+            font-weight: 900;
+            letter-spacing: -0.035em;
+            line-height: 1.16;
+            margin-bottom: 10px;
         }}
 
-        .threshold-card {{
+        .verdict-text {{
+            color: #E5E8F0;
+            font-size: 0.90rem;
+            line-height: 1.52;
+        }}
+
+        .tier-card {{
             background: white;
             border: 1px solid {LINE};
-            border-radius: 24px;
-            padding: 22px 24px;
-            box-shadow: 0 14px 32px rgba(11,16,38,0.06);
-            min-height: 215px;
+            border-radius: 22px;
+            padding: 22px 22px;
+            min-height: 180px;
+            box-shadow: 0 12px 28px rgba(11,16,38,0.05);
         }}
 
-        .threshold-title {{
+        .tier-title {{
             color: {NAVY};
-            font-size: 1.05rem;
+            font-size: 0.98rem;
             font-weight: 900;
             margin-bottom: 10px;
         }}
 
-        .threshold-value {{
+        .tier-value {{
             color: {GOLD};
-            font-size: 2.15rem;
-            line-height: 1;
+            font-size: 1.94rem;
             font-weight: 900;
             letter-spacing: -0.045em;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }}
 
-        .threshold-copy {{
+        .tier-copy {{
             color: {BLUE};
-            font-size: 0.92rem;
-            line-height: 1.55;
+            font-size: 0.86rem;
+            line-height: 1.48;
         }}
 
-        .insight-card {{
-            background: {CARD};
+        .signal-card {{
+            background: white;
             border: 1px solid {LINE};
-            border-left: 7px solid {GOLD};
-            border-radius: 24px;
-            padding: 22px 24px;
-            box-shadow: 0 16px 34px rgba(11,16,38,0.06);
-            min-height: 150px;
+            border-left: 6px solid {GOLD};
+            border-radius: 22px;
+            padding: 20px 22px;
+            min-height: 128px;
+            box-shadow: 0 12px 28px rgba(11,16,38,0.05);
         }}
 
-        .insight-title {{
+        .signal-title {{
             color: {NAVY};
-            font-size: 1.05rem;
+            font-size: 1.00rem;
             font-weight: 900;
             margin-bottom: 8px;
-            letter-spacing: -0.02em;
         }}
 
-        .insight-copy {{
+        .signal-copy {{
             color: {BLUE};
-            font-size: 0.96rem;
-            line-height: 1.55;
+            font-size: 0.90rem;
+            line-height: 1.48;
         }}
 
         .pill {{
             display: inline-block;
-            background: rgba(242,169,59,0.16);
+            background: rgba(242,169,59,0.14);
             color: {NAVY};
-            border: 1px solid rgba(242,169,59,0.36);
-            padding: 4px 10px;
+            border: 1px solid rgba(242,169,59,0.34);
             border-radius: 999px;
-            font-size: 0.78rem;
-            font-weight: 800;
-            margin-bottom: 10px;
+            padding: 4px 10px;
+            font-size: 0.72rem;
+            font-weight: 900;
+            margin-bottom: 9px;
         }}
 
         .confidence {{
             display: inline-block;
             border-radius: 999px;
             padding: 5px 11px;
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-weight: 900;
             margin-top: 8px;
         }}
@@ -425,19 +441,18 @@ st.markdown(
             border: 1px solid rgba(217,95,89,0.24);
         }}
 
-        .score-box {{
-            background: white;
-            border: 1px solid {LINE};
-            border-radius: 26px;
-            padding: 24px 26px;
-            box-shadow: 0 14px 34px rgba(11,16,38,0.05);
+        .hint {{
+            color: {GREY};
+            font-size: 0.84rem;
+            margin-top: 10px;
+            line-height: 1.45;
         }}
 
         div[data-testid="stDataFrame"] {{
-            border-radius: 20px;
+            border-radius: 18px;
             overflow: hidden;
             border: 1px solid {LINE};
-            box-shadow: 0 14px 34px rgba(11,16,38,0.05);
+            box-shadow: 0 12px 28px rgba(11,16,38,0.04);
         }}
 
         .stDownloadButton > button {{
@@ -445,7 +460,7 @@ st.markdown(
             color: {NAVY};
             border: none;
             border-radius: 999px;
-            padding: 0.72rem 1.25rem;
+            padding: 0.68rem 1.18rem;
             font-weight: 900;
         }}
 
@@ -459,22 +474,16 @@ st.markdown(
             border: none;
             height: 1px;
             background: {LINE};
-            margin: 34px 0;
-        }}
-
-        .small-note {{
-            color: {GREY};
-            font-size: 0.86rem;
-            line-height: 1.5;
+            margin: 28px 0;
         }}
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 
 # ============================================================
-# DATABASE CONNECTION
+# DATABASE
 # ============================================================
 
 @st.cache_resource
@@ -499,7 +508,7 @@ df = load_data()
 
 
 # ============================================================
-# DATA CLEANING
+# CLEANING
 # ============================================================
 
 numeric_cols = [
@@ -532,7 +541,7 @@ grade_order = ["Top 25%", "Average 50%", "Bottom 25%"]
 
 
 # ============================================================
-# DISPLAY LABELS & SORTING
+# LABELS & SORTING
 # ============================================================
 
 SLICE_LABEL_MAP = {
@@ -593,13 +602,12 @@ def sort_dropdown_values(col, values):
 
 
 # ============================================================
-# COLLAPSE DUPLICATE DISPLAY ROWS
+# DUPLICATE COLLAPSE
 # ============================================================
 
 def weighted_avg(series, weights):
     series = pd.to_numeric(series, errors="coerce")
     weights = pd.to_numeric(weights, errors="coerce").fillna(0)
-
     mask = series.notna() & weights.notna() & (weights > 0)
 
     if not mask.any():
@@ -635,7 +643,6 @@ def collapse_duplicate_norms(data):
 
     def summarize(group):
         weights = pd.to_numeric(group["base"], errors="coerce").fillna(0)
-
         out = {}
 
         for metric in metric_cols:
@@ -670,60 +677,77 @@ df["norm_grade"] = pd.Categorical(
 
 
 # ============================================================
-# GENERAL HELPERS
+# HELPERS
 # ============================================================
 
 def fmt_value(value, metric_col):
     if pd.isna(value):
         return "—"
-
     if metric_col == "mean_score":
         return f"{value:.2f}"
-
     return f"{value:.1f}%"
 
 
 def fmt_number(value):
     if pd.isna(value):
         return "—"
-
     return f"{value:,.0f}"
 
 
 def confidence_label(base):
     if pd.isna(base):
-        return "Directional", "confidence-directional", "Base not available."
-
+        return "Directional", "confidence-directional", "Base unavailable"
     if base >= 500:
-        return "Strong", "confidence-strong", "Large base. Good for benchmark reading."
-
+        return "Strong", "confidence-strong", "Large base"
     if base >= 100:
-        return "Reliable", "confidence-reliable", "Enough base for comparison."
-
+        return "Reliable", "confidence-reliable", "Solid base"
     if base >= 30:
-        return "Directional", "confidence-reliable", "Useful signal, but read with care."
-
-    return "Low base", "confidence-directional", "Too small for a firm conclusion."
+        return "Directional", "confidence-reliable", "Use as signal"
+    return "Low base", "confidence-directional", "Read carefully"
 
 
 def get_tier_value(data, grade, metric_col):
     temp = data[data["norm_grade"].astype(str) == grade]
-
     if temp.empty:
         return np.nan
-
     return temp[metric_col].mean()
+
+
+def render_metric(col, label, value, note):
+    col.markdown(
+        f"""
+        <div class="metric-card">
+            <div class="metric-label">{label}</div>
+            <div class="metric-value">{value}</div>
+            <div class="metric-note">{note}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_signal(col, title, pill, copy):
+    col.markdown(
+        f"""
+        <div class="signal-card">
+            <div class="signal-title">{title}</div>
+            <div class="signal-copy">
+                <span class="pill">{pill}</span><br>
+                {copy}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 # ============================================================
 # SIDEBAR
 # ============================================================
 
-if LOGO_PATH.exists():
-    st.sidebar.image(str(LOGO_PATH), width=105)
-
+st.sidebar.markdown(SIDEBAR_LOGO_HTML, unsafe_allow_html=True)
 st.sidebar.markdown("## Filters")
-st.sidebar.caption("Pick a benchmark cut and refine the comparison.")
+st.sidebar.caption("Choose a benchmark cut, then refine.")
 
 available_slices = df["slice_type"].dropna().unique().tolist()
 
@@ -772,7 +796,6 @@ selected_display = st.sidebar.selectbox(
 )
 
 selected_slice = display_to_raw[selected_display]
-
 filtered = df[df["slice_type"] == selected_slice].copy()
 
 slice_columns = selected_slice.split(" | ") if selected_slice != "Global" else []
@@ -783,22 +806,12 @@ for col in slice_columns:
     values = sort_dropdown_values(col, values)
 
     if values:
-        chosen = st.sidebar.multiselect(
-            clean_label(col),
-            values,
-            default=[],
-        )
-
+        chosen = st.sidebar.multiselect(clean_label(col), values, default=[])
         if chosen:
             filtered = filtered[filtered[col].astype(str).isin(chosen)]
 
 parameters = sorted(filtered["parameter_name"].dropna().unique().tolist())
-
-chosen_params = st.sidebar.multiselect(
-    "Parameter",
-    parameters,
-    default=[],
-)
+chosen_params = st.sidebar.multiselect("Parameter", parameters, default=[])
 
 if chosen_params:
     filtered = filtered[filtered["parameter_name"].isin(chosen_params)]
@@ -806,11 +819,7 @@ if chosen_params:
 scales = filtered["scale"].dropna().unique().tolist()
 scales = sort_dropdown_values("scale", scales)
 
-chosen_scales = st.sidebar.multiselect(
-    "Scale",
-    scales,
-    default=scales,
-)
+chosen_scales = st.sidebar.multiselect("Scale", scales, default=scales)
 
 if chosen_scales:
     filtered = filtered[filtered["scale"].isin(chosen_scales)]
@@ -820,22 +829,12 @@ grades = [
     if g in filtered["norm_grade"].dropna().astype(str).unique()
 ]
 
-chosen_grades = st.sidebar.multiselect(
-    "Norm group",
-    grades,
-    default=grades,
-)
+chosen_grades = st.sidebar.multiselect("Norm group", grades, default=grades)
 
 if chosen_grades:
     filtered = filtered[filtered["norm_grade"].astype(str).isin(chosen_grades)]
 
-min_base = st.sidebar.number_input(
-    "Minimum base",
-    min_value=0,
-    value=10,
-    step=10,
-)
-
+min_base = st.sidebar.number_input("Minimum base", min_value=0, value=10, step=10)
 filtered = filtered[filtered["base"] >= min_base].copy()
 
 metric_options = {
@@ -845,22 +844,13 @@ metric_options = {
     "Top 3 Boxes": "t3b_pct",
 }
 
-metric_label = st.sidebar.selectbox(
-    "Focus metric",
-    list(metric_options.keys()),
-)
-
+metric_label = st.sidebar.selectbox("Focus metric", list(metric_options.keys()))
 metric_col = metric_options[metric_label]
 
-top_n = st.sidebar.slider(
-    "Show top parameters",
-    min_value=5,
-    max_value=25,
-    value=12,
-)
+top_n = st.sidebar.slider("Top parameters", min_value=5, max_value=20, value=10)
 
 if filtered.empty:
-    st.warning("No benchmark found for this selection. Try lowering the base or changing the segment.")
+    st.warning("No benchmark found. Try another filter or lower the minimum base.")
     st.stop()
 
 
@@ -871,31 +861,31 @@ if filtered.empty:
 st.markdown(
     f"""
     <div class="hero">
-        <div class="brand-bar">
+        <div class="brand-row">
             <div class="brand-left">
                 {LOGO_HTML}
-                <div class="brand-kicker">Survey Norm Database</div>
+                <div class="brand-sub">Survey Norm Database</div>
             </div>
-            <div class="brand-pill">Consumer Insight Benchmark</div>
+            <div class="brand-chip">Insight Benchmark</div>
         </div>
 
         <div class="eyebrow">DEKA INSIGHT • ANALYTICS TOOL</div>
 
         <div class="hero-title">
-            Know whether a score is<br>
-            <span class="hero-accent">good, average, or below norm.</span>
+            Score context,<br>
+            <span class="hero-accent">not just score tracking.</span>
         </div>
 
         <div class="hero-copy">
-            A benchmark dashboard for reading survey scores against Deka’s historical database.
-            Compare every attribute by segment, scale, and norm tier — then turn raw scores into sharper business calls.
+            Read every survey score against historical norms. See what is strong, what is normal,
+            and what needs attention — by attribute, segment, scale, and norm tier.
         </div>
 
-        <div class="method-strip">
-            <div class="method-item"><span>01</span> Choose segment</div>
-            <div class="method-item"><span>02</span> Read the norm</div>
-            <div class="method-item"><span>03</span> Spot the gap</div>
-            <div class="method-item"><span>04</span> Decide the next move</div>
+        <div class="mini-flow">
+            <span><b>01</b> Select cut</span>
+            <span><b>02</b> Read norm</span>
+            <span><b>03</b> Check score</span>
+            <span><b>04</b> Spot gap</span>
         </div>
     </div>
     """,
@@ -916,40 +906,26 @@ avg_t3b = filtered["t3b_pct"].mean(skipna=True)
 
 conf_label, conf_class, conf_note = confidence_label(median_base)
 
-st.markdown('<div class="section-title">Norm at a glance</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Benchmark snapshot</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-subtitle">The fastest read of the selected benchmark.</div>',
+    '<div class="section-subtitle">A compact read of the selected norm cut.</div>',
     unsafe_allow_html=True,
 )
 
 k1, k2, k3, k4, k5, k6 = st.columns(6)
 
-
-def render_metric(col, label, value, note):
-    col.markdown(
-        f"""
-        <div class="metric-card">
-            <div class="metric-label">{label}</div>
-            <div class="metric-value">{value}</div>
-            <div class="metric-note">{note}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-render_metric(k1, "Norm Rows", f"{norm_rows:,}", "Benchmark rows")
-render_metric(k2, "Median Base", fmt_number(median_base), "Typical sample size")
-render_metric(k3, "Mean", f"{avg_mean:.2f}", "Average score")
+render_metric(k1, "Rows", f"{norm_rows:,}", "Norm rows")
+render_metric(k2, "Base", fmt_number(median_base), "Median base")
+render_metric(k3, "Mean", f"{avg_mean:.2f}", "Avg score")
 render_metric(k4, "TB", f"{avg_tb:.1f}%", "Top Box")
-render_metric(k5, "T2B", f"{avg_t2b:.1f}%", "Top 2 Boxes")
+render_metric(k5, "T2B", f"{avg_t2b:.1f}%", "Top 2")
 render_metric(k6, "T3B", "—" if pd.isna(avg_t3b) else f"{avg_t3b:.1f}%", "Scale 7+")
 
 st.markdown(
     """
-    <p class="small-note">
-        Scores are benchmarked within the same scale. Avoid comparing 5-point, 7-point, and 9-point results directly.
-    </p>
+    <div class="hint">
+        Compare scores within the same scale only. A 5-point score should not be read against 7-point or 9-point norms.
+    </div>
     """,
     unsafe_allow_html=True,
 )
@@ -958,74 +934,54 @@ st.markdown("<hr>", unsafe_allow_html=True)
 
 
 # ============================================================
-# BENCHMARK VERDICT
+# VERDICT
 # ============================================================
 
 top_value = get_tier_value(filtered, "Top 25%", metric_col)
 avg_value = get_tier_value(filtered, "Average 50%", metric_col)
 bottom_value = get_tier_value(filtered, "Bottom 25%", metric_col)
 
-st.markdown('<div class="section-title">Benchmark verdict</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Norm verdict</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-subtitle">What strong, typical, and weak performance look like in this cut.</div>',
+    '<div class="section-subtitle">The benchmark line for strong, normal, and weak performance.</div>',
     unsafe_allow_html=True,
 )
 
-v1, v2, v3, v4 = st.columns([1.35, 1, 1, 1])
+v1, v2, v3, v4 = st.columns([1.25, 1, 1, 1])
 
 v1.markdown(
     f"""
     <div class="verdict-card">
-        <div class="verdict-label">Current benchmark</div>
-        <div class="verdict-title">
-            Strong performance starts around {fmt_value(top_value, metric_col)}.
-        </div>
-        <div class="verdict-copy">
-            Top 25% is the upper reference for {metric_label}. Average 50% is the practical baseline,
-            while Bottom 25% marks the watch-out range.
+        <div class="verdict-kicker">Current cut</div>
+        <div class="verdict-main">Strong starts at {fmt_value(top_value, metric_col)}</div>
+        <div class="verdict-text">
+            Use Top 25% as the high benchmark, Average 50% as the norm line,
+            and Bottom 25% as the watch-out zone.
             <br>
             <span class="confidence {conf_class}">{conf_label}</span>
-            <br><br>{conf_note}
+            <br>{conf_note}
         </div>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-
-def threshold_card(col, title, value, copy):
+def tier_card(col, title, value, copy):
     col.markdown(
         f"""
-        <div class="threshold-card">
-            <div class="threshold-title">{title}</div>
-            <div class="threshold-value">{fmt_value(value, metric_col)}</div>
-            <div class="threshold-copy">{copy}</div>
+        <div class="tier-card">
+            <div class="tier-title">{title}</div>
+            <div class="tier-value">{fmt_value(value, metric_col)}</div>
+            <div class="tier-copy">{copy}</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
 
-threshold_card(
-    v2,
-    "Top 25%",
-    top_value,
-    "Winning benchmark. Scores close to this range are strong.",
-)
-
-threshold_card(
-    v3,
-    "Average 50%",
-    avg_value,
-    "Normal zone. Use this as the baseline for comparison.",
-)
-
-threshold_card(
-    v4,
-    "Bottom 25%",
-    bottom_value,
-    "Watch-out range. Scores here need closer diagnosis.",
-)
+tier_card(v2, "Top 25%", top_value, "Strong benchmark.")
+tier_card(v3, "Average 50%", avg_value, "Normal reference.")
+tier_card(v4, "Bottom 25%", bottom_value, "Watch-out zone.")
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -1034,41 +990,64 @@ st.markdown("<hr>", unsafe_allow_html=True)
 # SCORE CHECKER
 # ============================================================
 
-st.markdown('<div class="section-title">Score check</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Score checker</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-subtitle">Input a product score and see where it lands against the selected norm.</div>',
+    '<div class="section-subtitle">Input a score and get a quick norm read.</div>',
     unsafe_allow_html=True,
 )
 
-st.markdown('<div class="score-box">', unsafe_allow_html=True)
+pair_tiers = (
+    filtered
+    .groupby(["parameter_name", "scale"], dropna=False)["norm_grade"]
+    .apply(lambda s: set(s.astype(str)))
+    .reset_index(name="tiers")
+)
 
-c1, c2, c3, c4 = st.columns([1.5, 0.8, 0.9, 1.2])
+pair_tiers["tier_count"] = pair_tiers["tiers"].apply(len)
+pair_tiers["has_top_avg"] = pair_tiers["tiers"].apply(
+    lambda x: ("Top 25%" in x) and ("Average 50%" in x)
+)
 
-check_params = sorted(filtered["parameter_name"].dropna().unique().tolist())
-check_param = c1.selectbox("Parameter to check", check_params)
+pair_tiers = pair_tiers.sort_values(
+    ["has_top_avg", "tier_count", "parameter_name", "scale"],
+    ascending=[False, False, True, True],
+)
 
-check_scope = filtered[filtered["parameter_name"] == check_param].copy()
+pair_tiers["label"] = (
+    pair_tiers["parameter_name"].astype(str)
+    + " · "
+    + pair_tiers["scale"].astype(str)
+    + " pts"
+)
 
-check_scales = sort_dropdown_values("scale", check_scope["scale"].dropna().unique().tolist())
-check_scale = c2.selectbox("Scale", check_scales)
+pair_labels = pair_tiers["label"].tolist()
+label_to_pair = pair_tiers.set_index("label")[["parameter_name", "scale"]].to_dict("index")
 
-check_scope = check_scope[check_scope["scale"] == check_scale].copy()
+c1, c2, c3 = st.columns([1.7, 0.75, 1.15])
+
+selected_pair = c1.selectbox("Parameter", pair_labels)
+selected_param = label_to_pair[selected_pair]["parameter_name"]
+selected_scale = label_to_pair[selected_pair]["scale"]
+
+check_scope = filtered[
+    (filtered["parameter_name"] == selected_param)
+    & (filtered["scale"] == selected_scale)
+].copy()
 
 if metric_col == "mean_score":
-    max_score = float(check_scale)
-    default_score = float(check_scope[metric_col].mean()) if not check_scope.empty else 0.0
+    score_max = float(selected_scale)
 else:
-    max_score = 100.0
-    default_score = float(check_scope[metric_col].mean()) if not check_scope.empty else 0.0
+    score_max = 100.0
 
+default_score = check_scope[metric_col].mean()
 if pd.isna(default_score):
     default_score = 0.0
 
-score_value = c3.number_input(
-    "Your score",
+score_value = c2.number_input(
+    "Score",
     min_value=0.0,
-    max_value=max_score,
-    value=min(default_score, max_score),
+    max_value=score_max,
+    value=float(min(default_score, score_max)),
     step=0.1,
 )
 
@@ -1078,31 +1057,37 @@ bottom_ref = get_tier_value(check_scope, "Bottom 25%", metric_col)
 
 if pd.notna(top_ref) and pd.notna(avg_ref):
     if score_value >= top_ref:
-        verdict = "Above top norm"
-        verdict_note = "Strong result. This score sits in the winning range."
+        score_status = "Above norm"
+        score_note = "Strong. Treat as a winning signal."
     elif score_value >= avg_ref:
-        verdict = "Within norm"
-        verdict_note = "Healthy result. This score is around the market baseline."
+        score_status = "On norm"
+        score_note = "Healthy. Around market reference."
     elif pd.notna(bottom_ref) and score_value <= bottom_ref:
-        verdict = "Below norm"
-        verdict_note = "Weak result. This score needs attention."
+        score_status = "Below norm"
+        score_note = "Weak. Needs closer review."
     else:
-        verdict = "Between average and bottom"
-        verdict_note = "Not critical, but there is room to improve."
+        score_status = "Below average"
+        score_note = "Not critical, but room to improve."
 
-    c4.markdown(
+    c3.markdown(
         f"""
-        <div class="threshold-card" style="min-height: 120px; padding: 18px 20px;">
-            <div class="threshold-title">{verdict}</div>
-            <div class="threshold-copy">{verdict_note}</div>
+        <div class="tier-card" style="min-height: 112px;">
+            <div class="tier-title">{score_status}</div>
+            <div class="tier-copy">{score_note}</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 else:
-    c4.info("Not enough norm tiers for this parameter.")
-
-st.markdown("</div>", unsafe_allow_html=True)
+    c3.markdown(
+        """
+        <div class="tier-card" style="min-height: 112px;">
+            <div class="tier-title">Limited norm</div>
+            <div class="tier-copy">This parameter does not have enough tiers for a score read.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -1135,7 +1120,7 @@ if "Top 25%" in gap_pivot.columns and "Bottom 25%" in gap_pivot.columns:
 
 st.markdown('<div class="section-title">Key signals</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-subtitle">Short reads for sharper discussion.</div>',
+    '<div class="section-subtitle">Quick cues from the current benchmark.</div>',
     unsafe_allow_html=True,
 )
 
@@ -1143,122 +1128,78 @@ i1, i2, i3 = st.columns(3)
 
 if not best.empty:
     r = best.iloc[0]
-    i1.markdown(
-        f"""
-        <div class="insight-card">
-            <div class="insight-title">Best cue</div>
-            <div class="insight-copy">
-                <span class="pill">{r['norm_grade']}</span><br>
-                <b>{r['parameter_name']}</b> is the strongest reference point on <b>{metric_label}</b>.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    render_signal(
+        i1,
+        "Best cue",
+        str(r["norm_grade"]),
+        f"<b>{r['parameter_name']}</b> is the strongest reference on <b>{metric_label}</b>.",
     )
 
 if not weak.empty:
     r = weak.iloc[0]
-    i2.markdown(
-        f"""
-        <div class="insight-card">
-            <div class="insight-title">Watch-out</div>
-            <div class="insight-copy">
-                <span class="pill">{r['norm_grade']}</span><br>
-                <b>{r['parameter_name']}</b> sits lowest. Review this before calling the concept strong.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    render_signal(
+        i2,
+        "Watch-out",
+        str(r["norm_grade"]),
+        f"<b>{r['parameter_name']}</b> sits lowest. Review before calling the concept strong.",
     )
 
 if not gap_driver.empty:
     r = gap_driver.iloc[0]
-    i3.markdown(
-        f"""
-        <div class="insight-card">
-            <div class="insight-title">Gap driver</div>
-            <div class="insight-copy">
-                <span class="pill">Top vs Bottom</span><br>
-                <b>{r['parameter_name']}</b> separates strong and weak results the most.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-else:
-    i3.markdown(
-        f"""
-        <div class="insight-card">
-            <div class="insight-title">Current cut</div>
-            <div class="insight-copy">
-                <span class="pill">{clean_label(selected_slice)}</span><br>
-                <b>{len(filtered):,}</b> norm rows with minimum base <b>{min_base}</b>.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    render_signal(
+        i3,
+        "Gap driver",
+        "Top vs Bottom",
+        f"<b>{r['parameter_name']}</b> separates strong and weak results the most.",
     )
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
 
 # ============================================================
-# CHART DATA
-# ============================================================
-
-chart_df = (
-    filtered
-    .dropna(subset=[metric_col])
-    .groupby(["parameter_name", "scale", "norm_grade"], observed=False, dropna=False)
-    .agg(
-        mean_score=("mean_score", "mean"),
-        tb_pct=("tb_pct", "mean"),
-        t2b_pct=("t2b_pct", "mean"),
-        t3b_pct=("t3b_pct", "mean"),
-        base=("base", "sum"),
-    )
-    .reset_index()
-)
-
-chart_df = chart_df.sort_values(metric_col, ascending=False).head(top_n * 3)
-
-
-# ============================================================
 # CHARTS
 # ============================================================
 
-left, right = st.columns([1.35, 1])
+st.markdown('<div class="section-title">Benchmark views</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="section-subtitle">Ranking, tier comparison, and spread.</div>',
+    unsafe_allow_html=True,
+)
+
+left, right = st.columns([1.25, 1])
+
+ranking_tier = "Top 25%" if "Top 25%" in filtered["norm_grade"].astype(str).unique() else filtered["norm_grade"].astype(str).iloc[0]
+
+rank_chart = (
+    filtered[filtered["norm_grade"].astype(str) == ranking_tier]
+    .dropna(subset=[metric_col])
+    .groupby(["parameter_name", "scale"], dropna=False)
+    .agg(value=(metric_col, "mean"), base=("base", "sum"))
+    .reset_index()
+    .sort_values("value", ascending=False)
+    .head(top_n)
+)
 
 with left:
-    st.markdown('<div class="section-title">Attribute benchmark ranking</div>', unsafe_allow_html=True)
-    st.markdown(
-        f'<div class="section-subtitle">Top attributes by {metric_label}.</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown('<div class="section-title" style="font-size:1.20rem;">Top benchmark ranking</div>', unsafe_allow_html=True)
 
-    if chart_df.empty:
-        st.info("No chart available for this metric and filter.")
+    if rank_chart.empty:
+        st.info("No ranking available.")
     else:
         fig = px.bar(
-            chart_df,
-            x=metric_col,
+            rank_chart,
+            x="value",
             y="parameter_name",
-            color="norm_grade",
             orientation="h",
-            hover_data=["scale", "base", "mean_score", "tb_pct", "t2b_pct", "t3b_pct"],
-            color_discrete_map={
-                "Top 25%": GOLD,
-                "Average 50%": BLUE,
-                "Bottom 25%": TAUPE,
-            },
+            color_discrete_sequence=[GOLD],
+            hover_data=["scale", "base"],
         )
 
         fig.update_layout(
-            height=540,
+            height=470,
             plot_bgcolor=CREAM,
             paper_bgcolor=CREAM,
-            font=dict(color=NAVY, size=13),
-            legend_title_text="",
+            font=dict(color=NAVY, size=12),
             xaxis_title=metric_label,
             yaxis_title="",
             margin=dict(l=0, r=10, t=10, b=10),
@@ -1266,18 +1207,10 @@ with left:
 
         fig.update_yaxes(autorange="reversed")
 
-        st.plotly_chart(
-            fig,
-            use_container_width=True,
-            config={"displayModeBar": False},
-        )
+        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 with right:
-    st.markdown('<div class="section-title">Norm tier comparison</div>', unsafe_allow_html=True)
-    st.markdown(
-        f'<div class="section-subtitle">Average {metric_label} across norm tiers.</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown('<div class="section-title" style="font-size:1.20rem;">Norm tier comparison</div>', unsafe_allow_html=True)
 
     grade_df = (
         filtered
@@ -1289,7 +1222,7 @@ with right:
     )
 
     if grade_df.empty:
-        st.info("No tier comparison available for this metric.")
+        st.info("No tier comparison available.")
     else:
         fig2 = px.bar(
             grade_df,
@@ -1307,21 +1240,17 @@ with right:
         fig2.update_traces(texttemplate="%{text:.2f}", textposition="outside")
 
         fig2.update_layout(
-            height=540,
+            height=470,
             plot_bgcolor=CREAM,
             paper_bgcolor=CREAM,
-            font=dict(color=NAVY, size=13),
+            font=dict(color=NAVY, size=12),
             showlegend=False,
             xaxis_title="",
             yaxis_title=metric_label,
             margin=dict(l=0, r=10, t=10, b=10),
         )
 
-        st.plotly_chart(
-            fig2,
-            use_container_width=True,
-            config={"displayModeBar": False},
-        )
+        st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False})
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -1330,9 +1259,9 @@ st.markdown("<hr>", unsafe_allow_html=True)
 # GAP ANALYSIS
 # ============================================================
 
-st.markdown('<div class="section-title">What separates strong from weak</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Top–Bottom gap</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-subtitle">Attributes with the widest gap between Top 25% and Bottom 25%.</div>',
+    '<div class="section-subtitle">The attributes that separate strong from weak results.</div>',
     unsafe_allow_html=True,
 )
 
@@ -1352,10 +1281,10 @@ if "Top 25%" in gap_pivot.columns and "Bottom 25%" in gap_pivot.columns:
     )
 
     fig3.update_layout(
-        height=460,
+        height=430,
         plot_bgcolor=CREAM,
         paper_bgcolor=CREAM,
-        font=dict(color=NAVY, size=13),
+        font=dict(color=NAVY, size=12),
         xaxis_title=f"Gap in {metric_label}",
         yaxis_title="",
         coloraxis_showscale=False,
@@ -1364,11 +1293,7 @@ if "Top 25%" in gap_pivot.columns and "Bottom 25%" in gap_pivot.columns:
 
     fig3.update_yaxes(autorange="reversed")
 
-    st.plotly_chart(
-        fig3,
-        use_container_width=True,
-        config={"displayModeBar": False},
-    )
+    st.plotly_chart(fig3, use_container_width=True, config={"displayModeBar": False})
 
 else:
     st.info("Select both Top 25% and Bottom 25% to see the gap view.")
@@ -1377,63 +1302,48 @@ st.markdown("<hr>", unsafe_allow_html=True)
 
 
 # ============================================================
-# SO WHAT
+# READING NOTES
 # ============================================================
 
-st.markdown('<div class="section-title">So what?</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Reading notes</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-subtitle">How to read the benchmark without overclaiming.</div>',
+    '<div class="section-subtitle">Keep the benchmark useful and honest.</div>',
     unsafe_allow_html=True,
 )
 
-s1, s2, s3 = st.columns(3)
+n1, n2, n3 = st.columns(3)
 
-s1.markdown(
-    """
-    <div class="insight-card">
-        <div class="insight-title">Compare within scale</div>
-        <div class="insight-copy">
-            Keep 5-point, 7-point, and 9-point scores separate. Norms are meaningful only within the same scale.
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
+render_signal(
+    n1,
+    "Same scale only",
+    "Method",
+    "Read each score against the same scale. Do not mix 5, 7, and 9-point norms.",
 )
 
-s2.markdown(
-    """
-    <div class="insight-card">
-        <div class="insight-title">Prioritize big gaps</div>
-        <div class="insight-copy">
-            Attributes with wide Top–Bottom gaps are stronger optimization levers than flat attributes.
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
+render_signal(
+    n2,
+    "Use the gap",
+    "Priority",
+    "Wide Top–Bottom gaps point to stronger optimization levers.",
 )
 
-s3.markdown(
-    f"""
-    <div class="insight-card">
-        <div class="insight-title">Respect the base</div>
-        <div class="insight-copy">
-            Current confidence: <b>{conf_label}</b>. Use low-base cuts as signals, not final conclusions.
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
+render_signal(
+    n3,
+    "Check the base",
+    conf_label,
+    f"Current read: <b>{conf_note}</b>. Low-base cuts are directional.",
 )
 
 st.markdown("<hr>", unsafe_allow_html=True)
 
 
 # ============================================================
-# CLEAN TABLE
+# TABLE
 # ============================================================
 
-st.markdown('<div class="section-title">Export-ready norm table</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Norm table</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="section-subtitle">Clean benchmark table for review, reporting, or export.</div>',
+    '<div class="section-subtitle">Clean export table for reporting.</div>',
     unsafe_allow_html=True,
 )
 
@@ -1468,14 +1378,12 @@ segment_cols = [
     "sequence",
 ]
 
-visible_segment_cols = []
-
-for col in segment_cols:
-    if col in filtered.columns and filtered[col].notna().any():
-        visible_segment_cols.append(col)
+visible_segment_cols = [
+    col for col in segment_cols
+    if col in filtered.columns and filtered[col].notna().any()
+]
 
 display_cols = visible_segment_cols + [c for c in base_cols if c in filtered.columns]
-
 table_df = filtered[display_cols].copy()
 
 rename_cols = {
@@ -1521,6 +1429,7 @@ st.dataframe(
     table_df,
     use_container_width=True,
     hide_index=True,
+    height=430,
 )
 
 csv = table_df.to_csv(index=False).encode("utf-8")
@@ -1534,10 +1443,10 @@ st.download_button(
 
 st.markdown(
     """
-    <p class="small-note">
+    <div class="hint">
         Norm groups are calculated from ranked respondent-level scores within each parameter and scale.
-        Dashboard reads are intended for benchmark interpretation, not causal inference.
-    </p>
+        Dashboard reads are for benchmark interpretation, not causal inference.
+    </div>
     """,
     unsafe_allow_html=True,
 )
