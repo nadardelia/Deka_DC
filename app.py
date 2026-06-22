@@ -360,25 +360,35 @@ def coverage_note_for_view(work, df, active_dims):
     return f"{safe_int(len(work))} rows"
 
 
-def html_step(number, title, body):
-    return f"""
-    <div class="method-card">
-        <div class="step-number">{number}</div>
-        <div class="method-title">{title}</div>
-        <div class="method-body">{body}</div>
-    </div>
-    """
-
-
-def html_info_card(title, body, badge=None):
+def render_info_card(title, body, badge=None):
     badge_html = f'<span class="mini-badge">{badge}</span>' if badge else ""
-    return f"""
-    <div class="info-card">
-        <div class="info-title">{title}</div>
-        <div class="info-body">{body}</div>
-        {badge_html}
-    </div>
-    """
+    st.markdown(
+        f"""
+        <div class="info-card">
+            <div class="info-title">{title}</div>
+            <div class="info-body">{body}</div>
+            {badge_html}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_step_card(number, title, body, badge=None):
+    badge_html = f'<span class="mini-badge">{badge}</span>' if badge else ""
+    st.markdown(
+        f"""
+        <div class="step-card">
+            <div class="step-top">
+                <span class="step-number">{number}</span>
+                {badge_html}
+            </div>
+            <div class="step-title">{title}</div>
+            <div class="step-body">{body}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 # ============================================================
@@ -401,6 +411,11 @@ st.markdown(
         --hero2: {THEME["hero_2"]};
         --input-bg: {THEME["input_bg"]};
         --input-text: {THEME["input_text"]};
+        --blue: {THEME["blue"]};
+        --sage: {THEME["sage"]};
+        --terracotta: {THEME["terracotta"]};
+        --plum: {THEME["plum"]};
+        --teal: {THEME["teal"]};
     }}
 
     .stApp {{
@@ -558,8 +573,8 @@ st.markdown(
     }}
 
     .section-title {{
-        font-size: 20px;
-        font-weight: 900;
+        font-size: 21px;
+        font-weight: 950;
         color: var(--ink) !important;
         margin: 20px 0 6px 0;
     }}
@@ -568,6 +583,7 @@ st.markdown(
         color: var(--muted) !important;
         font-size: 13px;
         margin-bottom: 12px;
+        line-height: 1.55;
     }}
 
     .card {{
@@ -662,74 +678,97 @@ st.markdown(
     }}
 
     .overview-hero {{
-        background: var(--card-soft);
+        background:
+            linear-gradient(135deg, rgba(242,184,94,.20), transparent 30%),
+            var(--card-soft);
         border: 1px solid var(--line);
-        border-radius: 24px;
-        padding: 26px 30px;
+        border-radius: 26px;
+        padding: 28px 32px;
         box-shadow: 0 14px 34px rgba(11,16,38,.08);
         margin-bottom: 18px;
+        position: relative;
+        overflow: hidden;
+    }}
+
+    .overview-hero:before {{
+        content: "";
+        position: absolute;
+        right: -80px;
+        top: -80px;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: rgba(242,184,94,.14);
     }}
 
     .overview-title {{
-        font-size: 30px;
+        font-size: 32px;
         font-weight: 950;
         color: var(--ink);
         margin-bottom: 8px;
+        position: relative;
     }}
 
     .overview-sub {{
         color: var(--muted);
         font-size: 14px;
-        line-height: 1.55;
+        line-height: 1.6;
         max-width: 980px;
+        position: relative;
     }}
 
-    .method-grid {{
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
-        margin: 12px 0 18px 0;
-    }}
-
-    .method-card, .info-card {{
+    .step-card, .info-card {{
         background: var(--card-soft);
         border: 1px solid var(--line);
-        border-radius: 18px;
-        padding: 17px 18px;
-        box-shadow: 0 10px 26px rgba(11,16,38,.055);
-        min-height: 160px;
+        border-radius: 20px;
+        padding: 18px 19px;
+        box-shadow: 0 10px 26px rgba(11,16,38,.06);
+        min-height: 185px;
+        border-top: 4px solid var(--gold);
+        margin-bottom: 14px;
+    }}
+
+    .info-card.blue {{ border-top-color: var(--blue); }}
+    .info-card.sage {{ border-top-color: var(--sage); }}
+    .info-card.red {{ border-top-color: var(--terracotta); }}
+    .info-card.plum {{ border-top-color: var(--plum); }}
+    .info-card.teal {{ border-top-color: var(--teal); }}
+
+    .step-top {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
     }}
 
     .step-number {{
         display: inline-flex;
-        width: 30px;
-        height: 30px;
+        width: 34px;
+        height: 34px;
         align-items: center;
         justify-content: center;
         border-radius: 50%;
         background: rgba(242,184,94,.18);
         color: var(--gold);
-        font-weight: 900;
-        margin-bottom: 10px;
+        font-weight: 950;
         font-size: 13px;
     }}
 
-    .method-title, .info-title {{
+    .step-title, .info-title {{
         color: var(--ink);
-        font-size: 15px;
-        font-weight: 900;
-        margin-bottom: 8px;
+        font-size: 16px;
+        font-weight: 950;
+        margin-bottom: 9px;
     }}
 
-    .method-body, .info-body {{
+    .step-body, .info-body {{
         color: var(--muted);
-        font-size: 12.5px;
-        line-height: 1.55;
+        font-size: 12.8px;
+        line-height: 1.58;
     }}
 
     .mini-badge {{
         display: inline-block;
-        margin-top: 12px;
         padding: 5px 9px;
         border-radius: 999px;
         background: rgba(242,184,94,.16);
@@ -739,30 +778,33 @@ st.markdown(
     }}
 
     .flow-box {{
-        background: var(--card-soft);
+        background:
+            linear-gradient(135deg, rgba(242,184,94,.12), transparent 22%),
+            var(--card-soft);
         border: 1px solid var(--line);
-        border-radius: 18px;
-        padding: 18px 20px;
+        border-radius: 20px;
+        padding: 19px 22px;
         margin: 12px 0 18px 0;
         color: var(--muted);
         font-size: 13px;
-        line-height: 1.7;
+        line-height: 1.75;
+        box-shadow: 0 10px 26px rgba(11,16,38,.055);
     }}
 
     .flow-text {{
         color: var(--ink);
-        font-weight: 850;
+        font-weight: 900;
     }}
 
     .mono-box {{
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         background: rgba(127,127,127,.08);
         border: 1px solid var(--line);
-        border-radius: 16px;
-        padding: 16px 18px;
+        border-radius: 18px;
+        padding: 18px 20px;
         color: var(--ink);
-        font-size: 12.5px;
-        line-height: 1.7;
+        font-size: 12.8px;
+        line-height: 1.75;
         overflow-x: auto;
     }}
 
@@ -784,12 +826,6 @@ st.markdown(
     .stButton > button {{
         border-radius: 999px !important;
         font-weight: 850 !important;
-    }}
-
-    @media (max-width: 980px) {{
-        .method-grid {{
-            grid-template-columns: 1fr;
-        }}
     }}
     </style>
     """,
@@ -837,36 +873,13 @@ if df.empty:
 # ============================================================
 
 expected_cols = [
-    "slice_type",
-    "study",
-    "category",
-    "sub_category",
-    "detail_product",
-    "gender",
-    "age_group",
-    "actual_age",
-    "ses",
-    "occupation",
-    "type_of_study",
-    "test_type",
-    "methodology",
-    "sub_method",
-    "num_of_product",
-    "sequence",
-    "parameter_id",
-    "parameter_name",
-    "parameter_key",
-    "parameter_group",
-    "scale",
-    "norm_grade",
-    "mean_score",
-    "tb_pct",
-    "t2b_pct",
-    "t3b_pct",
-    "base",
-    "min_score",
-    "max_score",
-    "std_score",
+    "slice_type", "study", "category", "sub_category", "detail_product",
+    "gender", "age_group", "actual_age", "ses", "occupation",
+    "type_of_study", "test_type", "methodology", "sub_method",
+    "num_of_product", "sequence", "parameter_id", "parameter_name",
+    "parameter_key", "parameter_group", "scale", "norm_grade",
+    "mean_score", "tb_pct", "t2b_pct", "t3b_pct", "base",
+    "min_score", "max_score", "std_score",
 ]
 
 for col in expected_cols:
@@ -874,24 +887,10 @@ for col in expected_cols:
         df[col] = pd.NA
 
 text_cols = [
-    "slice_type",
-    "study",
-    "category",
-    "sub_category",
-    "detail_product",
-    "gender",
-    "age_group",
-    "ses",
-    "occupation",
-    "type_of_study",
-    "test_type",
-    "methodology",
-    "sub_method",
-    "sequence",
-    "parameter_name",
-    "parameter_key",
-    "parameter_group",
-    "norm_grade",
+    "slice_type", "study", "category", "sub_category", "detail_product",
+    "gender", "age_group", "ses", "occupation", "type_of_study",
+    "test_type", "methodology", "sub_method", "sequence",
+    "parameter_name", "parameter_key", "parameter_group", "norm_grade",
 ]
 
 for col in text_cols:
@@ -903,18 +902,9 @@ for col in text_cols:
     )
 
 num_cols = [
-    "actual_age",
-    "num_of_product",
-    "parameter_id",
-    "scale",
-    "mean_score",
-    "tb_pct",
-    "t2b_pct",
-    "t3b_pct",
-    "base",
-    "min_score",
-    "max_score",
-    "std_score",
+    "actual_age", "num_of_product", "parameter_id", "scale",
+    "mean_score", "tb_pct", "t2b_pct", "t3b_pct", "base",
+    "min_score", "max_score", "std_score",
 ]
 
 for col in num_cols:
@@ -961,37 +951,19 @@ with st.sidebar:
     )
 
     preferred = [
-        "Global",
-        "study",
-        "category",
-        "sub_category",
-        "detail_product",
-        "gender",
-        "age_group",
-        "ses",
-        "occupation",
-        "type_of_study",
-        "test_type",
-        "methodology",
-        "sub_method",
-        "sequence",
-        "study | category",
-        "study | gender",
-        "study | age_group",
-        "study | ses",
-        "study | methodology",
-        "category | gender",
-        "category | age_group",
-        "category | ses",
-        "category | methodology",
-        "methodology | test_type",
+        "Global", "study", "category", "sub_category", "detail_product",
+        "gender", "age_group", "ses", "occupation", "type_of_study",
+        "test_type", "methodology", "sub_method", "sequence",
+        "study | category", "study | gender", "study | age_group",
+        "study | ses", "study | methodology",
+        "category | gender", "category | age_group", "category | ses",
+        "category | methodology", "methodology | test_type",
     ]
 
     ordered_slices = [x for x in preferred if x in available_slices]
     ordered_slices += sorted([x for x in available_slices if x not in ordered_slices])
 
     slice_display = {slice_label(x): x for x in ordered_slices}
-
     default_label = "Study / Project" if "study" in available_slices else slice_label(ordered_slices[0])
 
     selected_slice_label = st.selectbox(
@@ -1085,22 +1057,11 @@ with st.sidebar:
     if selected_norms:
         work = work[work["norm_grade"].astype(str).isin(selected_norms)].copy()
 
-    min_base = st.number_input(
-        "Minimum base",
-        min_value=0,
-        value=10,
-        step=10,
-    )
+    min_base = st.number_input("Minimum base", min_value=0, value=10, step=10)
 
     work = work[work["base"].fillna(0) >= min_base].copy()
 
-    top_n = st.slider(
-        "Top parameters",
-        min_value=5,
-        max_value=20,
-        value=10,
-        step=1,
-    )
+    top_n = st.slider("Top parameters", min_value=5, max_value=20, value=10, step=1)
 
     st.markdown("---")
 
@@ -1179,6 +1140,68 @@ if not pd.isna(top_tier_mean) and not pd.isna(bottom_tier_mean):
     tier_gap = top_tier_mean - bottom_tier_mean
 
 
+# Dynamic parameter group summary
+parameter_summary = (
+    df.groupby("parameter_group", dropna=False)
+    .agg(
+        unique_parameters=("parameter_name", "nunique"),
+        norm_rows=("parameter_name", "count"),
+        avg_base=("base", "mean"),
+        avg_mean_score=("mean_score", "mean"),
+    )
+    .reset_index()
+    .sort_values(["unique_parameters", "norm_rows"], ascending=False)
+)
+
+parameter_summary["sample_parameters"] = parameter_summary["parameter_group"].apply(
+    lambda g: ", ".join(
+        df.loc[df["parameter_group"].eq(g), "parameter_name"]
+        .dropna()
+        .drop_duplicates()
+        .astype(str)
+        .head(6)
+        .tolist()
+    )
+)
+
+parameter_summary_table = parameter_summary.rename(
+    columns={
+        "parameter_group": "Parameter Group",
+        "unique_parameters": "Unique Parameters",
+        "norm_rows": "Norm Rows",
+        "avg_base": "Average Base",
+        "avg_mean_score": "Average Mean",
+        "sample_parameters": "Sample Parameters",
+    }
+)
+
+# Parameter reduction proxy:
+# If parameter_key exists, show one standardized key and its final parameter name.
+if "parameter_key" in df.columns:
+    reduction_table = (
+        df.dropna(subset=["parameter_key", "parameter_name"])
+        .groupby(["parameter_key", "parameter_name", "parameter_group"], dropna=False)
+        .agg(
+            norm_rows=("parameter_name", "count"),
+            avg_base=("base", "mean"),
+        )
+        .reset_index()
+        .sort_values("norm_rows", ascending=False)
+        .head(20)
+        .rename(
+            columns={
+                "parameter_key": "Parameter Key",
+                "parameter_name": "Standardized Parameter",
+                "parameter_group": "Parameter Group",
+                "norm_rows": "Norm Rows",
+                "avg_base": "Average Base",
+            }
+        )
+    )
+else:
+    reduction_table = pd.DataFrame()
+
+
 # ============================================================
 # 10. TABS
 # ============================================================
@@ -1196,12 +1219,12 @@ with tab_overview:
     st.markdown(
         """
         <div class="overview-hero">
-            <div class="kicker">SYSTEM OVERVIEW</div>
-            <div class="overview-title">Deka Insight Norm Database Methodology</div>
+            <div class="kicker">METHODOLOGY OVERVIEW</div>
+            <div class="overview-title">How the Norm Database Is Built</div>
             <div class="overview-sub">
-                This page explains how the product-test norm database is constructed, starting from raw Excel sheets,
-                continuing through preprocessing, metadata extraction, parameter standardization, norm-tier formation,
-                descriptive statistical analysis, and dashboard-ready database modeling.
+                This dashboard is not a raw Excel viewer. It is a benchmark system that cleans product-test data,
+                standardizes parameters, groups similar measurement items, calculates descriptive statistics, and
+                stores the results as dashboard-ready analytical tables.
             </div>
         </div>
         """,
@@ -1212,7 +1235,7 @@ with tab_overview:
 
     overview_kpis = [
         ("Norm Rows", safe_int(len(df)), "Aggregated benchmark records"),
-        ("Benchmark Views", safe_int(slice_count), "Available analytical slices"),
+        ("Benchmark Views", safe_int(slice_count), "Available slice types"),
         ("Studies", safe_int(study_count_all), "Study / project sources"),
         ("Parameters", safe_int(df["parameter_name"].dropna().nunique()), "Standardized items"),
         ("Parameter Groups", safe_int(df["parameter_group"].dropna().nunique()), "Analytical groupings"),
@@ -1233,193 +1256,314 @@ with tab_overview:
 
     st.markdown('<div class="section-title">1. Data Processing Pipeline</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="section-sub">The system transforms raw product-test survey data into a normalized and benchmark-ready analytical database.</div>',
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        f"""
-        <div class="method-grid">
-            {html_step("01", "Raw Data Import", "Each Excel sheet represents a study or project. Metadata columns are retained, while product-test parameter columns are prepared for transformation.")}
-            {html_step("02", "Metadata Separation", "Respondent and study-level fields such as study, category, gender, age, SES, methodology, test type, and sequence are separated from scoring variables.")}
-            {html_step("03", "Wide-to-Long Transformation", "Parameter columns are melted into long format so that each row represents one respondent score for one parameter.")}
-            {html_step("04", "Parameter Cleaning", "Parameter names are standardized by removing inconsistent spacing, repeated symbols, scale suffixes, and alternative writing styles.")}
-            {html_step("05", "Parameter Reduction", "Duplicated or semantically similar parameter labels are consolidated into a single canonical parameter name and parameter key.")}
-            {html_step("06", "Parameter Grouping", "Each parameter is assigned to a parameter group such as Taste, Aroma, Appearance, Texture, Liking, Purchase Intent, Aftertaste, or Other Attribute.")}
-            {html_step("07", "Descriptive Statistics", "Mean score, Top Box, Top 2 Boxes, Top 3 Boxes, base size, minimum score, maximum score, and standard deviation are computed.")}
-            {html_step("08", "Norm Tier Formation", "Scores are ranked into Top 25%, Average 50%, and Bottom 25% to create a benchmark tier for each parameter and slice.")}
-            {html_step("09", "Dashboard Aggregation", "Final summary tables are stored in Supabase and queried by Streamlit for fast filtering and visualization.")}
+        """
+        <div class="section-sub">
+        The pipeline converts multi-sheet product-test data into a clean analytical database.
+        Each stage is designed to reduce duplication, preserve metadata, and make benchmark comparison consistent.
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="section-title">2. End-to-End Data Flow</div>', unsafe_allow_html=True)
+    row1 = st.columns(3)
+    with row1[0]:
+        render_step_card(
+            "01",
+            "Import raw study sheets",
+            "Each Excel sheet is treated as one study/project source. The sheet name is stored as the study identifier so benchmark results can still be traced back to their original project.",
+            "Input"
+        )
+    with row1[1]:
+        render_step_card(
+            "02",
+            "Separate metadata from scores",
+            "Respondent and study descriptors such as category, gender, age, SES, methodology, test type, product sequence, and number of products are separated from product-test score columns.",
+            "Metadata"
+        )
+    with row1[2]:
+        render_step_card(
+            "03",
+            "Convert wide data to long data",
+            "The original Excel format stores many parameters as separate columns. These columns are melted so each row represents one respondent, one parameter, and one score.",
+            "Reshape"
+        )
 
+    row2 = st.columns(3)
+    with row2[0]:
+        render_step_card(
+            "04",
+            "Clean parameter labels",
+            "Parameter names are standardized by trimming spaces, harmonizing capitalization, removing scale suffix noise, and reducing inconsistent punctuation or repeated wording.",
+            "Cleaning"
+        )
+    with row2[1]:
+        render_step_card(
+            "05",
+            "Reduce duplicated parameters",
+            "Similar labels are consolidated into a standardized parameter name and parameter key. This prevents the same concept from being counted as multiple different parameters.",
+            "Reduction"
+        )
+    with row2[2]:
+        render_step_card(
+            "06",
+            "Assign parameter group",
+            "Each standardized parameter is mapped into a broader parameter group such as Taste, Aroma, Appearance, Texture, Liking, Purchase Intent, Aftertaste, Amount / Topping, or Other Attribute.",
+            "Grouping"
+        )
+
+    row3 = st.columns(3)
+    with row3[0]:
+        render_step_card(
+            "07",
+            "Calculate descriptive statistics",
+            "The system computes mean score, Top Box, Top 2 Boxes, Top 3 Boxes, base size, minimum score, maximum score, and standard deviation for every parameter and segment.",
+            "Stats"
+        )
+    with row3[1]:
+        render_step_card(
+            "08",
+            "Create norm tiers",
+            "The distribution is summarized into Top 25%, Average 50%, and Bottom 25% tiers. These tiers help interpret whether a result is relatively strong, average, or weak within the norm database.",
+            "Norm"
+        )
+    with row3[2]:
+        render_step_card(
+            "09",
+            "Build dashboard tables",
+            "Final aggregated tables are stored in Supabase and queried by Streamlit. This makes filtering fast across study, category, gender, age group, methodology, and parameter group.",
+            "Deploy"
+        )
+
+    st.markdown('<div class="section-title">2. Data Flow</div>', unsafe_allow_html=True)
     st.markdown(
         """
         <div class="flow-box">
-            <span class="flow-text">Excel Sheets</span>
-            &nbsp;→&nbsp; metadata extraction
-            &nbsp;→&nbsp; wide-to-long transformation
-            &nbsp;→&nbsp; parameter standardization
-            &nbsp;→&nbsp; parameter grouping
-            &nbsp;→&nbsp; descriptive statistics
-            &nbsp;→&nbsp; norm tiering
-            &nbsp;→&nbsp; database tables
-            &nbsp;→&nbsp; Streamlit dashboard
+            <span class="flow-text">Raw Excel sheets</span>
+            → metadata extraction
+            → wide-to-long transformation
+            → parameter cleaning
+            → parameter reduction
+            → parameter grouping
+            → descriptive statistics
+            → norm tiering
+            → Supabase tables
+            → Streamlit dashboard.
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    c1, c2 = st.columns([1, 1])
+    st.markdown('<div class="section-title">3. Metadata Used for Benchmark Slicing</div>', unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="section-sub">
+        Metadata fields are not treated as scoring variables. They are used as slicing dimensions so the same parameter can be compared across study, product category, demographic profile, and test method.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    metadata_df = pd.DataFrame(
+        [
+            ["study", "Study / project identifier", "Used to compare benchmark results across project sources."],
+            ["category", "Benchmark category", "Main product category used for category-level norm comparison."],
+            ["sub_category", "Sub-category", "More specific product class for deeper category segmentation."],
+            ["detail_product", "Product detail", "Detailed product description where available."],
+            ["gender", "Respondent gender", "Demographic segmentation for gender-based comparison."],
+            ["actual_age", "Actual age", "Raw respondent age before grouping."],
+            ["age_group", "Age group", "Grouped age segmentation for easier dashboard filtering."],
+            ["ses", "Socio-economic status", "Consumer profile segmentation."],
+            ["occupation", "Occupation", "Respondent occupation used for profile-based slicing."],
+            ["type_of_study", "Type of study", "Study classification. In this database, the main available value is Product Test."],
+            ["test_type", "Test type", "Product-test setting or evaluation type."],
+            ["methodology", "Methodology", "Testing method used in the study."],
+            ["sub_method", "Sub-method", "More detailed method classification."],
+            ["num_of_product", "# of product", "Number of products evaluated in the test."],
+            ["sequence", "Sequence", "Product test order or serving sequence."],
+        ],
+        columns=["Field", "Meaning", "Role in Dashboard"],
+    )
+
+    st.dataframe(metadata_df, use_container_width=True, hide_index=True, height=420)
+
+    st.markdown('<div class="section-title">4. Parameter Reduction</div>', unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="section-sub">
+        Parameter reduction means standardizing labels, not reducing the data using PCA or factor analysis.
+        The goal is to prevent duplicated wording from fragmenting the norm database.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    c1, c2 = st.columns([1.05, 1])
 
     with c1:
-        st.markdown('<div class="section-title">3. Metadata Structure</div>', unsafe_allow_html=True)
-        st.markdown(
-            '<div class="section-sub">Metadata is used as segmentation variables for slicing benchmark results.</div>',
-            unsafe_allow_html=True,
+        render_info_card(
+            "What gets reduced?",
+            "The reduction step handles repeated concepts written in slightly different forms. For example, differences in capitalization, spacing, punctuation, scale suffixes, and wording variants are converted into a consistent parameter key.",
+            "Label standardization"
         )
-
-        metadata_df = pd.DataFrame(
-            [
-                ["study", "Study / project identifier", "Source sheet or project name"],
-                ["category", "Benchmark category", "Main product category"],
-                ["sub_category", "Sub-category", "More specific product category"],
-                ["detail_product", "Product detail", "Detailed product description"],
-                ["gender", "Respondent gender", "Demographic segmentation"],
-                ["actual_age", "Actual age", "Raw respondent age"],
-                ["age_group", "Age group", "Grouped age segmentation"],
-                ["ses", "Socio-economic status", "Consumer profile segmentation"],
-                ["occupation", "Occupation", "Respondent occupation"],
-                ["type_of_study", "Type of study", "Study classification"],
-                ["test_type", "Test type", "Product-test setting"],
-                ["methodology", "Methodology", "Testing method"],
-                ["sub_method", "Sub-method", "Detailed method classification"],
-                ["num_of_product", "# of product", "Number of tested products"],
-                ["sequence", "Sequence", "Product test order"],
-            ],
-            columns=["Field", "Meaning", "Usage"],
-        )
-
-        st.dataframe(metadata_df, use_container_width=True, hide_index=True, height=420)
 
     with c2:
-        st.markdown('<div class="section-title">4. Parameter Processing</div>', unsafe_allow_html=True)
-        st.markdown(
-            '<div class="section-sub">Parameter standardization prevents fragmented analysis caused by inconsistent label writing.</div>',
-            unsafe_allow_html=True,
+        render_info_card(
+            "Why it matters",
+            "Without reduction, the dashboard may treat similar parameters as separate variables. This would make parameter counts inflated, weaken grouping accuracy, and reduce the reliability of benchmark comparison.",
+            "Consistency"
         )
 
+    if not reduction_table.empty:
         st.markdown(
             """
-            <div class="flow-box">
-                <b>Parameter reduction</b> in this dashboard does not mean dimensionality reduction such as PCA.
-                It refers to cleaning and consolidating duplicated or inconsistent parameter labels into a consistent
-                parameter master. For example, labels with spacing differences, punctuation differences, or repeated
-                scale suffixes are mapped into one standardized parameter name.
-                <br><br>
-                <b>Parameter grouping</b> then assigns each cleaned parameter into an analytical group.
-                This makes the dashboard easier to interpret because users can compare broad groups such as Taste,
-                Aroma, Appearance, Texture, Liking, Purchase Intent, Aftertaste, and Other Attribute.
+            <div class="section-sub">
+            The table below shows standardized parameter keys and their final parameter names. These are the parameter labels used by the dashboard after cleaning and reduction.
             </div>
             """,
             unsafe_allow_html=True,
         )
+        st.dataframe(reduction_table, use_container_width=True, hide_index=True, height=420)
 
-        parameter_summary = (
-            df.groupby("parameter_group", dropna=False)
-            .agg(
-                parameters=("parameter_name", "nunique"),
-                norm_rows=("parameter_name", "count"),
-                avg_base=("base", "mean"),
-            )
-            .reset_index()
-            .sort_values("parameters", ascending=False)
-            .rename(
-                columns={
-                    "parameter_group": "Parameter Group",
-                    "parameters": "Unique Parameters",
-                    "norm_rows": "Norm Rows",
-                    "avg_base": "Average Base",
-                }
-            )
-        )
-
-        st.dataframe(parameter_summary, use_container_width=True, hide_index=True, height=250)
-
-    st.markdown('<div class="section-title">5. Descriptive Statistical Analysis</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">5. Parameter Grouping</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="section-sub">The dashboard uses descriptive and benchmark-based statistics to summarize product-test performance.</div>',
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        f"""
-        <div class="method-grid">
-            {html_info_card("Mean Score", "Average score of a parameter within the selected benchmark slice. This is the primary central tendency indicator for product-test performance.", "Descriptive")}
-            {html_info_card("Base Size", "Number of valid responses included in a parameter-level calculation. Larger base size indicates more stable interpretation.", "Reliability")}
-            {html_info_card("Top Box", "Percentage of respondents giving the maximum score on the scale. For a 7-point scale, Top Box represents score 7.", "Preference strength")}
-            {html_info_card("Top 2 Boxes", "Percentage of respondents giving the two highest scores. For a 7-point scale, this includes scores 6 and 7.", "Positive response")}
-            {html_info_card("Top 3 Boxes", "Percentage of respondents giving the three highest scores. For a 7-point scale, this includes scores 5, 6, and 7.", "Broader positivity")}
-            {html_info_card("Tier Gap", "Difference between Top 25% and Bottom 25% benchmark tier averages. Higher gap indicates stronger parameter discrimination.", "Benchmark spread")}
+        """
+        <div class="section-sub">
+        After reduction, each standardized parameter is assigned to a broader group. This makes the benchmark easier to read:
+        users can inspect both the specific parameter and the wider parameter family.
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="section-title">6. Norm Tier Construction</div>', unsafe_allow_html=True)
+    st.dataframe(
+        parameter_summary_table[
+            [
+                "Parameter Group",
+                "Unique Parameters",
+                "Norm Rows",
+                "Average Base",
+                "Average Mean",
+                "Sample Parameters",
+            ]
+        ],
+        use_container_width=True,
+        hide_index=True,
+        height=420,
+    )
+
+    st.markdown('<div class="section-title">6. Descriptive Statistical Analysis</div>', unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="section-sub">
+        The dashboard uses descriptive and benchmark-based statistics. It is designed to summarize product-test performance and compare it against historical norms, not to test a single causal hypothesis.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    stats_row1 = st.columns(3)
+    with stats_row1[0]:
+        render_info_card(
+            "Mean Score",
+            "Average score for a parameter within the selected benchmark slice. It is the main indicator for central tendency.",
+            "Central tendency"
+        )
+    with stats_row1[1]:
+        render_info_card(
+            "Base Size",
+            "Number of valid observations used in the calculation. Larger base size gives more stable interpretation.",
+            "Reliability"
+        )
+    with stats_row1[2]:
+        render_info_card(
+            "Standard Deviation",
+            "Measures score spread. A higher value indicates more varied respondent evaluation.",
+            "Dispersion"
+        )
+
+    stats_row2 = st.columns(3)
+    with stats_row2[0]:
+        render_info_card(
+            "Top Box",
+            "Percentage of respondents giving the maximum score. On a 7-point scale, this is score 7.",
+            "Strong approval"
+        )
+    with stats_row2[1]:
+        render_info_card(
+            "Top 2 Boxes",
+            "Percentage of respondents giving the two highest scores. On a 7-point scale, this covers scores 6 and 7.",
+            "Positive response"
+        )
+    with stats_row2[2]:
+        render_info_card(
+            "Top 3 Boxes",
+            "Percentage of respondents giving the three highest scores. On a 7-point scale, this covers scores 5, 6, and 7.",
+            "Broad positivity"
+        )
+
+    st.markdown('<div class="section-title">7. Norm Tier and Benchmark Interpretation</div>', unsafe_allow_html=True)
     st.markdown(
         """
         <div class="flow-box">
-            Norm tiering is used to interpret scores relatively within the norm database. For each parameter and analytical slice,
-            score distributions are divided into three benchmark tiers:
-            <br><br>
-            <b>Top 25%</b> represents the stronger benchmark tier, <b>Average 50%</b> represents the middle benchmark range,
-            and <b>Bottom 25%</b> represents the weaker benchmark tier. These labels do not always mean the absolute score is
-            good or bad; instead, they describe the score position relative to other records in the norm database.
+            The norm tier is created by ranking benchmark performance into <span class="flow-text">Top 25%</span>,
+            <span class="flow-text">Average 50%</span>, and <span class="flow-text">Bottom 25%</span>.
+            These labels describe relative position inside the norm database. A Bottom 25% result does not always mean
+            the absolute score is poor; it means the value is in the lower benchmark tier compared with other historical records.
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="section-title">7. Database Normalization and Analytical Tables</div>', unsafe_allow_html=True)
+    tier_cols = st.columns(3)
+    with tier_cols[0]:
+        render_info_card(
+            "Top 25%",
+            "The stronger benchmark tier. Parameters in this tier represent the upper reference level in the database.",
+            "Strong tier"
+        )
+    with tier_cols[1]:
+        render_info_card(
+            "Average 50%",
+            "The middle benchmark range. It represents typical or common performance within the historical norm database.",
+            "Middle tier"
+        )
+    with tier_cols[2]:
+        render_info_card(
+            "Bottom 25%",
+            "The lower benchmark tier. It is useful for identifying weaker areas or parameters needing closer review.",
+            "Weak tier"
+        )
+
+    st.markdown('<div class="section-title">8. Database Normalization</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="section-sub">The database design separates raw responses, parameter master data, and aggregated dashboard-ready norm values.</div>',
+        """
+        <div class="section-sub">
+        The database separates respondent-level facts, parameter master information, and aggregated norm values.
+        This structure reduces duplication and keeps the dashboard query layer efficient.
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 
-    d1, d2, d3 = st.columns(3)
+    db1, db2, db3 = st.columns(3)
 
-    with d1:
-        st.markdown(
-            html_info_card(
-                "fact_response",
-                "Stores respondent-level long-format score data. Each row represents one respondent score for one parameter with its metadata.",
-                "Fact table"
-            ),
-            unsafe_allow_html=True,
+    with db1:
+        render_info_card(
+            "fact_response",
+            "Respondent-level long-format table. Each row stores one respondent score for one parameter together with its metadata.",
+            "Fact table"
         )
-
-    with d2:
-        st.markdown(
-            html_info_card(
-                "dim_parameter",
-                "Stores standardized parameter information such as parameter ID, parameter name, parameter key, parameter group, and scale.",
-                "Dimension table"
-            ),
-            unsafe_allow_html=True,
+    with db2:
+        render_info_card(
+            "dim_parameter",
+            "Parameter master table. It stores parameter ID, parameter key, standardized parameter name, parameter group, and scale.",
+            "Dimension table"
         )
-
-    with d3:
-        st.markdown(
-            html_info_card(
-                "norm_value_all",
-                "Stores aggregated benchmark values across slice types. This table supports fast dashboard queries and dynamic filtering.",
-                "Analytical table"
-            ),
-            unsafe_allow_html=True,
+    with db3:
+        render_info_card(
+            "norm_value_all",
+            "Aggregated analytical table. It stores mean, Top Box, Top 2 Boxes, Top 3 Boxes, base, and norm tier across benchmark slices.",
+            "Dashboard table"
         )
 
     st.markdown(
@@ -1428,30 +1572,64 @@ with tab_overview:
         dim_parameter 1 ─── * fact_response<br>
         dim_parameter 1 ─── * norm_base<br>
         dim_parameter 1 ─── * norm_value_all<br><br>
-        fact_response     = respondent-level score data<br>
-        dim_parameter     = standardized parameter master<br>
-        norm_base         = parameter-level benchmark tier base<br>
-        norm_value_all    = dashboard-ready aggregated norm table
+        fact_response&nbsp;&nbsp;= respondent-level score data<br>
+        dim_parameter&nbsp;&nbsp;= standardized parameter master<br>
+        norm_base&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= parameter-level benchmark tier base<br>
+        norm_value_all&nbsp;= dashboard-ready aggregated norm table
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    st.markdown('<div class="section-title">8. Dashboard Output</div>', unsafe_allow_html=True)
-
+    st.markdown('<div class="section-title">9. Dashboard Output</div>', unsafe_allow_html=True)
     st.markdown(
-        f"""
-        <div class="method-grid">
-            {html_info_card("Benchmark Snapshot", "Provides high-level coverage, number of parameters, base quality, market average, and tier gap for the selected view.", "KPI")}
-            {html_info_card("Key Insights", "Highlights leading parameter, improvement area, leading segment, and lowest segment based on the selected metric.", "Insight")}
-            {html_info_card("Parameter Ranking", "Ranks parameters by selected metric to identify the strongest product-test attributes.", "Ranking")}
-            {html_info_card("Norm Tier Profile", "Compares average performance across Top 25%, Average 50%, and Bottom 25% benchmark tiers.", "Tier")}
-            {html_info_card("Parameter Discrimination", "Shows the difference between upper and lower benchmark tiers to identify parameters that best separate performance levels.", "Gap")}
-            {html_info_card("Norm Table", "Provides detailed filtered records for review and CSV export.", "Export")}
+        """
+        <div class="section-sub">
+        The final dashboard is built to answer practical product-test questions: which parameters perform strongest, which segments differ, and how current results sit against historical benchmarks.
         </div>
         """,
         unsafe_allow_html=True,
     )
+
+    out1 = st.columns(3)
+    with out1[0]:
+        render_info_card(
+            "Benchmark Snapshot",
+            "Shows norm coverage, parameter count, base quality, market average, and tier gap for the selected benchmark view.",
+            "KPI"
+        )
+    with out1[1]:
+        render_info_card(
+            "Key Insights",
+            "Highlights leading parameter, improvement area, leading segment, and lowest segment based on the selected metric.",
+            "Insight"
+        )
+    with out1[2]:
+        render_info_card(
+            "Parameter Ranking",
+            "Ranks parameters by selected metric to identify the strongest product-test performance drivers.",
+            "Ranking"
+        )
+
+    out2 = st.columns(3)
+    with out2[0]:
+        render_info_card(
+            "Norm Tier Profile",
+            "Compares average performance across Top 25%, Average 50%, and Bottom 25% benchmark tiers.",
+            "Tier"
+        )
+    with out2[1]:
+        render_info_card(
+            "Parameter Discrimination",
+            "Shows the gap between top and bottom benchmark tiers to find parameters that separate performance most clearly.",
+            "Gap"
+        )
+    with out2[2]:
+        render_info_card(
+            "Norm Table",
+            "Provides filtered benchmark records for detailed review, validation, and CSV export.",
+            "Export"
+        )
 
 
 # ============================================================
