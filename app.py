@@ -173,12 +173,9 @@ def safe_int(x):
 def clean_value(x):
     if pd.isna(x):
         return "—"
-
     x = str(x).strip()
-
     if x.lower() in ["", "nan", "none", "null", "<na>"]:
         return "—"
-
     return x
 
 
@@ -202,7 +199,6 @@ def get_options(df, col):
 def filter_df(df, col, selected):
     if col not in df.columns or not selected:
         return df
-
     return df[df[col].astype(str).isin(selected)].copy()
 
 
@@ -222,23 +218,18 @@ def metric_suffix(col):
 def confidence(base):
     if pd.isna(base):
         return "No base"
-
     if base >= 500:
         return "Strong base"
-
     if base >= 100:
         return "Reliable base"
-
     if base >= 30:
         return "Directional"
-
     return "Low base"
 
 
 def dims_from_slice(slice_type):
     if slice_type == "Global":
         return []
-
     return [x.strip() for x in str(slice_type).split("|")]
 
 
@@ -279,7 +270,6 @@ def slice_label(slice_type):
         "methodology | test_type": "Methodology × Test Type",
         "type_of_study | methodology": "Type of Study × Methodology",
     }
-
     return mapping.get(slice_type, str(slice_type).replace("_", " ").title())
 
 
@@ -311,14 +301,12 @@ def col_label(col):
         "t3b_pct": "T3B",
         "base": "Base",
     }
-
     return mapping.get(col, col.replace("_", " ").title())
 
 
 def make_unique_columns(columns):
     seen = {}
     new_columns = []
-
     for col in columns:
         if col not in seen:
             seen[col] = 0
@@ -326,7 +314,6 @@ def make_unique_columns(columns):
         else:
             seen[col] += 1
             new_columns.append(f"{col} ({seen[col] + 1})")
-
     return new_columns
 
 
@@ -351,7 +338,6 @@ def apply_plot_theme(fig, show_legend=True):
             title_font=dict(color=COLOR_TEXT),
         ),
     )
-
     return fig
 
 
@@ -372,6 +358,27 @@ def coverage_note_for_view(work, df, active_dims):
             return f"{safe_int(study_count)} studies"
 
     return f"{safe_int(len(work))} rows"
+
+
+def html_step(number, title, body):
+    return f"""
+    <div class="method-card">
+        <div class="step-number">{number}</div>
+        <div class="method-title">{title}</div>
+        <div class="method-body">{body}</div>
+    </div>
+    """
+
+
+def html_info_card(title, body, badge=None):
+    badge_html = f'<span class="mini-badge">{badge}</span>' if badge else ""
+    return f"""
+    <div class="info-card">
+        <div class="info-title">{title}</div>
+        <div class="info-body">{body}</div>
+        {badge_html}
+    </div>
+    """
 
 
 # ============================================================
@@ -654,6 +661,111 @@ st.markdown(
         color: {THEME["terracotta"]} !important;
     }}
 
+    .overview-hero {{
+        background: var(--card-soft);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 26px 30px;
+        box-shadow: 0 14px 34px rgba(11,16,38,.08);
+        margin-bottom: 18px;
+    }}
+
+    .overview-title {{
+        font-size: 30px;
+        font-weight: 950;
+        color: var(--ink);
+        margin-bottom: 8px;
+    }}
+
+    .overview-sub {{
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+        max-width: 980px;
+    }}
+
+    .method-grid {{
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin: 12px 0 18px 0;
+    }}
+
+    .method-card, .info-card {{
+        background: var(--card-soft);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 17px 18px;
+        box-shadow: 0 10px 26px rgba(11,16,38,.055);
+        min-height: 160px;
+    }}
+
+    .step-number {{
+        display: inline-flex;
+        width: 30px;
+        height: 30px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: rgba(242,184,94,.18);
+        color: var(--gold);
+        font-weight: 900;
+        margin-bottom: 10px;
+        font-size: 13px;
+    }}
+
+    .method-title, .info-title {{
+        color: var(--ink);
+        font-size: 15px;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }}
+
+    .method-body, .info-body {{
+        color: var(--muted);
+        font-size: 12.5px;
+        line-height: 1.55;
+    }}
+
+    .mini-badge {{
+        display: inline-block;
+        margin-top: 12px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: rgba(242,184,94,.16);
+        color: var(--gold);
+        font-size: 11px;
+        font-weight: 850;
+    }}
+
+    .flow-box {{
+        background: var(--card-soft);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px 20px;
+        margin: 12px 0 18px 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.7;
+    }}
+
+    .flow-text {{
+        color: var(--ink);
+        font-weight: 850;
+    }}
+
+    .mono-box {{
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        background: rgba(127,127,127,.08);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 16px 18px;
+        color: var(--ink);
+        font-size: 12.5px;
+        line-height: 1.7;
+        overflow-x: auto;
+    }}
+
     div[data-testid="stDataFrame"] {{
         border-radius: 16px;
         overflow: hidden;
@@ -672,6 +784,12 @@ st.markdown(
     .stButton > button {{
         border-radius: 999px !important;
         font-weight: 850 !important;
+    }}
+
+    @media (max-width: 980px) {{
+        .method-grid {{
+            grid-template-columns: 1fr;
+        }}
     }}
     </style>
     """,
@@ -1018,11 +1136,20 @@ if work.empty:
 
 
 # ============================================================
-# 9. KPI SNAPSHOT
+# 9. DERIVED VALUES
 # ============================================================
 
 metric_df = work.dropna(subset=[selected_metric]).copy()
 suffix = metric_suffix(selected_metric)
+
+coverage_note = coverage_note_for_view(work, df, active_dims)
+parameter_count = work["parameter_name"].dropna().nunique()
+parameter_group_count = work["parameter_group"].dropna().nunique()
+slice_count = df["slice_type"].dropna().nunique()
+study_count_all = df.loc[df["slice_type"].astype(str).eq("study"), "study"].dropna().nunique()
+category_count_all = df.loc[df["slice_type"].astype(str).eq("category"), "category"].dropna().nunique()
+median_base = work["base"].median()
+avg_metric = metric_df[selected_metric].mean()
 
 tier_summary_for_kpi = (
     metric_df
@@ -1051,462 +1178,569 @@ if "Bottom 25%" in tier_summary_for_kpi["norm_grade"].astype(str).tolist():
 if not pd.isna(top_tier_mean) and not pd.isna(bottom_tier_mean):
     tier_gap = top_tier_mean - bottom_tier_mean
 
-coverage_note = coverage_note_for_view(work, df, active_dims)
-parameter_count = work["parameter_name"].dropna().nunique()
-median_base = work["base"].median()
-avg_metric = metric_df[selected_metric].mean()
 
-st.markdown('<div class="section-title">Benchmark Snapshot</div>', unsafe_allow_html=True)
+# ============================================================
+# 10. TABS
+# ============================================================
 
-k1, k2, k3, k4, k5 = st.columns(5)
+tab_overview, tab_dashboard, tab_table = st.tabs(
+    ["Overview", "Dashboard", "Norm Table"]
+)
 
-kpis = [
-    ("Norm Coverage", safe_int(len(work)), coverage_note),
-    ("Parameters", safe_int(parameter_count), "Compared items"),
-    ("Base Quality", safe_int(median_base), confidence(median_base)),
-    ("Market Avg", f"{safe_num(avg_metric, 2)}{suffix}", selected_metric_label),
-    ("Tier Gap", f"{safe_num(tier_gap, 2)}{suffix}", "Top vs bottom tier"),
-]
 
-for col, (label, value, note) in zip([k1, k2, k3, k4, k5], kpis):
-    with col:
+# ============================================================
+# 10A. OVERVIEW TAB
+# ============================================================
+
+with tab_overview:
+    st.markdown(
+        """
+        <div class="overview-hero">
+            <div class="kicker">SYSTEM OVERVIEW</div>
+            <div class="overview-title">Deka Insight Norm Database Methodology</div>
+            <div class="overview-sub">
+                This page explains how the product-test norm database is constructed, starting from raw Excel sheets,
+                continuing through preprocessing, metadata extraction, parameter standardization, norm-tier formation,
+                descriptive statistical analysis, and dashboard-ready database modeling.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    o1, o2, o3, o4, o5 = st.columns(5)
+
+    overview_kpis = [
+        ("Norm Rows", safe_int(len(df)), "Aggregated benchmark records"),
+        ("Benchmark Views", safe_int(slice_count), "Available analytical slices"),
+        ("Studies", safe_int(study_count_all), "Study / project sources"),
+        ("Parameters", safe_int(df["parameter_name"].dropna().nunique()), "Standardized items"),
+        ("Parameter Groups", safe_int(df["parameter_group"].dropna().nunique()), "Analytical groupings"),
+    ]
+
+    for col, (label, value, note) in zip([o1, o2, o3, o4, o5], overview_kpis):
+        with col:
+            st.markdown(
+                f"""
+                <div class="card kpi-card">
+                    <div class="metric-label">{label}</div>
+                    <div class="metric-value">{value}</div>
+                    <div class="metric-note">{note}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+    st.markdown('<div class="section-title">1. Data Processing Pipeline</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-sub">The system transforms raw product-test survey data into a normalized and benchmark-ready analytical database.</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f"""
+        <div class="method-grid">
+            {html_step("01", "Raw Data Import", "Each Excel sheet represents a study or project. Metadata columns are retained, while product-test parameter columns are prepared for transformation.")}
+            {html_step("02", "Metadata Separation", "Respondent and study-level fields such as study, category, gender, age, SES, methodology, test type, and sequence are separated from scoring variables.")}
+            {html_step("03", "Wide-to-Long Transformation", "Parameter columns are melted into long format so that each row represents one respondent score for one parameter.")}
+            {html_step("04", "Parameter Cleaning", "Parameter names are standardized by removing inconsistent spacing, repeated symbols, scale suffixes, and alternative writing styles.")}
+            {html_step("05", "Parameter Reduction", "Duplicated or semantically similar parameter labels are consolidated into a single canonical parameter name and parameter key.")}
+            {html_step("06", "Parameter Grouping", "Each parameter is assigned to a parameter group such as Taste, Aroma, Appearance, Texture, Liking, Purchase Intent, Aftertaste, or Other Attribute.")}
+            {html_step("07", "Descriptive Statistics", "Mean score, Top Box, Top 2 Boxes, Top 3 Boxes, base size, minimum score, maximum score, and standard deviation are computed.")}
+            {html_step("08", "Norm Tier Formation", "Scores are ranked into Top 25%, Average 50%, and Bottom 25% to create a benchmark tier for each parameter and slice.")}
+            {html_step("09", "Dashboard Aggregation", "Final summary tables are stored in Supabase and queried by Streamlit for fast filtering and visualization.")}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown('<div class="section-title">2. End-to-End Data Flow</div>', unsafe_allow_html=True)
+
+    st.markdown(
+        """
+        <div class="flow-box">
+            <span class="flow-text">Excel Sheets</span>
+            &nbsp;→&nbsp; metadata extraction
+            &nbsp;→&nbsp; wide-to-long transformation
+            &nbsp;→&nbsp; parameter standardization
+            &nbsp;→&nbsp; parameter grouping
+            &nbsp;→&nbsp; descriptive statistics
+            &nbsp;→&nbsp; norm tiering
+            &nbsp;→&nbsp; database tables
+            &nbsp;→&nbsp; Streamlit dashboard
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    c1, c2 = st.columns([1, 1])
+
+    with c1:
+        st.markdown('<div class="section-title">3. Metadata Structure</div>', unsafe_allow_html=True)
         st.markdown(
-            f"""
-            <div class="card kpi-card">
-                <div class="metric-label">{label}</div>
-                <div class="metric-value">{value}</div>
-                <div class="metric-note">{note}</div>
+            '<div class="section-sub">Metadata is used as segmentation variables for slicing benchmark results.</div>',
+            unsafe_allow_html=True,
+        )
+
+        metadata_df = pd.DataFrame(
+            [
+                ["study", "Study / project identifier", "Source sheet or project name"],
+                ["category", "Benchmark category", "Main product category"],
+                ["sub_category", "Sub-category", "More specific product category"],
+                ["detail_product", "Product detail", "Detailed product description"],
+                ["gender", "Respondent gender", "Demographic segmentation"],
+                ["actual_age", "Actual age", "Raw respondent age"],
+                ["age_group", "Age group", "Grouped age segmentation"],
+                ["ses", "Socio-economic status", "Consumer profile segmentation"],
+                ["occupation", "Occupation", "Respondent occupation"],
+                ["type_of_study", "Type of study", "Study classification"],
+                ["test_type", "Test type", "Product-test setting"],
+                ["methodology", "Methodology", "Testing method"],
+                ["sub_method", "Sub-method", "Detailed method classification"],
+                ["num_of_product", "# of product", "Number of tested products"],
+                ["sequence", "Sequence", "Product test order"],
+            ],
+            columns=["Field", "Meaning", "Usage"],
+        )
+
+        st.dataframe(metadata_df, use_container_width=True, hide_index=True, height=420)
+
+    with c2:
+        st.markdown('<div class="section-title">4. Parameter Processing</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-sub">Parameter standardization prevents fragmented analysis caused by inconsistent label writing.</div>',
+            unsafe_allow_html=True,
+        )
+
+        st.markdown(
+            """
+            <div class="flow-box">
+                <b>Parameter reduction</b> in this dashboard does not mean dimensionality reduction such as PCA.
+                It refers to cleaning and consolidating duplicated or inconsistent parameter labels into a consistent
+                parameter master. For example, labels with spacing differences, punctuation differences, or repeated
+                scale suffixes are mapped into one standardized parameter name.
+                <br><br>
+                <b>Parameter grouping</b> then assigns each cleaned parameter into an analytical group.
+                This makes the dashboard easier to interpret because users can compare broad groups such as Taste,
+                Aroma, Appearance, Texture, Liking, Purchase Intent, Aftertaste, and Other Attribute.
             </div>
             """,
             unsafe_allow_html=True,
         )
 
-
-# ============================================================
-# 10. KEY INSIGHTS
-# ============================================================
-
-st.markdown('<div class="section-title">Key Insights</div>', unsafe_allow_html=True)
-
-if not metric_df.empty:
-    insight_base_threshold = max(min_base, 30)
-
-    insight_df = metric_df[
-        metric_df["base"].fillna(0) >= insight_base_threshold
-    ].copy()
-
-    if insight_df.empty:
-        insight_df = metric_df.copy()
-
-    param_summary = (
-        insight_df
-        .groupby(["parameter_name", "parameter_group"], dropna=False)
-        .agg(
-            value=(selected_metric, "mean"),
-            base=("base", "sum"),
-            mean_score=("mean_score", "mean"),
+        parameter_summary = (
+            df.groupby("parameter_group", dropna=False)
+            .agg(
+                parameters=("parameter_name", "nunique"),
+                norm_rows=("parameter_name", "count"),
+                avg_base=("base", "mean"),
+            )
+            .reset_index()
+            .sort_values("parameters", ascending=False)
+            .rename(
+                columns={
+                    "parameter_group": "Parameter Group",
+                    "parameters": "Unique Parameters",
+                    "norm_rows": "Norm Rows",
+                    "avg_base": "Average Base",
+                }
+            )
         )
-        .reset_index()
+
+        st.dataframe(parameter_summary, use_container_width=True, hide_index=True, height=250)
+
+    st.markdown('<div class="section-title">5. Descriptive Statistical Analysis</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-sub">The dashboard uses descriptive and benchmark-based statistics to summarize product-test performance.</div>',
+        unsafe_allow_html=True,
     )
 
-    best_param = param_summary.sort_values("value", ascending=False).iloc[0]
-    weak_param = param_summary.sort_values("value", ascending=True).iloc[0]
+    st.markdown(
+        f"""
+        <div class="method-grid">
+            {html_info_card("Mean Score", "Average score of a parameter within the selected benchmark slice. This is the primary central tendency indicator for product-test performance.", "Descriptive")}
+            {html_info_card("Base Size", "Number of valid responses included in a parameter-level calculation. Larger base size indicates more stable interpretation.", "Reliability")}
+            {html_info_card("Top Box", "Percentage of respondents giving the maximum score on the scale. For a 7-point scale, Top Box represents score 7.", "Preference strength")}
+            {html_info_card("Top 2 Boxes", "Percentage of respondents giving the two highest scores. For a 7-point scale, this includes scores 6 and 7.", "Positive response")}
+            {html_info_card("Top 3 Boxes", "Percentage of respondents giving the three highest scores. For a 7-point scale, this includes scores 5, 6, and 7.", "Broader positivity")}
+            {html_info_card("Tier Gap", "Difference between Top 25% and Bottom 25% benchmark tier averages. Higher gap indicates stronger parameter discrimination.", "Benchmark spread")}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    segment_label = None
-    best_segment = None
-    weak_segment = None
+    st.markdown('<div class="section-title">6. Norm Tier Construction</div>', unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="flow-box">
+            Norm tiering is used to interpret scores relatively within the norm database. For each parameter and analytical slice,
+            score distributions are divided into three benchmark tiers:
+            <br><br>
+            <b>Top 25%</b> represents the stronger benchmark tier, <b>Average 50%</b> represents the middle benchmark range,
+            and <b>Bottom 25%</b> represents the weaker benchmark tier. These labels do not always mean the absolute score is
+            good or bad; instead, they describe the score position relative to other records in the norm database.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    if active_dims:
-        segment_col = active_dims[0]
+    st.markdown('<div class="section-title">7. Database Normalization and Analytical Tables</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-sub">The database design separates raw responses, parameter master data, and aggregated dashboard-ready norm values.</div>',
+        unsafe_allow_html=True,
+    )
 
-        if segment_col in insight_df.columns and insight_df[segment_col].notna().any():
-            segment_label = col_label(segment_col)
+    d1, d2, d3 = st.columns(3)
 
-            segment_summary = (
-                insight_df
-                .dropna(subset=[segment_col])
-                .groupby(segment_col)
-                .agg(
-                    value=(selected_metric, "mean"),
-                    base=("base", "sum"),
-                    parameters=("parameter_name", "nunique"),
-                )
-                .reset_index()
-                .rename(columns={segment_col: "segment"})
+    with d1:
+        st.markdown(
+            html_info_card(
+                "fact_response",
+                "Stores respondent-level long-format score data. Each row represents one respondent score for one parameter with its metadata.",
+                "Fact table"
+            ),
+            unsafe_allow_html=True,
+        )
+
+    with d2:
+        st.markdown(
+            html_info_card(
+                "dim_parameter",
+                "Stores standardized parameter information such as parameter ID, parameter name, parameter key, parameter group, and scale.",
+                "Dimension table"
+            ),
+            unsafe_allow_html=True,
+        )
+
+    with d3:
+        st.markdown(
+            html_info_card(
+                "norm_value_all",
+                "Stores aggregated benchmark values across slice types. This table supports fast dashboard queries and dynamic filtering.",
+                "Analytical table"
+            ),
+            unsafe_allow_html=True,
+        )
+
+    st.markdown(
+        """
+        <div class="mono-box">
+        dim_parameter 1 ─── * fact_response<br>
+        dim_parameter 1 ─── * norm_base<br>
+        dim_parameter 1 ─── * norm_value_all<br><br>
+        fact_response     = respondent-level score data<br>
+        dim_parameter     = standardized parameter master<br>
+        norm_base         = parameter-level benchmark tier base<br>
+        norm_value_all    = dashboard-ready aggregated norm table
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown('<div class="section-title">8. Dashboard Output</div>', unsafe_allow_html=True)
+
+    st.markdown(
+        f"""
+        <div class="method-grid">
+            {html_info_card("Benchmark Snapshot", "Provides high-level coverage, number of parameters, base quality, market average, and tier gap for the selected view.", "KPI")}
+            {html_info_card("Key Insights", "Highlights leading parameter, improvement area, leading segment, and lowest segment based on the selected metric.", "Insight")}
+            {html_info_card("Parameter Ranking", "Ranks parameters by selected metric to identify the strongest product-test attributes.", "Ranking")}
+            {html_info_card("Norm Tier Profile", "Compares average performance across Top 25%, Average 50%, and Bottom 25% benchmark tiers.", "Tier")}
+            {html_info_card("Parameter Discrimination", "Shows the difference between upper and lower benchmark tiers to identify parameters that best separate performance levels.", "Gap")}
+            {html_info_card("Norm Table", "Provides detailed filtered records for review and CSV export.", "Export")}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+# ============================================================
+# 10B. DASHBOARD TAB
+# ============================================================
+
+with tab_dashboard:
+    st.markdown('<div class="section-title">Benchmark Snapshot</div>', unsafe_allow_html=True)
+
+    k1, k2, k3, k4, k5 = st.columns(5)
+
+    kpis = [
+        ("Norm Coverage", safe_int(len(work)), coverage_note),
+        ("Parameters", safe_int(parameter_count), "Compared items"),
+        ("Base Quality", safe_int(median_base), confidence(median_base)),
+        ("Market Avg", f"{safe_num(avg_metric, 2)}{suffix}", selected_metric_label),
+        ("Tier Gap", f"{safe_num(tier_gap, 2)}{suffix}", "Top vs bottom tier"),
+    ]
+
+    for col, (label, value, note) in zip([k1, k2, k3, k4, k5], kpis):
+        with col:
+            st.markdown(
+                f"""
+                <div class="card kpi-card">
+                    <div class="metric-label">{label}</div>
+                    <div class="metric-value">{value}</div>
+                    <div class="metric-note">{note}</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
             )
 
-            if not segment_summary.empty:
-                best_segment = segment_summary.sort_values("value", ascending=False).iloc[0]
-                weak_segment = segment_summary.sort_values("value", ascending=True).iloc[0]
+    st.markdown('<div class="section-title">Key Insights</div>', unsafe_allow_html=True)
 
-    if best_segment is None:
-        study_df_for_insight = df[df["slice_type"].astype(str).eq("study")].copy()
+    if not metric_df.empty:
+        insight_base_threshold = max(min_base, 30)
 
-        if not study_df_for_insight.empty:
-            study_df_for_insight = study_df_for_insight.dropna(subset=["study", selected_metric])
+        insight_df = metric_df[
+            metric_df["base"].fillna(0) >= insight_base_threshold
+        ].copy()
 
-            if not study_df_for_insight.empty:
-                segment_label = "Study / Project"
+        if insight_df.empty:
+            insight_df = metric_df.copy()
+
+        param_summary = (
+            insight_df
+            .groupby(["parameter_name", "parameter_group"], dropna=False)
+            .agg(
+                value=(selected_metric, "mean"),
+                base=("base", "sum"),
+                mean_score=("mean_score", "mean"),
+            )
+            .reset_index()
+        )
+
+        best_param = param_summary.sort_values("value", ascending=False).iloc[0]
+        weak_param = param_summary.sort_values("value", ascending=True).iloc[0]
+
+        segment_label = None
+        best_segment = None
+        weak_segment = None
+
+        if active_dims:
+            segment_col = active_dims[0]
+
+            if segment_col in insight_df.columns and insight_df[segment_col].notna().any():
+                segment_label = col_label(segment_col)
 
                 segment_summary = (
-                    study_df_for_insight
-                    .groupby("study")
+                    insight_df
+                    .dropna(subset=[segment_col])
+                    .groupby(segment_col)
                     .agg(
                         value=(selected_metric, "mean"),
                         base=("base", "sum"),
                         parameters=("parameter_name", "nunique"),
                     )
                     .reset_index()
-                    .rename(columns={"study": "segment"})
+                    .rename(columns={segment_col: "segment"})
                 )
 
-                best_segment = segment_summary.sort_values("value", ascending=False).iloc[0]
-                weak_segment = segment_summary.sort_values("value", ascending=True).iloc[0]
+                if not segment_summary.empty:
+                    best_segment = segment_summary.sort_values("value", ascending=False).iloc[0]
+                    weak_segment = segment_summary.sort_values("value", ascending=True).iloc[0]
 
-    i1, i2, i3, i4 = st.columns(4)
+        if best_segment is None:
+            study_df_for_insight = df[df["slice_type"].astype(str).eq("study")].copy()
 
-    with i1:
-        st.markdown(
-            f"""
-            <div class="card insight-card">
-                <div>
-                    <div class="insight-title">Leading Parameter</div>
-                    <div class="insight-main">{clean_value(best_param["parameter_name"])}</div>
-                    <div class="insight-sub">
-                        {selected_metric_label}: <b>{safe_num(best_param["value"], 2)}{suffix}</b><br>
-                        Parameter Group: {clean_value(best_param["parameter_group"])}<br>
-                        Base: {safe_int(best_param["base"])}
-                    </div>
-                </div>
-                <span class="badge badge-green">Strength</span>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+            if not study_df_for_insight.empty:
+                study_df_for_insight = study_df_for_insight.dropna(subset=["study", selected_metric])
 
-    with i2:
-        st.markdown(
-            f"""
-            <div class="card insight-card">
-                <div>
-                    <div class="insight-title">Improvement Area</div>
-                    <div class="insight-main">{clean_value(weak_param["parameter_name"])}</div>
-                    <div class="insight-sub">
-                        {selected_metric_label}: <b>{safe_num(weak_param["value"], 2)}{suffix}</b><br>
-                        Parameter Group: {clean_value(weak_param["parameter_group"])}<br>
-                        Base: {safe_int(weak_param["base"])}
-                    </div>
-                </div>
-                <span class="badge badge-red">Watch</span>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+                if not study_df_for_insight.empty:
+                    segment_label = "Study / Project"
 
-    with i3:
-        if best_segment is not None:
+                    segment_summary = (
+                        study_df_for_insight
+                        .groupby("study")
+                        .agg(
+                            value=(selected_metric, "mean"),
+                            base=("base", "sum"),
+                            parameters=("parameter_name", "nunique"),
+                        )
+                        .reset_index()
+                        .rename(columns={"study": "segment"})
+                    )
+
+                    best_segment = segment_summary.sort_values("value", ascending=False).iloc[0]
+                    weak_segment = segment_summary.sort_values("value", ascending=True).iloc[0]
+
+        i1, i2, i3, i4 = st.columns(4)
+
+        with i1:
             st.markdown(
                 f"""
                 <div class="card insight-card">
                     <div>
-                        <div class="insight-title">Leading {segment_label}</div>
-                        <div class="insight-main">{clean_value(best_segment["segment"])}</div>
+                        <div class="insight-title">Leading Parameter</div>
+                        <div class="insight-main">{clean_value(best_param["parameter_name"])}</div>
                         <div class="insight-sub">
-                            {selected_metric_label}: <b>{safe_num(best_segment["value"], 2)}{suffix}</b><br>
-                            Parameters: {safe_int(best_segment["parameters"])}<br>
-                            Base: {safe_int(best_segment["base"])}
+                            {selected_metric_label}: <b>{safe_num(best_param["value"], 2)}{suffix}</b><br>
+                            Parameter Group: {clean_value(best_param["parameter_group"])}<br>
+                            Base: {safe_int(best_param["base"])}
                         </div>
                     </div>
-                    <span class="badge badge-green">Lead</span>
+                    <span class="badge badge-green">Strength</span>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
-    with i4:
-        if weak_segment is not None:
+        with i2:
             st.markdown(
                 f"""
                 <div class="card insight-card">
                     <div>
-                        <div class="insight-title">Lowest {segment_label}</div>
-                        <div class="insight-main">{clean_value(weak_segment["segment"])}</div>
+                        <div class="insight-title">Improvement Area</div>
+                        <div class="insight-main">{clean_value(weak_param["parameter_name"])}</div>
                         <div class="insight-sub">
-                            {selected_metric_label}: <b>{safe_num(weak_segment["value"], 2)}{suffix}</b><br>
-                            Parameters: {safe_int(weak_segment["parameters"])}<br>
-                            Base: {safe_int(weak_segment["base"])}
+                            {selected_metric_label}: <b>{safe_num(weak_param["value"], 2)}{suffix}</b><br>
+                            Parameter Group: {clean_value(weak_param["parameter_group"])}<br>
+                            Base: {safe_int(weak_param["base"])}
                         </div>
                     </div>
-                    <span class="badge badge-gold">Compare</span>
+                    <span class="badge badge-red">Watch</span>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
+        with i3:
+            if best_segment is not None:
+                st.markdown(
+                    f"""
+                    <div class="card insight-card">
+                        <div>
+                            <div class="insight-title">Leading {segment_label}</div>
+                            <div class="insight-main">{clean_value(best_segment["segment"])}</div>
+                            <div class="insight-sub">
+                                {selected_metric_label}: <b>{safe_num(best_segment["value"], 2)}{suffix}</b><br>
+                                Parameters: {safe_int(best_segment["parameters"])}<br>
+                                Base: {safe_int(best_segment["base"])}
+                            </div>
+                        </div>
+                        <span class="badge badge-green">Lead</span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
-# ============================================================
-# 11. MAIN CHARTS
-# ============================================================
+        with i4:
+            if weak_segment is not None:
+                st.markdown(
+                    f"""
+                    <div class="card insight-card">
+                        <div>
+                            <div class="insight-title">Lowest {segment_label}</div>
+                            <div class="insight-main">{clean_value(weak_segment["segment"])}</div>
+                            <div class="insight-sub">
+                                {selected_metric_label}: <b>{safe_num(weak_segment["value"], 2)}{suffix}</b><br>
+                                Parameters: {safe_int(weak_segment["parameters"])}<br>
+                                Base: {safe_int(weak_segment["base"])}
+                            </div>
+                        </div>
+                        <span class="badge badge-gold">Compare</span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
-left, right = st.columns([1.25, 1])
+    left, right = st.columns([1.25, 1])
 
-with left:
-    st.markdown('<div class="section-title">Parameter Ranking</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="section-sub">Highest-performing parameters for the selected benchmark.</div>',
-        unsafe_allow_html=True,
-    )
-
-    rank_df = (
-        metric_df
-        .groupby(["parameter_name", "parameter_group"], dropna=False)
-        .agg(
-            value=(selected_metric, "mean"),
-            base=("base", "sum"),
-        )
-        .reset_index()
-        .sort_values("value", ascending=False)
-        .head(top_n)
-    )
-
-    if not rank_df.empty:
-        fig_rank = px.bar(
-            rank_df.sort_values("value", ascending=True),
-            x="value",
-            y="parameter_name",
-            orientation="h",
-            color="parameter_group",
-            color_discrete_map=BRAND_COLORS,
-            color_discrete_sequence=COLOR_SEQUENCE,
-            hover_data=["base"],
-            labels={
-                "value": selected_metric_label,
-                "parameter_name": "",
-                "parameter_group": "Parameter Group",
-            },
-            height=max(350, top_n * 32),
-        )
-
-        fig_rank.update_traces(
-            marker_line_color=COLOR_CREAM,
-            marker_line_width=0.8,
-            opacity=0.94,
-        )
-
-        apply_plot_theme(fig_rank, show_legend=True)
-
-        st.plotly_chart(
-            fig_rank,
-            use_container_width=True,
-            config=PLOT_CONFIG,
+    with left:
+        st.markdown('<div class="section-title">Parameter Ranking</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-sub">Highest-performing parameters for the selected benchmark.</div>',
+            unsafe_allow_html=True,
         )
 
-
-with right:
-    st.markdown('<div class="section-title">Norm Tier Profile</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="section-sub">Average performance by benchmark tier.</div>',
-        unsafe_allow_html=True,
-    )
-
-    tier_df = (
-        metric_df
-        .dropna(subset=["norm_grade"])
-        .groupby("norm_grade", observed=False)
-        .agg(
-            value=(selected_metric, "mean"),
-            base=("base", "sum"),
-            rows=("parameter_name", "count"),
-        )
-        .reset_index()
-    )
-
-    if not tier_df.empty:
-        tier_df["norm_grade"] = tier_df["norm_grade"].astype(str)
-
-        fig_tier = px.bar(
-            tier_df,
-            x="norm_grade",
-            y="value",
-            color="norm_grade",
-            color_discrete_map=TIER_COLOR_MAP,
-            hover_data=["base", "rows"],
-            labels={
-                "norm_grade": "",
-                "value": selected_metric_label,
-            },
-            height=350,
-        )
-
-        fig_tier.update_traces(
-            marker_line_color=COLOR_CREAM,
-            marker_line_width=0.8,
-            opacity=0.94,
-        )
-
-        fig_tier.update_layout(
-            plot_bgcolor=THEME["plot_bg"],
-            paper_bgcolor=THEME["plot_bg"],
-            margin=dict(l=5, r=5, t=15, b=5),
-            showlegend=False,
-            font=dict(color=COLOR_TEXT),
-            yaxis=dict(
-                gridcolor=COLOR_GRID,
-                zeroline=False,
-                tickfont=dict(color=COLOR_TEXT),
-                title_font=dict(color=COLOR_TEXT),
-            ),
-            xaxis=dict(
-                gridcolor="rgba(0,0,0,0)",
-                zeroline=False,
-                tickfont=dict(color=COLOR_TEXT),
-                title_font=dict(color=COLOR_TEXT),
-            ),
-        )
-
-        st.plotly_chart(
-            fig_tier,
-            use_container_width=True,
-            config=PLOT_CONFIG,
-        )
-
-
-# ============================================================
-# 12. PARAMETER GAP & SEGMENT PERFORMANCE
-# ============================================================
-
-left2, right2 = st.columns([1.2, 1])
-
-with left2:
-    st.markdown('<div class="section-title">Parameter Discrimination</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="section-sub">Gap between top and bottom benchmark tiers by parameter.</div>',
-        unsafe_allow_html=True,
-    )
-
-    gap_df = (
-        metric_df
-        .dropna(subset=["norm_grade"])
-        .pivot_table(
-            index=["parameter_name", "parameter_group"],
-            columns="norm_grade",
-            values=selected_metric,
-            aggfunc="mean",
-        )
-        .reset_index()
-    )
-
-    if {"Top 25%", "Bottom 25%"}.issubset(gap_df.columns):
-        gap_df["gap"] = gap_df["Top 25%"] - gap_df["Bottom 25%"]
-
-        gap_df = (
-            gap_df
-            .dropna(subset=["gap"])
-            .sort_values("gap", ascending=False)
+        rank_df = (
+            metric_df
+            .groupby(["parameter_name", "parameter_group"], dropna=False)
+            .agg(
+                value=(selected_metric, "mean"),
+                base=("base", "sum"),
+            )
+            .reset_index()
+            .sort_values("value", ascending=False)
             .head(top_n)
         )
 
-        if not gap_df.empty:
-            fig_gap = px.bar(
-                gap_df.sort_values("gap", ascending=True),
-                x="gap",
+        if not rank_df.empty:
+            fig_rank = px.bar(
+                rank_df.sort_values("value", ascending=True),
+                x="value",
                 y="parameter_name",
                 orientation="h",
                 color="parameter_group",
                 color_discrete_map=BRAND_COLORS,
                 color_discrete_sequence=COLOR_SEQUENCE,
-                hover_data=["Top 25%", "Bottom 25%"],
+                hover_data=["base"],
                 labels={
-                    "gap": f"Tier Gap ({selected_metric_label})",
+                    "value": selected_metric_label,
                     "parameter_name": "",
                     "parameter_group": "Parameter Group",
                 },
                 height=max(350, top_n * 32),
             )
 
-            fig_gap.update_traces(
+            fig_rank.update_traces(
                 marker_line_color=COLOR_CREAM,
                 marker_line_width=0.8,
                 opacity=0.94,
             )
 
-            apply_plot_theme(fig_gap, show_legend=True)
+            apply_plot_theme(fig_rank, show_legend=True)
 
             st.plotly_chart(
-                fig_gap,
+                fig_rank,
                 use_container_width=True,
                 config=PLOT_CONFIG,
             )
 
+    with right:
+        st.markdown('<div class="section-title">Norm Tier Profile</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-sub">Average performance by benchmark tier.</div>',
+            unsafe_allow_html=True,
+        )
 
-with right2:
-    if active_dims:
-        segment_col = active_dims[0]
-        segment_title = f"{col_label(segment_col)} Performance"
-        segment_subtitle = f"Average benchmark performance by {col_label(segment_col).lower()}."
-
-        segment_perf = (
+        tier_df = (
             metric_df
-            .dropna(subset=[segment_col])
-            .groupby(segment_col)
+            .dropna(subset=["norm_grade"])
+            .groupby("norm_grade", observed=False)
             .agg(
                 value=(selected_metric, "mean"),
                 base=("base", "sum"),
-                parameters=("parameter_name", "nunique"),
+                rows=("parameter_name", "count"),
             )
             .reset_index()
-            .rename(columns={segment_col: "segment"})
-            .sort_values("value", ascending=False)
         )
 
-    else:
-        segment_title = "Study Performance"
-        segment_subtitle = "Average benchmark performance by study/project."
+        if not tier_df.empty:
+            tier_df["norm_grade"] = tier_df["norm_grade"].astype(str)
 
-        study_slice = df[df["slice_type"].astype(str).eq("study")].copy()
-
-        segment_perf = (
-            study_slice
-            .dropna(subset=["study", selected_metric])
-            .groupby("study")
-            .agg(
-                value=(selected_metric, "mean"),
-                base=("base", "sum"),
-                parameters=("parameter_name", "nunique"),
-            )
-            .reset_index()
-            .rename(columns={"study": "segment"})
-            .sort_values("value", ascending=False)
-        )
-
-    st.markdown(f'<div class="section-title">{segment_title}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="section-sub">{segment_subtitle}</div>', unsafe_allow_html=True)
-
-    if not segment_perf.empty:
-        if len(segment_perf) <= 8:
-            fig_segment = px.bar(
-                segment_perf.sort_values("value", ascending=False),
-                x="segment",
+            fig_tier = px.bar(
+                tier_df,
+                x="norm_grade",
                 y="value",
-                hover_data=["base", "parameters"],
+                color="norm_grade",
+                color_discrete_map=TIER_COLOR_MAP,
+                hover_data=["base", "rows"],
                 labels={
-                    "segment": "",
+                    "norm_grade": "",
                     "value": selected_metric_label,
                 },
                 height=350,
             )
 
-            fig_segment.update_traces(
-                marker_color=THEME["blue"],
-                marker_line_color=THEME["gold"],
+            fig_tier.update_traces(
+                marker_line_color=COLOR_CREAM,
                 marker_line_width=0.8,
-                opacity=0.9,
+                opacity=0.94,
             )
 
-            fig_segment.update_layout(
+            fig_tier.update_layout(
                 plot_bgcolor=THEME["plot_bg"],
                 paper_bgcolor=THEME["plot_bg"],
-                margin=dict(l=5, r=5, t=15, b=55),
+                margin=dict(l=5, r=5, t=15, b=5),
+                showlegend=False,
                 font=dict(color=COLOR_TEXT),
                 yaxis=dict(
                     gridcolor=COLOR_GRID,
@@ -1516,114 +1750,267 @@ with right2:
                 ),
                 xaxis=dict(
                     gridcolor="rgba(0,0,0,0)",
-                    tickangle=-25,
                     zeroline=False,
                     tickfont=dict(color=COLOR_TEXT),
                     title_font=dict(color=COLOR_TEXT),
                 ),
+            )
+
+            st.plotly_chart(
+                fig_tier,
+                use_container_width=True,
+                config=PLOT_CONFIG,
+            )
+
+    left2, right2 = st.columns([1.2, 1])
+
+    with left2:
+        st.markdown('<div class="section-title">Parameter Discrimination</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-sub">Gap between top and bottom benchmark tiers by parameter.</div>',
+            unsafe_allow_html=True,
+        )
+
+        gap_df = (
+            metric_df
+            .dropna(subset=["norm_grade"])
+            .pivot_table(
+                index=["parameter_name", "parameter_group"],
+                columns="norm_grade",
+                values=selected_metric,
+                aggfunc="mean",
+            )
+            .reset_index()
+        )
+
+        if {"Top 25%", "Bottom 25%"}.issubset(gap_df.columns):
+            gap_df["gap"] = gap_df["Top 25%"] - gap_df["Bottom 25%"]
+
+            gap_df = (
+                gap_df
+                .dropna(subset=["gap"])
+                .sort_values("gap", ascending=False)
+                .head(top_n)
+            )
+
+            if not gap_df.empty:
+                fig_gap = px.bar(
+                    gap_df.sort_values("gap", ascending=True),
+                    x="gap",
+                    y="parameter_name",
+                    orientation="h",
+                    color="parameter_group",
+                    color_discrete_map=BRAND_COLORS,
+                    color_discrete_sequence=COLOR_SEQUENCE,
+                    hover_data=["Top 25%", "Bottom 25%"],
+                    labels={
+                        "gap": f"Tier Gap ({selected_metric_label})",
+                        "parameter_name": "",
+                        "parameter_group": "Parameter Group",
+                    },
+                    height=max(350, top_n * 32),
+                )
+
+                fig_gap.update_traces(
+                    marker_line_color=COLOR_CREAM,
+                    marker_line_width=0.8,
+                    opacity=0.94,
+                )
+
+                apply_plot_theme(fig_gap, show_legend=True)
+
+                st.plotly_chart(
+                    fig_gap,
+                    use_container_width=True,
+                    config=PLOT_CONFIG,
+                )
+
+    with right2:
+        if active_dims:
+            segment_col = active_dims[0]
+            segment_title = f"{col_label(segment_col)} Performance"
+            segment_subtitle = f"Average benchmark performance by {col_label(segment_col).lower()}."
+
+            segment_perf = (
+                metric_df
+                .dropna(subset=[segment_col])
+                .groupby(segment_col)
+                .agg(
+                    value=(selected_metric, "mean"),
+                    base=("base", "sum"),
+                    parameters=("parameter_name", "nunique"),
+                )
+                .reset_index()
+                .rename(columns={segment_col: "segment"})
+                .sort_values("value", ascending=False)
             )
 
         else:
-            fig_segment = px.scatter(
-                segment_perf,
-                x="base",
-                y="value",
-                size="parameters",
-                hover_name="segment",
-                labels={
-                    "base": "Total Base",
-                    "value": selected_metric_label,
-                    "parameters": "Parameters",
-                },
-                height=350,
-            )
+            segment_title = "Study Performance"
+            segment_subtitle = "Average benchmark performance by study/project."
 
-            fig_segment.update_traces(
-                marker=dict(
-                    color=THEME["blue"],
-                    line=dict(width=1.3, color=THEME["gold"]),
-                    opacity=0.82,
+            study_slice = df[df["slice_type"].astype(str).eq("study")].copy()
+
+            segment_perf = (
+                study_slice
+                .dropna(subset=["study", selected_metric])
+                .groupby("study")
+                .agg(
+                    value=(selected_metric, "mean"),
+                    base=("base", "sum"),
+                    parameters=("parameter_name", "nunique"),
                 )
+                .reset_index()
+                .rename(columns={"study": "segment"})
+                .sort_values("value", ascending=False)
             )
 
-            fig_segment.update_layout(
-                plot_bgcolor=THEME["plot_bg"],
-                paper_bgcolor=THEME["plot_bg"],
-                margin=dict(l=5, r=5, t=15, b=5),
-                font=dict(color=COLOR_TEXT),
-                xaxis=dict(
-                    gridcolor=COLOR_GRID,
-                    zeroline=False,
-                    tickfont=dict(color=COLOR_TEXT),
-                    title_font=dict(color=COLOR_TEXT),
-                ),
-                yaxis=dict(
-                    gridcolor=COLOR_GRID,
-                    zeroline=False,
-                    tickfont=dict(color=COLOR_TEXT),
-                    title_font=dict(color=COLOR_TEXT),
-                ),
-            )
+        st.markdown(f'<div class="section-title">{segment_title}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="section-sub">{segment_subtitle}</div>', unsafe_allow_html=True)
 
-        st.plotly_chart(
-            fig_segment,
-            use_container_width=True,
-            config=PLOT_CONFIG,
-        )
+        if not segment_perf.empty:
+            if len(segment_perf) <= 8:
+                fig_segment = px.bar(
+                    segment_perf.sort_values("value", ascending=False),
+                    x="segment",
+                    y="value",
+                    hover_data=["base", "parameters"],
+                    labels={
+                        "segment": "",
+                        "value": selected_metric_label,
+                    },
+                    height=350,
+                )
+
+                fig_segment.update_traces(
+                    marker_color=THEME["blue"],
+                    marker_line_color=THEME["gold"],
+                    marker_line_width=0.8,
+                    opacity=0.9,
+                )
+
+                fig_segment.update_layout(
+                    plot_bgcolor=THEME["plot_bg"],
+                    paper_bgcolor=THEME["plot_bg"],
+                    margin=dict(l=5, r=5, t=15, b=55),
+                    font=dict(color=COLOR_TEXT),
+                    yaxis=dict(
+                        gridcolor=COLOR_GRID,
+                        zeroline=False,
+                        tickfont=dict(color=COLOR_TEXT),
+                        title_font=dict(color=COLOR_TEXT),
+                    ),
+                    xaxis=dict(
+                        gridcolor="rgba(0,0,0,0)",
+                        tickangle=-25,
+                        zeroline=False,
+                        tickfont=dict(color=COLOR_TEXT),
+                        title_font=dict(color=COLOR_TEXT),
+                    ),
+                )
+
+            else:
+                fig_segment = px.scatter(
+                    segment_perf,
+                    x="base",
+                    y="value",
+                    size="parameters",
+                    hover_name="segment",
+                    labels={
+                        "base": "Total Base",
+                        "value": selected_metric_label,
+                        "parameters": "Parameters",
+                    },
+                    height=350,
+                )
+
+                fig_segment.update_traces(
+                    marker=dict(
+                        color=THEME["blue"],
+                        line=dict(width=1.3, color=THEME["gold"]),
+                        opacity=0.82,
+                    )
+                )
+
+                fig_segment.update_layout(
+                    plot_bgcolor=THEME["plot_bg"],
+                    paper_bgcolor=THEME["plot_bg"],
+                    margin=dict(l=5, r=5, t=15, b=5),
+                    font=dict(color=COLOR_TEXT),
+                    xaxis=dict(
+                        gridcolor=COLOR_GRID,
+                        zeroline=False,
+                        tickfont=dict(color=COLOR_TEXT),
+                        title_font=dict(color=COLOR_TEXT),
+                    ),
+                    yaxis=dict(
+                        gridcolor=COLOR_GRID,
+                        zeroline=False,
+                        tickfont=dict(color=COLOR_TEXT),
+                        title_font=dict(color=COLOR_TEXT),
+                    ),
+                )
+
+            st.plotly_chart(
+                fig_segment,
+                use_container_width=True,
+                config=PLOT_CONFIG,
+            )
 
 
 # ============================================================
-# 13. NORM TABLE
+# 10C. NORM TABLE TAB
 # ============================================================
 
-st.markdown('<div class="section-title">Norm Table</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="section-sub">Filtered benchmark table for export or detailed review.</div>',
-    unsafe_allow_html=True,
-)
+with tab_table:
+    st.markdown('<div class="section-title">Norm Table</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-sub">Filtered benchmark table for export or detailed review.</div>',
+        unsafe_allow_html=True,
+    )
 
-active_segment_cols = active_dims.copy()
+    active_segment_cols = active_dims.copy()
 
-base_cols = [
-    "parameter_name",
-    "parameter_group",
-    "scale",
-    "norm_grade",
-    "mean_score",
-    "tb_pct",
-    "t2b_pct",
-    "t3b_pct",
-    "base",
-]
+    base_cols = [
+        "parameter_name",
+        "parameter_group",
+        "scale",
+        "norm_grade",
+        "mean_score",
+        "tb_pct",
+        "t2b_pct",
+        "t3b_pct",
+        "base",
+    ]
 
-table_cols = [c for c in active_segment_cols + base_cols if c in work.columns]
+    table_cols = [c for c in active_segment_cols + base_cols if c in work.columns]
 
-table = work[table_cols].copy()
+    table = work[table_cols].copy()
 
-for col in table.columns:
-    if not pd.api.types.is_numeric_dtype(table[col]):
-        table[col] = (
-            table[col]
-            .astype("string")
-            .fillna("—")
-            .replace(["nan", "None", "<NA>", "null", "NaT"], "—")
-        )
+    for col in table.columns:
+        if not pd.api.types.is_numeric_dtype(table[col]):
+            table[col] = (
+                table[col]
+                .astype("string")
+                .fillna("—")
+                .replace(["nan", "None", "<NA>", "null", "NaT"], "—")
+            )
 
-table = table.rename(columns=col_label)
-table.columns = make_unique_columns(table.columns)
+    table = table.rename(columns=col_label)
+    table.columns = make_unique_columns(table.columns)
 
-st.dataframe(
-    table.head(300),
-    use_container_width=True,
-    hide_index=True,
-    height=330,
-)
+    st.dataframe(
+        table.head(300),
+        use_container_width=True,
+        hide_index=True,
+        height=430,
+    )
 
-st.caption(f"Showing 300 of {len(table):,} filtered rows.")
+    st.caption(f"Showing 300 of {len(table):,} filtered rows.")
 
-st.download_button(
-    "Download CSV",
-    data=table.to_csv(index=False).encode("utf-8"),
-    file_name="deka_norm_filtered.csv",
-    mime="text/csv",
-)
+    st.download_button(
+        "Download CSV",
+        data=table.to_csv(index=False).encode("utf-8"),
+        file_name="deka_norm_filtered.csv",
+        mime="text/csv",
+    )
