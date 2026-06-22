@@ -129,6 +129,19 @@ BRAND_COLORS = {
     "Other Attribute": THEME["stone"],
 }
 
+COLOR_SEQUENCE = [
+    THEME["gold"],
+    THEME["blue"],
+    THEME["plum"],
+    THEME["navy"],
+    THEME["terracotta"],
+    THEME["teal"],
+    THEME["caramel"],
+    THEME["sage"],
+    THEME["olive"],
+    THEME["stone"],
+]
+
 PLOT_CONFIG = {
     "displayModeBar": False,
     "responsive": True,
@@ -160,9 +173,12 @@ def safe_int(x):
 def clean_value(x):
     if pd.isna(x):
         return "—"
+
     x = str(x).strip()
+
     if x.lower() in ["", "nan", "none", "null", "<na>"]:
         return "—"
+
     return x
 
 
@@ -186,6 +202,7 @@ def get_options(df, col):
 def filter_df(df, col, selected):
     if col not in df.columns or not selected:
         return df
+
     return df[df[col].astype(str).isin(selected)].copy()
 
 
@@ -205,18 +222,23 @@ def metric_suffix(col):
 def confidence(base):
     if pd.isna(base):
         return "No base"
+
     if base >= 500:
         return "Strong base"
+
     if base >= 100:
         return "Reliable base"
+
     if base >= 30:
         return "Directional"
+
     return "Low base"
 
 
 def dims_from_slice(slice_type):
     if slice_type == "Global":
         return []
+
     return [x.strip() for x in str(slice_type).split("|")]
 
 
@@ -257,6 +279,7 @@ def slice_label(slice_type):
         "methodology | test_type": "Methodology × Test Type",
         "type_of_study | methodology": "Type of Study × Methodology",
     }
+
     return mapping.get(slice_type, str(slice_type).replace("_", " ").title())
 
 
@@ -288,6 +311,7 @@ def col_label(col):
         "t3b_pct": "T3B",
         "base": "Base",
     }
+
     return mapping.get(col, col.replace("_", " ").title())
 
 
@@ -327,7 +351,27 @@ def apply_plot_theme(fig, show_legend=True):
             title_font=dict(color=COLOR_TEXT),
         ),
     )
+
     return fig
+
+
+def coverage_note_for_view(work, df, active_dims):
+    if active_dims:
+        primary_dim = active_dims[0]
+        primary_label = col_label(primary_dim)
+        primary_count = work[primary_dim].dropna().nunique() if primary_dim in work.columns else 0
+
+        if primary_count > 0:
+            return f"{safe_int(primary_count)} {primary_label.lower()}"
+
+    study_slice = df[df["slice_type"].astype(str).eq("study")].copy()
+
+    if "study" in study_slice.columns:
+        study_count = study_slice["study"].dropna().nunique()
+        if study_count > 0:
+            return f"{safe_int(study_count)} studies"
+
+    return f"{safe_int(len(work))} rows"
 
 
 # ============================================================
@@ -759,7 +803,12 @@ for col in num_cols:
     df[col] = pd.to_numeric(df[col], errors="coerce")
 
 grade_order = ["Top 25%", "Average 50%", "Bottom 25%"]
-df["norm_grade"] = pd.Categorical(df["norm_grade"], categories=grade_order, ordered=True)
+
+df["norm_grade"] = pd.Categorical(
+    df["norm_grade"],
+    categories=grade_order,
+    ordered=True,
+)
 
 
 # ============================================================
@@ -824,6 +873,7 @@ with st.sidebar:
     ordered_slices += sorted([x for x in available_slices if x not in ordered_slices])
 
     slice_display = {slice_label(x): x for x in ordered_slices}
+
     default_label = "Study / Project" if "study" in available_slices else slice_label(ordered_slices[0])
 
     selected_slice_label = st.selectbox(
@@ -917,10 +967,22 @@ with st.sidebar:
     if selected_norms:
         work = work[work["norm_grade"].astype(str).isin(selected_norms)].copy()
 
-    min_base = st.number_input("Minimum base", min_value=0, value=10, step=10)
+    min_base = st.number_input(
+        "Minimum base",
+        min_value=0,
+        value=10,
+        step=10,
+    )
+
     work = work[work["base"].fillna(0) >= min_base].copy()
 
-    top_n = st.slider("Top parameters", min_value=5, max_value=20, value=10, step=1)
+    top_n = st.slider(
+        "Top parameters",
+        min_value=5,
+        max_value=20,
+        value=10,
+        step=1,
+    )
 
     st.markdown("---")
 
@@ -989,7 +1051,7 @@ if "Bottom 25%" in tier_summary_for_kpi["norm_grade"].astype(str).tolist():
 if not pd.isna(top_tier_mean) and not pd.isna(bottom_tier_mean):
     tier_gap = top_tier_mean - bottom_tier_mean
 
-study_count = work["study"].dropna().nunique()
+coverage_note = coverage_note_for_view(work, df, active_dims)
 parameter_count = work["parameter_name"].dropna().nunique()
 median_base = work["base"].median()
 avg_metric = metric_df[selected_metric].mean()
@@ -999,7 +1061,7 @@ st.markdown('<div class="section-title">Benchmark Snapshot</div>', unsafe_allow_
 k1, k2, k3, k4, k5 = st.columns(5)
 
 kpis = [
-    ("Norm Coverage", safe_int(len(work)), f"{safe_int(study_count)} studies"),
+    ("Norm Coverage", safe_int(len(work)), coverage_note),
     ("Parameters", safe_int(parameter_count), "Compared items"),
     ("Base Quality", safe_int(median_base), confidence(median_base)),
     ("Market Avg", f"{safe_num(avg_metric, 2)}{suffix}", selected_metric_label),
@@ -1028,7 +1090,10 @@ st.markdown('<div class="section-title">Key Insights</div>', unsafe_allow_html=T
 
 if not metric_df.empty:
     insight_base_threshold = max(min_base, 30)
-    insight_df = metric_df[metric_df["base"].fillna(0) >= insight_base_threshold].copy()
+
+    insight_df = metric_df[
+        metric_df["base"].fillna(0) >= insight_base_threshold
+    ].copy()
 
     if insight_df.empty:
         insight_df = metric_df.copy()
@@ -1195,7 +1260,10 @@ with left:
     rank_df = (
         metric_df
         .groupby(["parameter_name", "parameter_group"], dropna=False)
-        .agg(value=(selected_metric, "mean"), base=("base", "sum"))
+        .agg(
+            value=(selected_metric, "mean"),
+            base=("base", "sum"),
+        )
         .reset_index()
         .sort_values("value", ascending=False)
         .head(top_n)
@@ -1209,6 +1277,7 @@ with left:
             orientation="h",
             color="parameter_group",
             color_discrete_map=BRAND_COLORS,
+            color_discrete_sequence=COLOR_SEQUENCE,
             hover_data=["base"],
             labels={
                 "value": selected_metric_label,
@@ -1218,10 +1287,19 @@ with left:
             height=max(350, top_n * 32),
         )
 
-        fig_rank.update_traces(marker_line_color=COLOR_CREAM, marker_line_width=0.8, opacity=0.94)
+        fig_rank.update_traces(
+            marker_line_color=COLOR_CREAM,
+            marker_line_width=0.8,
+            opacity=0.94,
+        )
+
         apply_plot_theme(fig_rank, show_legend=True)
 
-        st.plotly_chart(fig_rank, use_container_width=True, config=PLOT_CONFIG)
+        st.plotly_chart(
+            fig_rank,
+            use_container_width=True,
+            config=PLOT_CONFIG,
+        )
 
 
 with right:
@@ -1235,7 +1313,11 @@ with right:
         metric_df
         .dropna(subset=["norm_grade"])
         .groupby("norm_grade", observed=False)
-        .agg(value=(selected_metric, "mean"), base=("base", "sum"), rows=("parameter_name", "count"))
+        .agg(
+            value=(selected_metric, "mean"),
+            base=("base", "sum"),
+            rows=("parameter_name", "count"),
+        )
         .reset_index()
     )
 
@@ -1249,11 +1331,18 @@ with right:
             color="norm_grade",
             color_discrete_map=TIER_COLOR_MAP,
             hover_data=["base", "rows"],
-            labels={"norm_grade": "", "value": selected_metric_label},
+            labels={
+                "norm_grade": "",
+                "value": selected_metric_label,
+            },
             height=350,
         )
 
-        fig_tier.update_traces(marker_line_color=COLOR_CREAM, marker_line_width=0.8, opacity=0.94)
+        fig_tier.update_traces(
+            marker_line_color=COLOR_CREAM,
+            marker_line_width=0.8,
+            opacity=0.94,
+        )
 
         fig_tier.update_layout(
             plot_bgcolor=THEME["plot_bg"],
@@ -1275,7 +1364,11 @@ with right:
             ),
         )
 
-        st.plotly_chart(fig_tier, use_container_width=True, config=PLOT_CONFIG)
+        st.plotly_chart(
+            fig_tier,
+            use_container_width=True,
+            config=PLOT_CONFIG,
+        )
 
 
 # ============================================================
@@ -1305,7 +1398,13 @@ with left2:
 
     if {"Top 25%", "Bottom 25%"}.issubset(gap_df.columns):
         gap_df["gap"] = gap_df["Top 25%"] - gap_df["Bottom 25%"]
-        gap_df = gap_df.dropna(subset=["gap"]).sort_values("gap", ascending=False).head(top_n)
+
+        gap_df = (
+            gap_df
+            .dropna(subset=["gap"])
+            .sort_values("gap", ascending=False)
+            .head(top_n)
+        )
 
         if not gap_df.empty:
             fig_gap = px.bar(
@@ -1315,6 +1414,7 @@ with left2:
                 orientation="h",
                 color="parameter_group",
                 color_discrete_map=BRAND_COLORS,
+                color_discrete_sequence=COLOR_SEQUENCE,
                 hover_data=["Top 25%", "Bottom 25%"],
                 labels={
                     "gap": f"Tier Gap ({selected_metric_label})",
@@ -1324,10 +1424,19 @@ with left2:
                 height=max(350, top_n * 32),
             )
 
-            fig_gap.update_traces(marker_line_color=COLOR_CREAM, marker_line_width=0.8, opacity=0.94)
+            fig_gap.update_traces(
+                marker_line_color=COLOR_CREAM,
+                marker_line_width=0.8,
+                opacity=0.94,
+            )
+
             apply_plot_theme(fig_gap, show_legend=True)
 
-            st.plotly_chart(fig_gap, use_container_width=True, config=PLOT_CONFIG)
+            st.plotly_chart(
+                fig_gap,
+                use_container_width=True,
+                config=PLOT_CONFIG,
+            )
 
 
 with right2:
@@ -1380,7 +1489,10 @@ with right2:
                 x="segment",
                 y="value",
                 hover_data=["base", "parameters"],
-                labels={"segment": "", "value": selected_metric_label},
+                labels={
+                    "segment": "",
+                    "value": selected_metric_label,
+                },
                 height=350,
             )
 
@@ -1453,7 +1565,11 @@ with right2:
                 ),
             )
 
-        st.plotly_chart(fig_segment, use_container_width=True, config=PLOT_CONFIG)
+        st.plotly_chart(
+            fig_segment,
+            use_container_width=True,
+            config=PLOT_CONFIG,
+        )
 
 
 # ============================================================
@@ -1481,16 +1597,17 @@ base_cols = [
 ]
 
 table_cols = [c for c in active_segment_cols + base_cols if c in work.columns]
+
 table = work[table_cols].copy()
 
 for col in table.columns:
-    if pd.api.types.is_categorical_dtype(table[col]):
-        table[col] = table[col].astype(str)
-
-    elif pd.api.types.is_string_dtype(table[col]) or table[col].dtype == "object":
-        table[col] = table[col].astype(str)
-
-    table[col] = table[col].replace(["nan", "None", "<NA>", "null", "NaT"], "—")
+    if not pd.api.types.is_numeric_dtype(table[col]):
+        table[col] = (
+            table[col]
+            .astype("string")
+            .fillna("—")
+            .replace(["nan", "None", "<NA>", "null", "NaT"], "—")
+        )
 
 table = table.rename(columns=col_label)
 table.columns = make_unique_columns(table.columns)
